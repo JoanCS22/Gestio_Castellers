@@ -19,14 +19,6 @@
   margin-bottom: 20px;
 }
 
-.login-card input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
 .login-card button {
   width: 100%;
   padding: 10px;

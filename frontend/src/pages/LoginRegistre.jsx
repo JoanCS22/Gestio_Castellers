@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./LoginRegistre.css";
+import Input from "../components/Input";
 
 function LoginRegistre() {
   const [isLogin, setIsLogin] = useState(true); // 👈 modo actual
@@ -32,7 +33,7 @@ function LoginRegistre() {
             <h2>{isLogin ? "Iniciar sesió" : "Registrar-se"}</h2>
 
             <form onSubmit={handleSubmit}>
-                <input
+                <Input
                     type="email"
                     placeholder="Correu electrònic"
                     value={email}
@@ -40,7 +41,7 @@ function LoginRegistre() {
                     required
                 />
 
-                <input
+                <Input
                     type="password"
                     placeholder="Contrasenya"
                     value={password}
