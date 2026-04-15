@@ -1,29 +1,35 @@
 import { useState } from "react";
 import "./LoginRegistre.css";
 import Input from "../components/Input";
+import { useNavigate } from "react-router-dom";
 
 function LoginRegistre() {
+  const navigate = useNavigate();
+
   const [isLogin, setIsLogin] = useState(true); // 👈 modo actual
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    let correct = true;
 
     if (isLogin) {
-      // 🔐 LOGIN
         console.log("LOGIN");
         console.log(email, password);
 
         // TODO: Crides al backend
-
     } else {
         console.log("REGISTRE");
         console.log(email, password);
 
         // TODO: Crides al backend
-
     }
+
+    if(correct) {
+        navigate("/dashboard", { replace: true });
+    }
+    //TODO: redirecció al dashboard
   };
 
   return (

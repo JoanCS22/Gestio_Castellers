@@ -1,5 +1,4 @@
-import "./Input.css";
-
+import "./Input.css"; 
 
 function Input({
   type = "text",
@@ -7,7 +6,8 @@ function Input({
   value,
   onChange,
   name,
-  required = false
+  required = false,
+  readonly = false
 }) {
   return (
     <input
@@ -17,6 +17,7 @@ function Input({
       onChange={onChange}
       name={name}
       required={required}
+      readonly={readonly}
       className="custom-input"
     />
   );
