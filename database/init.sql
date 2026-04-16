@@ -8,9 +8,9 @@
 
   CREATE TABLE usuaris (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nom VARCHAR(255) NOT NULL,
+    nom VARCHAR(255),
     cognoms VARCHAR(255),
-    mote VARCHAR(255) NOT NULL,
+    mote VARCHAR(255),
 
     email VARCHAR(255) UNIQUE NOT NULL,
     contrasenya VARCHAR(255) NOT NULL,

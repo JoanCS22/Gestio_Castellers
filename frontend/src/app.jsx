@@ -7,6 +7,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<LoginRegistre />} />
+      <Route path="/register" element={<LoginRegistre />} />
       <Route path="/dashboard" element={<Dashboard />} />
     </Routes>
   );

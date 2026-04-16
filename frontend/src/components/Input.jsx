@@ -7,7 +7,7 @@ function Input({
   onChange,
   name,
   required = false,
-  readonly = false
+  readOnly = false
 }) {
   return (
     <input
@@ -17,7 +17,7 @@ function Input({
       onChange={onChange}
       name={name}
       required={required}
-      readonly={readonly}
+      readOnly={readOnly}
       className="custom-input"
     />
   );
