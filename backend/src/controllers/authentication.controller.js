@@ -1,5 +1,6 @@
 const pool = require('../db');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const validatePassword = (password) => {
     const minLength = password.length >= 8;
@@ -11,15 +12,14 @@ const validatePassword = (password) => {
 };
 
 const register = async (req, res) => {
-
-    if (!validatePassword(contrasenya)) {
-        return res.status(400).json({
-            message: "Contrasenya no segura (mínim 8 caràcters, una lletra, un número i un símbol)"
-        });
-    }
-
     try {
         const { email, contrasenya } = req.body;
+
+        if (!validatePassword(contrasenya)) {
+            return res.status(400).json({
+                message: "Contrasenya no segura (mínim 8 caràcters, una lletra, un número i un símbol)"
+            });
+        }
 
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(contrasenya, saltRounds);
@@ -54,4 +54,44 @@ const register = async (req, res) => {
     }
 };
 
-module.exports = { register };
+const login = async (req, res) => {
+    try {
+        const { email, contrasenya } = req.body;
+
+        const result = await pool.query(
+            'SELECT id, email, contrasenya FROM usuaris WHERE email = $1',
+            [email]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(400).json({ message: 'Usuari no existeix' });
+        }
+
+        const user = result.rows[0];
+
+        const validPassword = await bcrypt.compare(contrasenya, user.contrasenya);
+
+        if (!validPassword) {
+            return res.status(400).json({ message: 'Contrasenya incorrecta' });
+        }
+
+        const token = jwt.sign(
+            { id: user.id, email: user.email },
+            "SECRET_KEY",
+            { expiresIn: "1d" }
+        );
+
+        res.json({
+            token,
+            user: {
+                id: user.id,
+                email: user.email
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Error al login' });
+    }
+};
+
+module.exports = { register, login };
