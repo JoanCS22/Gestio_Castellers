@@ -6,7 +6,7 @@ const validatePassword = (password) => {
     const minLength = password.length >= 8;
     const hasLetter = /[A-Za-z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
-    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>_-]/.test(password);
 
     return minLength && hasLetter && hasNumber && hasSpecial;
 };
