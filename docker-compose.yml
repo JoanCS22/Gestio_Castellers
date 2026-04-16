@@ -21,6 +21,9 @@ services:
       - DB_NAME=castellers
     depends_on:
       - database
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
 
   database:
     image: postgres:15
