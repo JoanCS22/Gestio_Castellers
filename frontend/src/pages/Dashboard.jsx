@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./LoginRegistre.css";
 import Input from "../components/Input";
+import TopMenu from "../components/TopMenu";
 import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
@@ -33,18 +34,11 @@ function Dashboard() {
                     {message.message}
                 </div>
             )}
-            <h1>Estàs al dashboard</h1>
+            <TopMenu>
+                
+            </TopMenu>
             <div>
-                <button onClick={() => {
-                    navigate("/login");
-                }}>ANAR AL LOGIN</button>
-            </div>
-            <div>
-                <button onClick={() => {
-                    navigate("/register");
-                }}>ANAR AL REGISTER</button>
-            </div>
-            <div>
+                <h1>Estàs al dashboard</h1>
                 <button onClick={logoutApp}>
                     Tancar sessió
                 </button>

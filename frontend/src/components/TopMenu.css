@@ -1,0 +1,52 @@
+.topmenu-container {
+    background-color: rgb(190, 190, 190);
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.left-content,
+.center-content,
+.right-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.left-content {
+    justify-content: flex-start;
+}
+
+.center-content {
+    justify-content: center;
+}
+
+.right-content {
+    justify-content: flex-end;
+}
+
+.center-content h1 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.menu-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.user-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+}
