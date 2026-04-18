@@ -85,6 +85,8 @@ function LoginRegistre() {
 
                 if (response.ok) {
                     showTempMessage("Usuari creat correctament.");
+                    setEmail("");
+                    setPassword("");
                     navigate("/login");
                 } else {
                     setError(data.message || "Error desconocido");
