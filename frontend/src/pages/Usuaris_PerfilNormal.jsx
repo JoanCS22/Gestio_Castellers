@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
+import { FaSave, FaTimesCircle, FaPencilAlt } from "react-icons/fa";
+
 import Input from "../components/Input";
 import TopMenu from "../components/TopMenu";
+import Button from "../components/Button";
 
 function NormalProfile() {
     const navigate = useNavigate();
@@ -113,15 +116,21 @@ function NormalProfile() {
                         onChange={''}
                         inputTitle="Informació extra"
                     />
-                    <button type="submit">
-                        Guardar canvis
-                    </button>
-                    <button type="button">
-                        Canviar contrasenya
-                    </button>
-                    <button type="button">
-                        Cancelar
-                    </button>
+                    <Button
+                        text="Guardar canvis"
+                        icon=<FaSave />
+                        action
+                    />
+                    <Button
+                        text="Canviar contrasenya"
+                        icon=<FaPencilAlt />
+                        action
+                    />
+                    <Button
+                        text="Cancelar"
+                        icon=<FaTimesCircle />
+                        action
+                    />
                 </form>
             </div>
         </div>
