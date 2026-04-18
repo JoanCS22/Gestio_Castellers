@@ -1,4 +1,4 @@
-import "./Input.css"; 
+import "./Input.css";
 
 function Input({
   type = "text",
@@ -7,19 +7,25 @@ function Input({
   onChange,
   name,
   required = false,
-  readOnly = false
+  readOnly = false,
+  inputTitle = "títol"
 }) {
   return (
-    <input
-      type={type}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      name={name}
-      required={required}
-      readOnly={readOnly}
-      className="custom-input"
-    />
+    <div>
+      <div>
+        {inputTitle}
+      </div>
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        name={name}
+        required={required}
+        readOnly={readOnly}
+        className="custom-input"
+      />
+    </div>
   );
 }
 

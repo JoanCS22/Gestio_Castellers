@@ -114,6 +114,7 @@ function LoginRegistre() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        inputTitle = "Correu electrònic"
                     />
 
                     <Input
@@ -122,6 +123,7 @@ function LoginRegistre() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        inputTitle = "Contrasenya"
                     />
 
                     <button type="submit">
