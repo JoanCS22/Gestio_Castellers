@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { useNavigate } from "react-router-dom";
-import { FaBars, FaUserCircle } from "react-icons/fa";
+import { useNavigate, useLocation } from "react-router-dom";
+import { FaBars, FaUserCircle, FaArrowLeft } from "react-icons/fa";
 
 import "./TopMenu.css";
 
 
-function TopMenu() {
+function TopMenu({ title = "text", tornar = false }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false)
   const [message, setTempMessage] = useState(null);
@@ -36,23 +36,41 @@ function TopMenu() {
       </div>
 
       <div className='center-content'>
-        <h1>Les meves dades</h1>
+        <h1>{title}</h1>
       </div>
 
-      <div className='right-content'>
-        <div className="user-wrapper" onClick={() => setOpen(!open)}>
-          <FaUserCircle />
-          <span>USUARI</span>
-          {open && (
-            <div className="dropdown">
-              <div className="dropdown-item">Perfil</div>
-              <div className="dropdown-item" onClick={}>Configuració</div>
-              <div className="dropdown-item logout" onClick={logoutApp}>
-                Tancar sessió
+      <div className="right-content">
+        {tornar ? (
+          <div className="user-wrapper" onClick={() => navigate(-1)}>
+            <FaArrowLeft />
+            <span>TORNAR</span>
+          </div>
+        ) : (
+          <div className="user-wrapper" onClick={() => setOpen(!open)}>
+            <FaUserCircle />
+            <span>USUARI</span>
+
+            {open && (
+              <div className="dropdown">
+                <div
+                  className="dropdown-item"
+                  onClick={() => {
+                    setOpen(false);
+                    navigate("/normal_profile");
+                  }}
+                >
+                  Perfil
+                </div>
+
+                <hr className="dropdown-divider" />
+
+                <div className="dropdown-item logout" onClick={logoutApp}>
+                  Tancar sessió
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {message && (

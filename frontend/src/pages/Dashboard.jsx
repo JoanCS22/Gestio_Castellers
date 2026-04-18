@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import Input from "../components/Input";
 import TopMenu from "../components/TopMenu";
 
-import "./LoginRegistre.css";
+import "./Dashboard.css";
 
 function Dashboard() {
     const navigate = useNavigate();
 
     return (
         <div>
-            <TopMenu/>
+            <TopMenu
+                title="Dashboard"
+            />
 
             <div>
-                HOLA
+                DASHBOARD
             </div>
         </div>
     );
