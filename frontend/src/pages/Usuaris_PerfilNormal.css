@@ -1,0 +1,132 @@
+/* CONTENEDOR GENERAL */
+.grid-container {
+    display: grid;
+    grid-template-columns: 250px repeat(3, 1fr);
+    gap: 25px;
+
+    padding: 40px 80px;
+    background-color: #f5f5f5;
+}
+
+/* FOTO PERFIL */
+.grid-one {
+    grid-row: 1 / span 5;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.grid-one img {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ccc;
+}
+
+.change-photo-btn {
+    background: #d6cde8;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+/* INPUTS GENERALES */
+.grid-container input,
+.grid-container textarea {
+    width: 100%;
+    padding: 10px 12px;
+
+    border: 2px solid #444;
+    border-radius: 6px;
+
+    font-size: 14px;
+    outline: none;
+}
+
+/* LABEL estilo */
+.input-title {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+/* INFO EXTRA */
+.grid-fifteen textarea {
+    min-height: 100px;
+}
+
+/* GÉNERO (botones tipo toggle) */
+.gender-container {
+    display: flex;
+    gap: 10px;
+}
+
+.gender-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+    background: #ddd;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.gender-btn.active {
+    background: #6d5ba6;
+    color: white;
+}
+
+/* CHECKBOX LESIONADO */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkbox-container input {
+    width: 18px;
+    height: 18px;
+}
+
+/* BOTONES */
+.flex-buttons {
+    grid-column: 2 / 5;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.flex-buttons button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #d6cde8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+        padding: 20px;
+    }
+
+    .grid-one {
+        grid-row: auto;
+    }
+
+    .flex-buttons {
+        flex-direction: column;
+    }
+}

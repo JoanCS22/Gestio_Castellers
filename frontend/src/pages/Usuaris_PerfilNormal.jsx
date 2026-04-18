@@ -7,8 +7,14 @@ import Input from "../components/Input";
 import TopMenu from "../components/TopMenu";
 import Button from "../components/Button";
 
+import "./Usuaris_PerfilNormal.css";
+
 function NormalProfile() {
     const navigate = useNavigate();
+
+    const [gender, setGender] = useState("M");
+    const [lesionat, setLesionat] = useState(false);
+    const [dataLesio, setDataLesio] = useState("");
 
     return (
         <div>
@@ -16,8 +22,8 @@ function NormalProfile() {
                 title="Les meves dades"
                 tornar
             />
-            <div>
-                <form onSubmit={''}>
+            <div className="grid-container">
+                <div className="grid-one">
                     <Input
                         type="text"
                         placeholder="Foto de perfil"
@@ -25,6 +31,8 @@ function NormalProfile() {
                         onChange={''}
                         inputTitle="ULR foto"
                     />
+                </div>
+                <div className="grid-two">
                     <Input
                         type="text"
                         placeholder="Nom"
@@ -32,6 +40,8 @@ function NormalProfile() {
                         onChange={''}
                         inputTitle="Nom"
                     />
+                </div>
+                <div className="grid-three">
                     <Input
                         type="text"
                         placeholder="Cognoms"
@@ -39,6 +49,8 @@ function NormalProfile() {
                         onChange={''}
                         inputTitle="Cognoms"
                     />
+                </div>
+                <div className="grid-four">
                     <Input
                         type="text"
                         placeholder="Mote"
@@ -46,6 +58,8 @@ function NormalProfile() {
                         onChange={''}
                         inputTitle="Mote"
                     />
+                </div>
+                <div className="grid-five">
                     <Input
                         type="text"
                         placeholder="Telèfon"
@@ -53,6 +67,8 @@ function NormalProfile() {
                         onChange={''}
                         inputTitle="Telèfon"
                     />
+                </div>
+                <div className="grid-six">
                     <Input
                         type="text"
                         placeholder="Correu electrònic"
@@ -60,13 +76,31 @@ function NormalProfile() {
                         onChange={''}
                         inputTitle="Correu electrònic"
                     />
-                    <Input
-                        type="text"
-                        placeholder="Gènere"
-                        value={""}
-                        onChange={''}
-                        inputTitle="Gènere"
-                    />
+                </div>
+                <div className="grid-seven">
+                    <div className="input-title">Gènere</div>
+                    <div className="gender-container">
+                        <button
+                            className={`gender-btn ${gender === "M" ? "active" : ""}`}
+                            onClick={() => setGender("M")}
+                        >
+                            M
+                        </button>
+                        <button
+                            className={`gender-btn ${gender === "F" ? "active" : ""}`}
+                            onClick={() => setGender("F")}
+                        >
+                            F
+                        </button>
+                        <button
+                            className={`gender-btn ${gender === "Altres" ? "active" : ""}`}
+                            onClick={() => setGender("Altres")}
+                        >
+                            Altres
+                        </button>
+                    </div>
+                </div>
+                <div className="grid-eight">
                     <Input
                         type="text"
                         placeholder="Alçada"
@@ -74,6 +108,8 @@ function NormalProfile() {
                         onChange={''}
                         inputTitle="Alçada"
                     />
+                </div>
+                <div className="grid-nine">
                     <Input
                         type="text"
                         placeholder="Alçada espatlles"
@@ -81,6 +117,17 @@ function NormalProfile() {
                         onChange={''}
                         inputTitle="Alçada espatlles"
                     />
+                </div>
+                <div className="grid-ten">
+                    <Input
+                        type="text"
+                        placeholder="Alçada espatlles"
+                        value={""}
+                        onChange={''}
+                        inputTitle="Alçada espatlles"
+                    />
+                </div>
+                <div className="grid-eleven">
                     <Input
                         type="text"
                         placeholder="Envergadura"
@@ -88,6 +135,8 @@ function NormalProfile() {
                         onChange={''}
                         inputTitle="Envergadura"
                     />
+                </div>
+                <div className="grid-twelve">
                     <Input
                         type="text"
                         placeholder="Pes"
@@ -95,13 +144,19 @@ function NormalProfile() {
                         onChange={''}
                         inputTitle="Pes"
                     />
-                    <Input
-                        type="text"
-                        placeholder="Lesionat"
-                        value={""}
-                        onChange={''}
-                        inputTitle="Lesionat"
-                    />
+                </div>
+                <div className="grid-thirteen">
+                    <div className="input-title">Lesionat</div>
+                    <div className="checkbox-container">
+                        <input
+                            type="checkbox"
+                            checked={lesionat}
+                            onChange={(e) => setLesionat(e.target.checked)}
+                        />
+                        <span>Sí</span>
+                    </div>
+                </div>
+                <div className="grid-fourteen">
                     <Input
                         type="text"
                         placeholder="Data lesió"
@@ -109,6 +164,8 @@ function NormalProfile() {
                         onChange={''}
                         inputTitle="Data lesió"
                     />
+                </div>
+                <div className="grid-fifteen">
                     <Input
                         type="text"
                         placeholder="Informació extra"
@@ -116,6 +173,8 @@ function NormalProfile() {
                         onChange={''}
                         inputTitle="Informació extra"
                     />
+                </div>
+                <div className="flex-buttons">
                     <Button
                         text="Guardar canvis"
                         icon=<FaSave />
@@ -124,14 +183,14 @@ function NormalProfile() {
                     <Button
                         text="Canviar contrasenya"
                         icon=<FaPencilAlt />
-                        action
+                        action={() => { navigate("/normal_profile"); alert("Funcionalitat encara no implementada.") }}
                     />
                     <Button
                         text="Cancelar"
                         icon=<FaTimesCircle />
-                        action
+                        action={() => navigate(-1)}
                     />
-                </form>
+                </div>
             </div>
         </div>
     );
