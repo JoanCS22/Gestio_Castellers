@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { FaSave, FaTimesCircle, FaPencilAlt } from "react-icons/fa";
@@ -28,7 +28,11 @@ function NormalProfile() {
 
     const [gender, setGender] = useState("M");
     const [lesionat, setLesionat] = useState(false);
-
+    const [canalla, setCanalla] = useState(false);
+    const [error, setError] = useState("");
+    const [message, setTempMessage] = useState(null);
+    const [foto, setFoto] = useState("/prueba.jpg");
+    
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -38,18 +42,118 @@ function NormalProfile() {
         }));
     };
 
+    const showTempMessage = (message, type = "success") => {
+        setTempMessage({ message, type });
+
+        setTimeout(() => {
+            setTempMessage(null);
+        }, 2000);
+    };
+
+    const comprovaNums = () => {
+        const {
+            telefon,
+            alcada,
+            alcadaEspatlles,
+            envergadura,
+            pes
+        } = form;
+        const fields = [
+            { name: "Telèfon", value: telefon },
+            { name: "Alçada", value: alcada },
+            { name: "Alçada espatlles", value: alcadaEspatlles },
+            { name: "Envergadura", value: envergadura },
+            { name: "Pes", value: pes }
+        ];
+        let nonNumericFields = [];
+        for (let field of fields) {
+            const value = field.value.trim();
+
+            if (value !== "" && (isNaN(value) || Number(value) <= 0)) {
+                nonNumericFields.push(field.name);
+            }
+        }
+        return nonNumericFields;
+    }
+
+    const getData = async () => {
+        e.preventDefault();
+
+        const user = JSON.parse(localStorage.getItem("user"));
+        const token = localStorage.getItem("token");
+
+        const response = await fetch("http://localhost:5000/getUserData", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+
+            setForm(
+                nom = data.nom,
+                cognoms = data.cognoms,
+                mote = data.mote,
+                telefon = data.telefon,
+                email = data.email,
+                alcadaEspatlles = data.altura_espatlles,
+                envergadura = data.envergadura,
+                pes = data.pes,
+                alcada = data.altura_total,
+                dataLesio = data.data_lesio,
+                infoExtra = data.comentari,
+            )
+
+            setLesionat(data.lesionat);
+            setGender(data.genere);
+            setCanalla(data.canalla);
+        } else {
+            setError(data.message);
+        }
+    }
+
+    const updateData = async (e) => {
+        e.preventDefault();
+
+        const errors = comprovaNums();
+
+        if (errors.length > 0) {
+            setError(`Els següents camps han de ser numèrics i positius: ${errors.join(", ")}`);
+            return;
+        }
+
+        showTempMessage("Iniciant sessió...");
+    }
+
+    useEffect(() => {
+        getData();
+    }, []);
+
     return (
         <div>
             <TopMenu title="Les meves dades" tornar />
 
+            {message && (
+                <div className={`message ${message.type}`}>
+                    {message.message}
+                </div>
+            )}
+
             <div className="grid-container">
 
                 <div className="grid-one">
-                    <img src="" alt="perfil" />
+                    <img src={foto} alt="perfil" />
                     <Button
                         text="Modificar foto"
                         icon={<FaPencilAlt />}
-                        action={() => {}}
+                        action={() => {
+                            navigate("/normal_profile");
+                            alert("Funcionalitat encara no implementada.");
+                        }}
                     />
                 </div>
 
@@ -105,11 +209,12 @@ function NormalProfile() {
                         value={form.email}
                         onChange={handleChange}
                         inputTitle="Correu electrònic"
+                        readOnly
                     />
                 </div>
 
                 <div className="grid-seven">
-                    <div className="input-title">Gènere</div>
+                    <div>Gènere</div>
                     <div className="gender-container">
                         <button className={`gender-btn ${gender === "M" ? "active" : ""}`} onClick={() => setGender("M")}>
                             M
@@ -117,7 +222,7 @@ function NormalProfile() {
                         <button className={`gender-btn ${gender === "F" ? "active" : ""}`} onClick={() => setGender("F")}>
                             F
                         </button>
-                        <button className={`gender-btn ${gender === "Altres" ? "active" : ""}`} onClick={() => setGender("Altres")}>
+                        <button className={`gender-btn ${gender === "Altre" ? "active" : ""}`} onClick={() => setGender("Altre")}>
                             Altres
                         </button>
                     </div>
@@ -168,12 +273,34 @@ function NormalProfile() {
                 </div>
 
                 <div className="grid-thirteen">
+                    <div>Canalla</div>
+                    <div className="checkbox-container">
+                        <input
+                            type="checkbox"
+                            checked={canalla}
+                            onChange={
+                                (e) => setCanalla(e.target.checked)
+                            }
+                        />
+                    </div>
                     <div>Lesionat</div>
                     <div className="checkbox-container">
                         <input
                             type="checkbox"
                             checked={lesionat}
-                            onChange={(e) => setLesionat(e.target.checked)}
+                            onChange={
+                                (e) => {
+                                    const checked = e.target.checked;
+                                    setLesionat(checked);
+
+                                    if (!checked) {
+                                        setForm((prev) => ({
+                                            ...prev,
+                                            dataLesio: ""
+                                        }));
+                                    }
+                                }
+                            }
                         />
                     </div>
                 </div>
@@ -198,12 +325,19 @@ function NormalProfile() {
                         onChange={handleChange}
                     />
                 </div>
-
+                {error && (
+                    <div className="error-message">
+                        {error}
+                    </div>
+                )}
                 <div className="flex-buttons">
                     <Button
                         text="Guardar canvis"
                         icon={<FaSave />}
-                        action={() => console.log(form)}
+                        action={() => {
+                            navigate("/normal_profile");
+                            alert("Funcionalitat encara no implementada.");
+                        }}
                     />
 
                     <Button
@@ -218,7 +352,7 @@ function NormalProfile() {
                     <Button
                         text="Cancelar"
                         icon={<FaTimesCircle />}
-                        action={() => navigate(-1)}
+                        action={() => navigate("/dashboard")}
                     />
                 </div>
 

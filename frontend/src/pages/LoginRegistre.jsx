@@ -24,6 +24,11 @@ function LoginRegistre() {
         return minLength && hasLetter && hasNumber && hasSpecial;
     };
 
+    const validateEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
+
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
 
@@ -65,6 +70,9 @@ function LoginRegistre() {
         } else {
             if (!validatePassword(password)) {
                 setError("La contrasenya ha de tenir mínim 8 caràcters, una lletra, un número i un símbol");
+                return;
+            } else if (!validateEmail(email)) {
+                setError("El correu electrònic no té un format vàlid");
                 return;
             }
 
@@ -114,7 +122,7 @@ function LoginRegistre() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        inputTitle = "Correu electrònic"
+                        inputTitle="Correu electrònic"
                     />
 
                     <Input
@@ -123,7 +131,7 @@ function LoginRegistre() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        inputTitle = "Contrasenya"
+                        inputTitle="Contrasenya"
                     />
 
                     <button type="submit">

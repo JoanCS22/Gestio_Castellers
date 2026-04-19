@@ -1,8 +1,7 @@
   DROP TYPE IF EXISTS genere_enum CASCADE;
-  CREATE TYPE genere_enum AS ENUM (
-    'masculi',
-    'femeni',
-    'no_binari',
+  CREATE TYPE genere_enum_new AS ENUM (
+    'M',
+    'F',
     'altre'
   );
 
@@ -27,7 +26,7 @@
     data_lesio TIMESTAMPTZ,
 
     canalla BOOLEAN DEFAULT FALSE,
-    genere genere_enum,
+    genere genere_enum_new,
 
     comentari TEXT,
 
