@@ -1,132 +1,131 @@
-/* CONTENEDOR GENERAL */
 .grid-container {
     display: grid;
-    grid-template-columns: 250px repeat(3, 1fr);
-    gap: 25px;
+    grid-template-columns: 220px repeat(3, 1fr);
 
-    padding: 40px 80px;
-    background-color: #f5f5f5;
+    column-gap: 40px; /* separación horizontal */
+    row-gap: 25px;
+
+    padding: 40px 70px;
+    background-color: #eeeeee;
 }
 
-/* FOTO PERFIL */
 .grid-one {
-    grid-row: 1 / span 5;
+    grid-column: 1;
+    grid-row: 1 / 3;
 
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
 }
 
 .grid-one img {
-    width: 180px;
-    height: 180px;
+    width: 160px;
+    height: 160px;
     border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #ccc;
+    border: 1px solid black;
 }
 
-.change-photo-btn {
-    background: #d6cde8;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-}
+/* FILA 1 */
+.grid-two { grid-column: 2; grid-row: 1; }
+.grid-three { grid-column: 3; grid-row: 1; }
+.grid-four { grid-column: 4; grid-row: 1; }
 
-/* INPUTS GENERALES */
-.grid-container input,
-.grid-container textarea {
-    width: 100%;
-    padding: 10px 12px;
+/* FILA 2 */
+.grid-five { grid-column: 2; grid-row: 2; }
+.grid-six { grid-column: 3; grid-row: 2; }
+.grid-seven { grid-column: 4; grid-row: 2; }
 
-    border: 2px solid #444;
-    border-radius: 6px;
+/* FILA 3 */
+.grid-eight { grid-column: 1; grid-row: 3; }
+.grid-nine { grid-column: 2; grid-row: 3; }
+.grid-ten { grid-column: 3; grid-row: 3; }
+.grid-eleven { grid-column: 4; grid-row: 3; }
 
-    font-size: 14px;
-    outline: none;
-}
+/* FILA 4 */
+.grid-thirteen { grid-column: 1; grid-row: 4; }
+.grid-fourteen { grid-column: 2; grid-row: 4; }
+.grid-fifteen { grid-column: 3 / 5; grid-row: 4; }
 
-/* LABEL estilo */
-.input-title {
-    font-size: 12px;
-    font-weight: 600;
-    margin-bottom: 5px;
-}
-
-/* INFO EXTRA */
-.grid-fifteen textarea {
-    min-height: 100px;
-}
-
-/* GÉNERO (botones tipo toggle) */
-.gender-container {
-    display: flex;
-    gap: 10px;
-}
-
-.gender-btn {
-    flex: 1;
-    padding: 10px;
-    border-radius: 20px;
-    border: none;
-    background: #ddd;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.gender-btn.active {
-    background: #6d5ba6;
-    color: white;
-}
-
-/* CHECKBOX LESIONADO */
-.checkbox-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.checkbox-container input {
-    width: 18px;
-    height: 18px;
-}
-
-/* BOTONES */
 .flex-buttons {
-    grid-column: 2 / 5;
+    grid-column: 1 / 5;
+    grid-row: 5;
 
     display: flex;
-    justify-content: space-between;
-    gap: 20px;
+    justify-content: center;
+    gap: 100px;
     margin-top: 30px;
 }
 
-.flex-buttons button {
-    flex: 1;
-    padding: 12px;
-    border-radius: 8px;
+.input-title {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.custom-input {
+    width: 100%;
+    max-width: 220px;
+}
+
+.grid-three .custom-input,
+.grid-six .custom-input {
+    max-width: 90%;
+    margin: 0 auto;
+}
+
+.grid-fifteen .custom-input {
+    max-width: 90%;
+    margin: 0 auto;
+}
+
+.grid-two,
+.grid-five,
+.grid-nine,
+.grid-fourteen {
+    margin-left: 20px;
+}
+
+.gender-container {
+    display: flex;
+    gap: 6px;
+}
+
+.gender-btn {   
+    padding: 6px 30px;
+    border-radius: 10px;
     border: none;
-    background: #d6cde8;
+    background: #e7ddff;
     cursor: pointer;
+}
+
+.gender-btn.active {
+    background: #5c5470;
+    color: white;
+}
+
+.grid-thirteen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.checkbox-container {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
 }
 
-/* RESPONSIVE */
 @media (max-width: 900px) {
     .grid-container {
         grid-template-columns: 1fr;
         padding: 20px;
     }
 
-    .grid-one {
-        grid-row: auto;
-    }
-
     .flex-buttons {
         flex-direction: column;
+        gap: 15px;
     }
 }

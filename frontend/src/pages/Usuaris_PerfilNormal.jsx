@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { FaSave, FaTimesCircle, FaPencilAlt } from "react-icons/fa";
 
@@ -12,188 +12,219 @@ import "./Usuaris_PerfilNormal.css";
 function NormalProfile() {
     const navigate = useNavigate();
 
+    const [form, setForm] = useState({
+        nom: "",
+        cognoms: "",
+        mote: "",
+        telefon: "",
+        email: "",
+        alcadaEspatlles: "",
+        envergadura: "",
+        pes: "",
+        alcada: "",
+        dataLesio: "",
+        infoExtra: ""
+    });
+
     const [gender, setGender] = useState("M");
     const [lesionat, setLesionat] = useState(false);
-    const [dataLesio, setDataLesio] = useState("");
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setForm((prev) => ({
+            ...prev,
+            [name]: value
+        }));
+    };
 
     return (
         <div>
-            <TopMenu
-                title="Les meves dades"
-                tornar
-            />
+            <TopMenu title="Les meves dades" tornar />
+
             <div className="grid-container">
+
                 <div className="grid-one">
-                    <Input
-                        type="text"
-                        placeholder="Foto de perfil"
-                        value={""}
-                        onChange={''}
-                        inputTitle="ULR foto"
+                    <img src="" alt="perfil" />
+                    <Button
+                        text="Modificar foto"
+                        icon={<FaPencilAlt />}
+                        action={() => {}}
                     />
                 </div>
+
                 <div className="grid-two">
                     <Input
+                        name="nom"
                         type="text"
                         placeholder="Nom"
-                        value={""}
-                        onChange={''}
+                        value={form.nom}
+                        onChange={handleChange}
                         inputTitle="Nom"
                     />
                 </div>
+
                 <div className="grid-three">
                     <Input
+                        name="cognoms"
                         type="text"
                         placeholder="Cognoms"
-                        value={""}
-                        onChange={''}
+                        value={form.cognoms}
+                        onChange={handleChange}
                         inputTitle="Cognoms"
                     />
                 </div>
+
                 <div className="grid-four">
                     <Input
+                        name="mote"
                         type="text"
                         placeholder="Mote"
-                        value={""}
-                        onChange={''}
+                        value={form.mote}
+                        onChange={handleChange}
                         inputTitle="Mote"
                     />
                 </div>
+
                 <div className="grid-five">
                     <Input
+                        name="telefon"
                         type="text"
                         placeholder="Telèfon"
-                        value={""}
-                        onChange={''}
+                        value={form.telefon}
+                        onChange={handleChange}
                         inputTitle="Telèfon"
                     />
                 </div>
+
                 <div className="grid-six">
                     <Input
+                        name="email"
                         type="text"
                         placeholder="Correu electrònic"
-                        value={""}
-                        onChange={''}
+                        value={form.email}
+                        onChange={handleChange}
                         inputTitle="Correu electrònic"
                     />
                 </div>
+
                 <div className="grid-seven">
                     <div className="input-title">Gènere</div>
                     <div className="gender-container">
-                        <button
-                            className={`gender-btn ${gender === "M" ? "active" : ""}`}
-                            onClick={() => setGender("M")}
-                        >
+                        <button className={`gender-btn ${gender === "M" ? "active" : ""}`} onClick={() => setGender("M")}>
                             M
                         </button>
-                        <button
-                            className={`gender-btn ${gender === "F" ? "active" : ""}`}
-                            onClick={() => setGender("F")}
-                        >
+                        <button className={`gender-btn ${gender === "F" ? "active" : ""}`} onClick={() => setGender("F")}>
                             F
                         </button>
-                        <button
-                            className={`gender-btn ${gender === "Altres" ? "active" : ""}`}
-                            onClick={() => setGender("Altres")}
-                        >
+                        <button className={`gender-btn ${gender === "Altres" ? "active" : ""}`} onClick={() => setGender("Altres")}>
                             Altres
                         </button>
                     </div>
                 </div>
+
                 <div className="grid-eight">
                     <Input
+                        name="alcada"
                         type="text"
                         placeholder="Alçada"
-                        value={""}
-                        onChange={''}
-                        inputTitle="Alçada"
+                        value={form.alcada}
+                        onChange={handleChange}
+                        inputTitle="Alçada (cm)"
                     />
                 </div>
+
                 <div className="grid-nine">
                     <Input
+                        name="alcadaEspatlles"
                         type="text"
                         placeholder="Alçada espatlles"
-                        value={""}
-                        onChange={''}
-                        inputTitle="Alçada espatlles"
+                        value={form.alcadaEspatlles}
+                        onChange={handleChange}
+                        inputTitle="Alçada espatlles (cm)"
                     />
                 </div>
+
                 <div className="grid-ten">
                     <Input
-                        type="text"
-                        placeholder="Alçada espatlles"
-                        value={""}
-                        onChange={''}
-                        inputTitle="Alçada espatlles"
-                    />
-                </div>
-                <div className="grid-eleven">
-                    <Input
+                        name="envergadura"
                         type="text"
                         placeholder="Envergadura"
-                        value={""}
-                        onChange={''}
-                        inputTitle="Envergadura"
+                        value={form.envergadura}
+                        onChange={handleChange}
+                        inputTitle="Envergadura (cm)"
                     />
                 </div>
-                <div className="grid-twelve">
+
+                <div className="grid-eleven">
                     <Input
+                        name="pes"
                         type="text"
                         placeholder="Pes"
-                        value={""}
-                        onChange={''}
-                        inputTitle="Pes"
+                        value={form.pes}
+                        onChange={handleChange}
+                        inputTitle="Pes (kg)"
                     />
                 </div>
+
                 <div className="grid-thirteen">
-                    <div className="input-title">Lesionat</div>
+                    <div>Lesionat</div>
                     <div className="checkbox-container">
                         <input
                             type="checkbox"
                             checked={lesionat}
                             onChange={(e) => setLesionat(e.target.checked)}
                         />
-                        <span>Sí</span>
                     </div>
                 </div>
+
                 <div className="grid-fourteen">
                     <Input
-                        type="text"
-                        placeholder="Data lesió"
-                        value={""}
-                        onChange={''}
+                        name="dataLesio"
+                        type="date"
+                        value={form.dataLesio}
+                        onChange={handleChange}
                         inputTitle="Data lesió"
+                        readOnly={!lesionat}
                     />
                 </div>
+
                 <div className="grid-fifteen">
                     <Input
-                        type="text"
-                        placeholder="Informació extra"
-                        value={""}
-                        onChange={''}
+                        name="infoExtra"
+                        type="textarea"
                         inputTitle="Informació extra"
+                        value={form.infoExtra}
+                        onChange={handleChange}
                     />
                 </div>
+
                 <div className="flex-buttons">
                     <Button
                         text="Guardar canvis"
-                        icon=<FaSave />
-                        action
+                        icon={<FaSave />}
+                        action={() => console.log(form)}
                     />
+
                     <Button
                         text="Canviar contrasenya"
-                        icon=<FaPencilAlt />
-                        action={() => { navigate("/normal_profile"); alert("Funcionalitat encara no implementada.") }}
+                        icon={<FaPencilAlt />}
+                        action={() => {
+                            navigate("/normal_profile");
+                            alert("Funcionalitat encara no implementada.");
+                        }}
                     />
+
                     <Button
                         text="Cancelar"
-                        icon=<FaTimesCircle />
+                        icon={<FaTimesCircle />}
                         action={() => navigate(-1)}
                     />
                 </div>
+
             </div>
         </div>
     );
 }
 
-export default NormalProfile; 
+export default NormalProfile;

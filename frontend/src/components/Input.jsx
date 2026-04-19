@@ -11,20 +11,34 @@ function Input({
   inputTitle = "títol"
 }) {
   return (
-    <div>
+    <div className="input-wrapper">
+      
       <div>
         {inputTitle}
       </div>
-      <input
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        name={name}
-        required={required}
-        readOnly={readOnly}
-        className="custom-input"
-      />
+
+      {type === "textarea" ? (
+        <textarea
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          name={name}
+          required={required}
+          readOnly={readOnly}
+          className="custom-input"
+        />
+      ) : (
+        <input
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          name={name}
+          required={required}
+          readOnly={readOnly}
+          className="custom-input"
+        />
+      )}
     </div>
   );
 }
