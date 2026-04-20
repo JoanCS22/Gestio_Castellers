@@ -59,6 +59,8 @@ function LoginRegistre() {
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
 
+                console.log("{DEBUG} Login OK")
+
                 showTempMessage("Iniciant sessió...");
 
                 setTimeout(() => {
@@ -66,6 +68,7 @@ function LoginRegistre() {
                 }, 2000);
             } else {
                 setError(data.message);
+                console.log("{DEBUG} Login KO")
             }
         } else {
             if (!validatePassword(password)) {
@@ -94,11 +97,14 @@ function LoginRegistre() {
                     showTempMessage("Usuari creat correctament.");
                     setEmail("");
                     setPassword("");
+                    console.log("{DEBUG} Register OK")
                     navigate("/login");
                 } else {
+                    console.log("{DEBUG} Register KO");
                     setError(data.message || "Error desconocido");
                 }
             } catch (error) {
+                console.log("{DEBUG} Register KO");
                 console.error("{INFO} Error de connexió:", error);
             }
         }

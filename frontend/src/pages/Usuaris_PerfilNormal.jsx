@@ -26,13 +26,13 @@ function NormalProfile() {
         infoExtra: ""
     });
 
-    const [gender, setGender] = useState("M");
+    const [genere, setGenere] = useState("M");
     const [lesionat, setLesionat] = useState(false);
     const [canalla, setCanalla] = useState(false);
     const [error, setError] = useState("");
     const [message, setTempMessage] = useState(null);
     const [foto, setFoto] = useState("/prueba.jpg");
-    
+
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -77,12 +77,10 @@ function NormalProfile() {
     }
 
     const getData = async () => {
-        e.preventDefault();
 
-        const user = JSON.parse(localStorage.getItem("user"));
         const token = localStorage.getItem("token");
 
-        const response = await fetch("http://localhost:5000/getUserData", {
+        const response = await fetch("http://localhost:5000/profile/getUserData", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -94,23 +92,23 @@ function NormalProfile() {
 
         if (response.ok) {
 
-            setForm(
-                nom = data.nom,
-                cognoms = data.cognoms,
-                mote = data.mote,
-                telefon = data.telefon,
-                email = data.email,
-                alcadaEspatlles = data.altura_espatlles,
-                envergadura = data.envergadura,
-                pes = data.pes,
-                alcada = data.altura_total,
-                dataLesio = data.data_lesio,
-                infoExtra = data.comentari,
-            )
+            setForm({
+                nom: data.nom || "",
+                cognoms: data.cognoms || "",
+                mote: data.mote || "",
+                telefon: data.telefon || "",
+                email: data.email || "",
+                alcadaEspatlles: data.altura_espatlles || "",
+                envergadura: data.envergadura || "",
+                pes: data.pes || "",
+                alcada: data.altura_total || "",
+                dataLesio: data.data_lesio || "",
+                infoExtra: data.comentari || ""
+            });
 
-            setLesionat(data.lesionat);
-            setGender(data.genere);
-            setCanalla(data.canalla);
+            setLesionat(data.lesionat  || false);
+            setGenere(data.genere  || "Altre");
+            setCanalla(data.canalla  || false);
         } else {
             setError(data.message);
         }
@@ -119,6 +117,8 @@ function NormalProfile() {
     const updateData = async (e) => {
         e.preventDefault();
 
+        const token = localStorage.getItem("token");
+
         const errors = comprovaNums();
 
         if (errors.length > 0) {
@@ -126,7 +126,36 @@ function NormalProfile() {
             return;
         }
 
-        showTempMessage("Iniciant sessió...");
+        const response = await fetch("http://localhost:5000/modifyUserData", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                nom: form.nom,
+                cognoms: form.cognoms,
+                mote: form.mote,
+                telefon: form.telefon,
+                altura_espatlles: form.alcadaEspatlles,
+                envergadura: form.envergadura,
+                pes: form.pes,
+                altura_total: form.alcada,
+                data_lesio: form.dataLesio,
+                comentari: form.infoExtra,
+                lesionat: lesionat,
+                genere: genere,
+                canalla: canalla
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            showTempMessage("Informació actualitzada correctament.");
+        } else {
+            setError(data.message);
+        }
     }
 
     useEffect(() => {
@@ -151,7 +180,6 @@ function NormalProfile() {
                         text="Modificar foto"
                         icon={<FaPencilAlt />}
                         action={() => {
-                            navigate("/normal_profile");
                             alert("Funcionalitat encara no implementada.");
                         }}
                     />
@@ -216,13 +244,13 @@ function NormalProfile() {
                 <div className="grid-seven">
                     <div>Gènere</div>
                     <div className="gender-container">
-                        <button className={`gender-btn ${gender === "M" ? "active" : ""}`} onClick={() => setGender("M")}>
+                        <button className={`gender-btn ${genere === "M" ? "active" : ""}`} onClick={() => setGenere("M")}>
                             M
                         </button>
-                        <button className={`gender-btn ${gender === "F" ? "active" : ""}`} onClick={() => setGender("F")}>
+                        <button className={`gender-btn ${genere === "F" ? "active" : ""}`} onClick={() => setGenere("F")}>
                             F
                         </button>
-                        <button className={`gender-btn ${gender === "Altre" ? "active" : ""}`} onClick={() => setGender("Altre")}>
+                        <button className={`gender-btn ${genere === "Altre" ? "active" : ""}`} onClick={() => setGenere("Altre")}>
                             Altres
                         </button>
                     </div>
@@ -334,17 +362,13 @@ function NormalProfile() {
                     <Button
                         text="Guardar canvis"
                         icon={<FaSave />}
-                        action={() => {
-                            navigate("/normal_profile");
-                            alert("Funcionalitat encara no implementada.");
-                        }}
+                        action={updateData}
                     />
 
                     <Button
                         text="Canviar contrasenya"
                         icon={<FaPencilAlt />}
                         action={() => {
-                            navigate("/normal_profile");
                             alert("Funcionalitat encara no implementada.");
                         }}
                     />
