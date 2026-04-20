@@ -106,10 +106,13 @@ function NormalProfile() {
                 infoExtra: data.comentari || ""
             });
 
-            setLesionat(data.lesionat  || false);
-            setGenere(data.genere  || "Altre");
-            setCanalla(data.canalla  || false);
+            setLesionat(data.lesionat || false);
+            setGenere(data.genere || "Altre");
+            setCanalla(data.canalla || false);
+
+            console.log("{DEBUG} Get user's data OK")
         } else {
+            console.log("{DEBUG} Get user's data KO")
             setError(data.message);
         }
     }
@@ -126,7 +129,7 @@ function NormalProfile() {
             return;
         }
 
-        const response = await fetch("http://localhost:5000/modifyUserData", {
+        const response = await fetch("http://localhost:5000/profile/modifyUserData", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -137,11 +140,11 @@ function NormalProfile() {
                 cognoms: form.cognoms,
                 mote: form.mote,
                 telefon: form.telefon,
-                altura_espatlles: form.alcadaEspatlles,
-                envergadura: form.envergadura,
-                pes: form.pes,
-                altura_total: form.alcada,
-                data_lesio: form.dataLesio,
+                altura_espatlles: form.alcadaEspatlles || null,
+                envergadura: form.envergadura || null,
+                pes: form.pes || null,
+                altura_total: form.alcada || null,
+                data_lesio: form.dataLesio || null,
                 comentari: form.infoExtra,
                 lesionat: lesionat,
                 genere: genere,
@@ -152,8 +155,11 @@ function NormalProfile() {
         const data = await response.json();
 
         if (response.ok) {
+            console.log("{DEBUG} Modify user's data OK");
+            setError("");
             showTempMessage("Informació actualitzada correctament.");
         } else {
+            console.log("{DEBUG} Modify user's data KO");
             setError(data.message);
         }
     }
