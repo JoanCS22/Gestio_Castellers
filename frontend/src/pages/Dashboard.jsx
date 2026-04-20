@@ -12,6 +12,7 @@ function Dashboard() {
         <div>
             <TopMenu
                 title="Dashboard"
+                canvi_colla
             />
 
             <div>

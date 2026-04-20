@@ -112,3 +112,67 @@ body {
 .dropdown-item.logout {
     color: red;
 }
+
+/* MENÚ AMB COLLA */
+
+.colla-selector {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dropdown-colla {
+    position: absolute;
+    top: 45px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.dropdown-colla-item {
+    padding: 12px;
+    font-size: 14px;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    transition: background 0.2s ease;
+}
+
+.dropdown-colla-item:hover {
+    background: #f2f2f2;
+}
+
+.dropdown-divider-colla {
+    border: none;
+    height: 1px;
+    background: #868686;
+    margin: 5px 0;
+}
+
+.dropdown-item-colla {
+    padding: 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.dropdown-item-colla:hover {
+    background: #f2f2f2;
+}
+
+.dropdown-item-colla.altre {
+    color: #555;
+}

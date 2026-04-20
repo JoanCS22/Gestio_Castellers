@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaBars, FaUserCircle, FaArrowLeft } from "react-icons/fa";
+import { FaBars, FaUserCircle, FaArrowLeft, FaPlusSquare, FaChevronDown } from "react-icons/fa";
 
 import "./TopMenu.css";
 
-
-function TopMenu({ title = "text", tornar = false }) {
+function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false)
+  const [open_colla, setOpenColla] = useState(false);
   const [message, setTempMessage] = useState(null);
 
   const logoutApp = () => {
@@ -36,8 +36,35 @@ function TopMenu({ title = "text", tornar = false }) {
       </div>
 
       <div className='center-content'>
-        <h1>{title}</h1>
-      </div>
+        {canvi_colla ? (
+          <div className='colla-selector' onClick={() => setOpenColla(!open_colla)}>
+              <span>Selecciona colla</span> 
+              <FaChevronDown />
+            {open_colla && (
+              <div className="dropdown-colla">
+                <div
+                  className="dropdown-colla-item"
+                  onClick={() => {
+                    setOpenColla(false);
+                    navigate("/create_colla");
+                  }}
+                >
+                  Afegir colla <FaPlusSquare />
+                </div>
+
+                <hr className="dropdown-divider-colla" />
+
+                <div className="dropdown-item-colla altre">
+                  Colla Existent
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <h1>{title}</h1>
+        )}
+      </div >
+
 
       <div className="right-content">
         {tornar ? (
@@ -73,12 +100,14 @@ function TopMenu({ title = "text", tornar = false }) {
         )}
       </div>
 
-      {message && (
-        <div className={`message ${message.type}`}>
-          {message.message}
-        </div>
-      )}
-    </div>
+      {
+        message && (
+          <div className={`message ${message.type}`}>
+            {message.message}
+          </div>
+        )
+      }
+    </div >
   )
 }
 
