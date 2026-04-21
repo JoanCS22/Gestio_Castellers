@@ -1,0 +1,82 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: 400px 4fr 3fr;
+    grid-template-areas:
+        "foto nom nomcurt"
+        "foto contacte telefon"
+        "fundacio adreca poblacio"
+        "buttons buttons buttons";
+
+    gap: 20px;
+    padding: 20px;
+    align-items: start;
+}
+
+.grid-one {
+    grid-area: foto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.grid-two {
+    grid-area: nom;
+}
+
+.grid-three {
+    grid-area: nomcurt;
+}
+
+.grid-four {
+    grid-area: telefon;
+}
+
+.grid-five {
+    grid-area: contacte;
+}
+
+.grid-six {
+    grid-area: fundacio;
+}
+
+.grid-seven {
+    grid-area: adreca;
+}
+
+.grid-eight {
+    grid-area: poblacio;
+}
+
+.grid-one img {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 20px;
+    background-color: #ddd;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.flex-buttons {
+    grid-area: buttons;
+    display: flex;
+    justify-content: center;
+    gap: 200px;
+    margin-top: 20px;
+}
+
+.grid-container input,
+.grid-container textarea {
+    width: 60%;
+    box-sizing: border-box;
+}
+
+.grid-two input,
+.grid-four input {
+    width: 400px
+}
+
+.grid-container {
+    background: #f5f5f5;
+    border-radius: 12px;
+}

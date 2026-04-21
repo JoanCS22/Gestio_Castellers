@@ -49,7 +49,7 @@ function CollaInfo() {
         }, 2000);
     };
 
-    // const getData = async () => {
+    // const getDataColla = async () => {
 
     //     const token = localStorage.getItem("token");
 
@@ -138,13 +138,57 @@ function CollaInfo() {
     // }
 
     // useEffect(() => {
-    //     getData();
+    //     if(isReadOnly) {
+    //         getDataColla();
+    //     }
     // }, []);
+
+    const createColla = async (e) => {
+        e.preventDefault();
+
+        const token = localStorage.getItem("token");
+
+        if (form.nom == "") {
+            setError(`El camp nom no pot estar buit: ${errors.join(", ")}`);
+            return;
+        }
+
+        const response = await fetch("http://localhost:5000/colla/createColla", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                nom: form.nom,
+                abreviacio: form.nom_curt || "",
+                telefon: form.telefon,
+                correus_contacte: form.contactes || "",
+                data_creacio: form.data_fundacio || null,
+                adreca: form.adreca || "",
+                poblacio: form.poblacio || "",
+                url_logo: foto
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Create colla OK");
+            setError("");
+            showTempMessage("Colla creada correctament.");
+            navigate("/see_info_colla")
+        } else {
+            console.log("{DEBUG} Create colla KO");
+            setError(data.message);
+        }
+    }
+
     console.log("{DEBUG} Entra a CollaInfo");
     return (
         <div>
             <TopMenu
-                title={isCreate ? "Crear colla" : `Informació de ${form.nom}`} tornar
+                title={isCreate ? "Crear colla" : `Informació de ${form.nom}`} tornar={!isReadOnly}
             />
 
             {message && (
