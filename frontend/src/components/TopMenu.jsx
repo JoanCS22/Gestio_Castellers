@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaBars, FaUserCircle, FaArrowLeft, FaPlusSquare, FaChevronDown } from "react-icons/fa";
 
+import LeftMenu from "./LeftMenu";
+
 import "./TopMenu.css";
 
 function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
@@ -32,14 +34,14 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
   return (
     <div className='topmenu-container'>
       <div className='left-content'>
-        <FaBars />
+        <LeftMenu />
       </div>
 
       <div className='center-content'>
         {canvi_colla ? (
           <div className='colla-selector' onClick={() => setOpenColla(!open_colla)}>
-              <span>Selecciona colla</span> 
-              <FaChevronDown />
+            <span>Selecciona colla</span>
+            <FaChevronDown />
             {open_colla && (
               <div className="dropdown-colla">
                 <div
