@@ -1,8 +1,12 @@
 import React, { useState } from 'react'
+import { useNavigate } from "react-router-dom";
 import { FaBars, FaOutdent, FaCaretDown, FaCaretUp } from "react-icons/fa";
 import './LeftMenu.css';
 
 const LeftMenu = () => {
+
+  const navigate = useNavigate();
+
   const [openLeft, setOpenLeft] = useState(false);
   const [openMenuAgenda, setOpenAgenda] = useState(false);
   const [openMenuColla, setOpenColla] = useState(false);
@@ -20,6 +24,16 @@ const LeftMenu = () => {
 
       {openLeft && (
         <div className="menu-content">
+
+          <div className='menu-foto'>
+            <img src="LogoPlaca.png" alt="Logo" onClick={() => {
+              setOpenLeft(false);
+              setOpenAgenda(false);
+              setOpenColla(false);
+              navigate("/dashboard");
+            }} />
+            <span className='menu-title'>LA PLAÇA</span>
+          </div>
 
           <div className='menu-section' onClick={() => setOpenAgenda(!openMenuAgenda)}>
             Agenda {openMenuAgenda ? <FaCaretUp /> : <FaCaretDown />}
