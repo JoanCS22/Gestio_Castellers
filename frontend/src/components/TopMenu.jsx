@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaBars, FaUserCircle, FaArrowLeft, FaPlusSquare, FaChevronDown } from "react-icons/fa";
+import { FaBars, FaUserCircle, FaArrowLeft, FaPlusSquare, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 import LeftMenu from "./LeftMenu";
 
@@ -14,6 +14,7 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
   const [message, setTempMessage] = useState(null);
 
   const [colles, setColles] = useState([]);
+  const [title_colla, setTitle] = useState(colles?.[0]?.nom || 'Crear nova colla');
 
   const logoutApp = () => {
     localStorage.clear();
@@ -49,6 +50,7 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
 
     if (response.ok) {
       setColles(data);
+      setTitle(data[0].nom);      
       console.log("{DEBUG} Get user's data OK")
     } else {
       console.log("{DEBUG} Get user's data KO")
@@ -69,25 +71,35 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
       <div className='center-content'>
         {canvi_colla ? (
           <div className='colla-selector' onClick={() => setOpenColla(!open_colla)}>
-            <span>Selecciona colla</span>
-            <FaChevronDown />
+            <div className='selector-title'>
+              <span>{title_colla}</span>
+              {open_colla ? (<FaChevronUp />) : (<FaChevronDown />)}
+            </div>
             {open_colla && (
               <div className="dropdown-colla">
-                <div
-                  className="dropdown-colla-item"
-                  onClick={() => {
-                    setOpenColla(false);
-                    navigate("/create_colla");
-                  }}
-                >
-                  Afegir colla <FaPlusSquare />
-                </div>
-
-                <hr className="dropdown-divider-colla" />
-
-                <div className="dropdown-item-colla altre">
-                  Colla Existent
-                </div>
+                {colles.map((colla) => (
+                  <React.Fragment key={colla.id}>
+                    <div className="dropdown-item-colla" onClick={() => {
+                      localStorage.setItem("id_colla", colla.id);
+                      setTitle(colla.nom)
+                      setOpenColla(false);
+                    }}>
+                      {colla.nom}
+                    </div>
+                    <hr className="dropdown-divider-colla" />
+                  </React.Fragment>
+                ))}
+                {colles.length < 5 && (
+                  <div
+                    className="dropdown-colla-item"
+                    onClick={() => {
+                      setOpenColla(false);
+                      navigate("/create_colla");
+                    }}
+                  >
+                    Afegir colla <FaPlusSquare />
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -69,10 +69,6 @@ const getCollesUser = async (req, res) => {
             [userId]
         );
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: `No s'han trobat colles per l'usuari` });
-        }
-
         res.status(200).json(result.rows);
 
     } catch (error) {

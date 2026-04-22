@@ -193,6 +193,17 @@ function NormalProfile() {
 
                 <div className="grid-two">
                     <Input
+                        name="mote"
+                        type="text"
+                        placeholder="Sobrenom"
+                        value={form.mote}
+                        onChange={handleChange}
+                        inputTitle="Sobrenom"
+                    />
+                </div>
+
+                <div className="grid-three">
+                    <Input
                         name="nom"
                         type="text"
                         placeholder="Nom"
@@ -202,7 +213,7 @@ function NormalProfile() {
                     />
                 </div>
 
-                <div className="grid-three">
+                <div className="grid-four">
                     <Input
                         name="cognoms"
                         type="text"
@@ -210,17 +221,6 @@ function NormalProfile() {
                         value={form.cognoms}
                         onChange={handleChange}
                         inputTitle="Cognoms"
-                    />
-                </div>
-
-                <div className="grid-four">
-                    <Input
-                        name="mote"
-                        type="text"
-                        placeholder="Mote"
-                        value={form.mote}
-                        onChange={handleChange}
-                        inputTitle="Mote"
                     />
                 </div>
 

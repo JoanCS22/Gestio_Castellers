@@ -34,7 +34,7 @@ body {
 .center-content {
     justify-content: center;
     background: rgb(214, 214, 214);
-    border-radius: 20px;
+    border-radius: 0;
 }
 
 .right-content {
@@ -118,6 +118,15 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.selector-title{
+    border-radius: 20%;
+    width: 100%
+}
+
+.selector-title:hover {
+    background-color: #f2f2f2;
 }
 
 .dropdown-colla {

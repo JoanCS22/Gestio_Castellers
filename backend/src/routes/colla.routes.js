@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
-const { createColla } = require('../controllers/colla.controller');
+const { createColla, getCollesUser } = require('../controllers/colla.controller');
 const auth = require('../middleware/auth');
 
 router.post('/createColla', auth, createColla);
 // routes.get('/getDataColla', auth, getDataColla);
 //TODO: routes.post('/modifyColla', auth, modifyColla);
-routes.get('/getCollesUser', auth, getCollesUser);
+router.get('/getCollesUser', auth, getCollesUser);
 
 module.exports = router;
