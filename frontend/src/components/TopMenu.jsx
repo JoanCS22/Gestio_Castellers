@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaBars, FaUserCircle, FaArrowLeft, FaPlusSquare, FaChevronDown } from "react-icons/fa";
 
@@ -8,9 +8,12 @@ import "./TopMenu.css";
 
 function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
   const navigate = useNavigate();
+
   const [open, setOpen] = useState(false)
   const [open_colla, setOpenColla] = useState(false);
   const [message, setTempMessage] = useState(null);
+
+  const [colles, setColles] = useState([]);
 
   const logoutApp = () => {
     localStorage.clear();
@@ -30,6 +33,32 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
     }, 2000);
   };
 
+  const getCollesUser = async () => {
+
+    const token = localStorage.getItem("token");
+
+    const response = await fetch("http://localhost:5000/colla/getCollesUser", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setColles(data);
+      console.log("{DEBUG} Get user's data OK")
+    } else {
+      console.log("{DEBUG} Get user's data KO")
+      setError(data.message);
+    }
+  }
+
+  useEffect(() => {
+    getCollesUser();
+  }, []);
 
   return (
     <div className='topmenu-container'>

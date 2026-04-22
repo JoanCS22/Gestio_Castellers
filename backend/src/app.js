@@ -3,6 +3,7 @@ const cors = require('cors');
 
 const authRoutes = require('./routes/authentication.routes');
 const profileRoutes = require('./routes/profile.routes');
+const collaRoutes = require('./routes/colla.routes')
 
 require("dotenv").config();
 
@@ -22,5 +23,6 @@ app.use(express.json());
 
 app.use('/', authRoutes);
 app.use('/profile', profileRoutes); 
+app.use('/colla', collaRoutes);
 
 module.exports = app;

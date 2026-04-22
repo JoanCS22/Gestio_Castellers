@@ -49,107 +49,16 @@ function CollaInfo() {
         }, 2000);
     };
 
-    // const getDataColla = async () => {
-
-    //     const token = localStorage.getItem("token");
-
-    //     const response = await fetch("http://localhost:5000/profile/getUserData", {
-    //         method: "GET",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             "Authorization": `Bearer ${token}`
-    //         }
-    //     });
-
-    //     const data = await response.json();
-
-    //     if (response.ok) {
-
-    //         setForm({
-    //             nom: data.nom || "",
-    //             cognoms: data.cognoms || "",
-    //             mote: data.mote || "",
-    //             telefon: data.telefon || "",
-    //             email: data.email || "",
-    //             alcadaEspatlles: data.altura_espatlles || "",
-    //             envergadura: data.envergadura || "",
-    //             pes: data.pes || "",
-    //             alcada: data.altura_total || "",
-    //             dataLesio: data.data_lesio || "",
-    //             infoExtra: data.comentari || ""
-    //         });
-
-    //         setLesionat(data.lesionat || false);
-    //         setGenere(data.genere || "Altre");
-    //         setCanalla(data.canalla || false);
-
-    //         console.log("{DEBUG} Get user's data OK")
-    //     } else {
-    //         console.log("{DEBUG} Get user's data KO")
-    //         setError(data.message);
-    //     }
-    // }
-
-    // const updateData = async (e) => {
-    //     e.preventDefault();
-
-    //     const token = localStorage.getItem("token");
-
-    //     const errors = comprovaNums();
-
-    //     if (errors.length > 0) {
-    //         setError(`Els següents camps han de ser numèrics i positius: ${errors.join(", ")}`);
-    //         return;
-    //     }
-
-    //     const response = await fetch("http://localhost:5000/profile/modifyUserData", {
-    //         method: "POST",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             "Authorization": `Bearer ${token}`
-    //         },
-    //         body: JSON.stringify({
-    //             nom: form.nom,
-    //             cognoms: form.cognoms,
-    //             mote: form.mote,
-    //             telefon: form.telefon,
-    //             altura_espatlles: form.alcadaEspatlles || null,
-    //             envergadura: form.envergadura || null,
-    //             pes: form.pes || null,
-    //             altura_total: form.alcada || null,
-    //             data_lesio: form.dataLesio || null,
-    //             comentari: form.infoExtra,
-    //             lesionat: lesionat,
-    //             genere: genere,
-    //             canalla: canalla
-    //         }),
-    //     });
-
-    //     const data = await response.json();
-
-    //     if (response.ok) {
-    //         console.log("{DEBUG} Modify user's data OK");
-    //         setError("");
-    //         showTempMessage("Informació actualitzada correctament.");
-    //     } else {
-    //         console.log("{DEBUG} Modify user's data KO");
-    //         setError(data.message);
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     if(isReadOnly) {
-    //         getDataColla();
-    //     }
-    // }, []);
-
     const createColla = async (e) => {
         e.preventDefault();
+
+        console.log("{DEBUG} Entra a funció CreateColla");
+
 
         const token = localStorage.getItem("token");
 
         if (form.nom == "") {
-            setError(`El camp nom no pot estar buit: ${errors.join(", ")}`);
+            setError(`El camp nom no pot estar buit`);
             return;
         }
 
@@ -166,8 +75,7 @@ function CollaInfo() {
                 correus_contacte: form.contactes || "",
                 data_creacio: form.data_fundacio || null,
                 adreca: form.adreca || "",
-                poblacio: form.poblacio || "",
-                url_logo: foto
+                poblacio: form.poblacio || ""
             }),
         });
 
@@ -184,7 +92,42 @@ function CollaInfo() {
         }
     }
 
-    console.log("{DEBUG} Entra a CollaInfo");
+    // const getDataColla = async () => {
+
+    //     const token = localStorage.getItem("token");
+
+    //     const response = await fetch("http://localhost:5000/colla/getDataColla", {
+    //         method: "GET",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             "Authorization": `Bearer ${token}`
+    //         }
+    //     });
+
+    //     const data = await response.json();
+
+    //     if (response.ok) {
+    //         setForm({
+    //             nom: form.nom,
+    //             abreviacio: form.nom_curt || "",
+    //             telefon: form.telefon,
+    //             correus_contacte: form.contactes || "",
+    //             data_creacio: form.data_fundacio || null,
+    //             adreca: form.adreca || "",
+    //             poblacio: form.poblacio || ""
+    //         });
+
+    //         console.log("{DEBUG} Get user's data OK")
+    //     } else {
+    //         console.log("{DEBUG} Get user's data KO")
+    //         setError(data.message);
+    //     }
+    // }
+
+    // useEffect(() => {
+    //     getData();
+    // }, []);
+
     return (
         <div>
             <TopMenu
@@ -197,20 +140,22 @@ function CollaInfo() {
                 </div>
             )}
 
-            <div className="grid-container">
+            <div className="grid-container-colla">
 
-                <div className="grid-one">
+                <div className="grid-one-colla">
                     <img src={foto} alt="logo" />
-                    <Button
-                        text="Modificar logo"
-                        icon={<FaPencilAlt />}
-                        action={() => {
-                            alert("Funcionalitat encara no implementada.");
-                        }}
-                    />
+                    {!isCreate && (
+                        <Button
+                            text="Modificar logo"
+                            icon={<FaPencilAlt />}
+                            action={() => {
+                                alert("Funcionalitat encara no implementada.");
+                            }}
+                        />
+                    )}
                 </div>
 
-                <div className="grid-two">
+                <div className="grid-two-colla">
                     <Input
                         name="nom"
                         type="text"
@@ -222,7 +167,7 @@ function CollaInfo() {
                     />
                 </div>
 
-                <div className="grid-three">
+                <div className="grid-three-colla">
                     <Input
                         name="nom_curt"
                         type="text"
@@ -234,7 +179,7 @@ function CollaInfo() {
                     />
                 </div>
 
-                <div className="grid-four">
+                <div className="grid-four-colla">
                     <Input
                         name="telefon"
                         type="text"
@@ -246,7 +191,7 @@ function CollaInfo() {
                     />
                 </div>
 
-                <div className="grid-five">
+                <div className="grid-five-colla">
                     <Input
                         name="contactes"
                         type="textarea"
@@ -258,7 +203,7 @@ function CollaInfo() {
                     />
                 </div>
 
-                <div className="grid-six">
+                <div className="grid-six-colla">
                     <Input
                         name="data_fundacio"
                         type="date"
@@ -270,7 +215,7 @@ function CollaInfo() {
                     />
                 </div>
 
-                <div className="grid-seven">
+                <div className="grid-seven-colla">
                     <Input
                         name="adreca"
                         type="text"
@@ -282,7 +227,7 @@ function CollaInfo() {
                     />
                 </div>
 
-                <div className="grid-eight">
+                <div className="grid-eight-colla">
                     <Input
                         name="poblacio"
                         type="text"
@@ -298,13 +243,13 @@ function CollaInfo() {
                         {error}
                     </div>
                 )}
-                <div className="flex-buttons">
+                <div className="flex-buttons-colla">
                     {isCreate && (
                         <>
                             <Button
                                 text="Crear colla"
                                 icon={<FaPlusSquare />}
-                                action={() => {alert("Funcionalitat encara no aplicada")}}
+                                action={createColla}
                             />
 
                             <Button
@@ -328,7 +273,7 @@ function CollaInfo() {
                             <Button
                                 text="Guardar canvis"
                                 icon={<FaSave />}
-                                action={() => {alert("Funcionalitat encara no aplicada")}}
+                                action={() => { alert("Funcionalitat encara no aplicada") }}
                             />
 
                             <Button
