@@ -3,6 +3,7 @@ import LoginRegistre from "./pages/LoginRegistre";
 import Dashboard from "./pages/Dashboard"
 import NormalProfile from "./pages/Usuaris_PerfilNormal";
 import CollaInfo from "./pages/Colla_Info";
+import Etiquetes from "./pages/Etiquetes_Inici";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <Route path="/modify_info_colla" element={<CollaInfo />} />
       <Route path="/see_info_colla" element={<CollaInfo />} />
       <Route path="/get_data_colla" element={<CollaInfo />} />
+      <Route path="/etiquetes" element={<Etiquetes />} />
     </Routes>
   );
 }

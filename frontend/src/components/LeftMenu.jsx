@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from "react-router-dom";
 import { FaBars, FaOutdent, FaCaretDown, FaCaretUp } from "react-icons/fa";
 import './LeftMenu.css';
 
@@ -7,9 +7,17 @@ const LeftMenu = () => {
 
   const navigate = useNavigate();
 
+  const location = useLocation();
+
   const [openLeft, setOpenLeft] = useState(false);
   const [openMenuAgenda, setOpenAgenda] = useState(false);
   const [openMenuColla, setOpenColla] = useState(false);
+
+  useEffect(() => {
+    setOpenLeft(false);
+    setOpenAgenda(false);
+    setOpenColla(false);
+  }, [location.pathname]);
 
   return (
     <div className={`left-menu ${openLeft ? "open" : "closed"}`}>
@@ -57,10 +65,12 @@ const LeftMenu = () => {
           {openMenuColla && (
             <div className='submenu'>
               <div onClick={() => {
-                navigate("/get_data_colla");}
-                }>Informació colla</div>
+                navigate("/get_data_colla");
+              }}>Informació colla</div>
               <div onClick={() => { }}>Membres</div>
-              <div onClick={() => { }}>Etiquetes</div>
+              <div onClick={() => {
+                navigate("/etiquetes");
+              }}>Etiquetes</div>
             </div>
           )}
 
