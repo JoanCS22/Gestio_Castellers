@@ -50,10 +50,27 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
 
     if (response.ok) {
       setColles(data);
-      setTitle(data[0].nom);      
-      console.log("{DEBUG} Get user's data OK")
+
+      if (data.length > 0) {
+        const storedId = localStorage.getItem("id_colla");
+
+        let selectedColla;
+
+        if (storedId) {
+          selectedColla = data.find(c => c.id == storedId);
+        }
+
+        if (!selectedColla) {
+          selectedColla = data[0];
+          localStorage.setItem("id_colla", selectedColla.id);
+        }
+
+        setTitle(selectedColla.nom);
+      }
+
+      console.log("{DEBUG} Get user's colles OK")
     } else {
-      console.log("{DEBUG} Get user's data KO")
+      console.log("{DEBUG} Get user's colles KO")
       setError(data.message);
     }
   }

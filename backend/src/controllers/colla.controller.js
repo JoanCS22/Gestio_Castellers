@@ -78,4 +78,60 @@ const getCollesUser = async (req, res) => {
     }
 };
 
-module.exports = { createColla, getCollesUser };
+const getDataColla = async (req, res) => {
+    try {
+        const collaActiva = req.query.id;
+
+        const result = await pool.query(
+            `SELECT * FROM colles WHERE id = $1`,
+            [collaActiva]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Colla no trobada' });
+        }
+
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({ message: 'Error al rebre les dades {getDataColla}' });
+    }
+};
+
+const modifyColla = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const collaActiva = req.query.id;
+
+        const { nom, abreviacio, telefon, correus_contacte, data_creacio, adreca, poblacio } = req.body;
+
+        const dataCreacio = toDateOrNull(data_creacio);
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `UPDATE colles 
+            SET nom = $2, abreviacio = $3, telefon = $4, correus_contacte = $5, data_creacio = $6, adreca = $7, poblacio = $8
+            WHERE id = $1
+            RETURNING *`,
+            [collaActiva, nom, abreviacio, telefon, correus_contacte, dataCreacio, adreca, poblacio]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+        res.status(500).json({ message: 'Error al modificar la colla' });
+
+    } finally {
+        client.release();
+    }
+};
+
+module.exports = { createColla, getCollesUser, getDataColla, modifyColla };

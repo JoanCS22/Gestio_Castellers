@@ -30,7 +30,7 @@ function CollaInfo() {
 
     const isCreate = location.pathname === "/create_colla";
     const isModify = location.pathname === "/modify_info_colla";
-    const isReadOnly = location.pathname === "/see_info_colla";
+    const isReadOnly = location.pathname === "/get_data_colla";
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -53,7 +53,6 @@ function CollaInfo() {
         e.preventDefault();
 
         console.log("{DEBUG} Entra a funció CreateColla");
-
 
         const token = localStorage.getItem("token");
 
@@ -92,41 +91,87 @@ function CollaInfo() {
         }
     }
 
-    // const getDataColla = async () => {
+    const getDataColla = async () => {
 
-    //     const token = localStorage.getItem("token");
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
 
-    //     const response = await fetch("http://localhost:5000/colla/getDataColla", {
-    //         method: "GET",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //             "Authorization": `Bearer ${token}`
-    //         }
-    //     });
+        const response = await fetch(`http://localhost:5000/colla/getDataColla?id=${idColla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
 
-    //     const data = await response.json();
+        const data = await response.json();
 
-    //     if (response.ok) {
-    //         setForm({
-    //             nom: form.nom,
-    //             abreviacio: form.nom_curt || "",
-    //             telefon: form.telefon,
-    //             correus_contacte: form.contactes || "",
-    //             data_creacio: form.data_fundacio || null,
-    //             adreca: form.adreca || "",
-    //             poblacio: form.poblacio || ""
-    //         });
+        if (response.ok) {
+            setForm({
+                nom: data.nom,
+                nom_curt: data.abreviacio || "",
+                telefon: data.telefon,
+                contactes: data.correus_contacte || "",
+                data_fundacio: data.data_creacio
+                    ? data.data_creacio.split("T")[0]
+                    : null,
+                adreca: data.adreca || "",
+                poblacio: data.poblacio || ""
+            });
 
-    //         console.log("{DEBUG} Get user's data OK")
-    //     } else {
-    //         console.log("{DEBUG} Get user's data KO")
-    //         setError(data.message);
-    //     }
-    // }
+            console.log("{DEBUG} Get colla's data OK")
+        } else {
+            console.log("{DEBUG} Get colla's data KO")
+            setError(data.message);
+        }
+    }
 
-    // useEffect(() => {
-    //     getData();
-    // }, []);
+    useEffect(() => {
+        if (isReadOnly) {
+            getDataColla();
+        }
+    }, [isReadOnly]);
+
+    const updateDataColla = async (e) => {
+        e.preventDefault();
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        if (form.nom == "") {
+            setError(`El camp nom no pot estar buit`);
+            return;
+        }
+
+        const response = await fetch(`http://localhost:5000/colla/modifyColla?id=${idColla}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                nom: form.nom,
+                abreviacio: form.nom_curt || "",
+                telefon: form.telefon,
+                correus_contacte: form.contactes || "",
+                data_creacio: form.data_fundacio || null,
+                adreca: form.adreca || "",
+                poblacio: form.poblacio || ""
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Update colla OK");
+            setError("");
+            showTempMessage("Colla creada correctament.");
+            navigate("/see_info_colla")
+        } else {
+            console.log("{DEBUG} Update colla KO");
+            setError(data.message);
+        }
+    }
 
     return (
         <div>
@@ -273,13 +318,16 @@ function CollaInfo() {
                             <Button
                                 text="Guardar canvis"
                                 icon={<FaSave />}
-                                action={() => { alert("Funcionalitat encara no aplicada") }}
+                                action={updateDataColla}
                             />
 
                             <Button
                                 text="Cancelar"
                                 icon={<FaTimesCircle />}
-                                action={() => navigate("/see_info_colla")}
+                                action={() => {
+                                    getDataColla();
+                                    navigate("/see_info_colla");
+                                }}
                             />
                         </>
                     )}

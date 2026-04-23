@@ -15,6 +15,7 @@ function App() {
       <Route path="/create_colla" element={<CollaInfo />} />
       <Route path="/modify_info_colla" element={<CollaInfo />} />
       <Route path="/see_info_colla" element={<CollaInfo />} />
+      <Route path="/get_data_colla" element={<CollaInfo />} />
     </Routes>
   );
 }

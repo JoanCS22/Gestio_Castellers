@@ -56,7 +56,9 @@ const LeftMenu = () => {
 
           {openMenuColla && (
             <div className='submenu'>
-              <div onClick={() => { }}>Informació colla</div>
+              <div onClick={() => {
+                navigate("/get_data_colla");}
+                }>Informació colla</div>
               <div onClick={() => { }}>Membres</div>
               <div onClick={() => { }}>Etiquetes</div>
             </div>
