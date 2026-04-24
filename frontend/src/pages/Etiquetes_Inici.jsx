@@ -13,9 +13,47 @@ function Etiquetes() {
     const location = useLocation();
 
     const [selectedTag, setSelectedTag] = useState("posicions");
+    const [positions, setPositions] = useState([]);
+    const [message, setTempMessage] = useState(null);
 
     const isPosition = selectedTag === "posicions";
     const isRole = selectedTag === "rols";
+
+    const showTempMessage = (message, type = "success") => {
+        setTempMessage({ message, type });
+
+        setTimeout(() => {
+            setTempMessage(null);
+        }, 2000);
+    };
+
+    const getCollesPositions = async () => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch("http://localhost:5000/colla/getCollaPositions", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+
+            setPositions(data);
+            console.log("{DEBUG} Get colla's positions OK")
+        } else {
+            console.log("{DEBUG} Get colla's positions KO")
+            setError(data.message);
+        }
+    }
+
+    useEffect(() => {
+        getCollesPositions();
+    }, []);
 
     return (
         <div>
@@ -31,6 +69,13 @@ function Etiquetes() {
                     setSelectedTag("rols");
                 }}>Rols</div>
             </div>
+            {
+                message && (
+                    <div className={`message ${message.type}`}>
+                        {message.message}
+                    </div>
+                )
+            }
             <div className="button-section-tags">
                 <Button
                     text={isPosition ? 'Afegir posició' : 'Afegir rol'}
@@ -60,14 +105,18 @@ function Etiquetes() {
                             <th>Eliminar</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>Posició 1</td>
-                            <td>Descripció prova</td>
-                            <td>✏️</td>
-                            <td>🗑️</td>
-                        </tr>
-                    </tbody>
+                    {positions.map((position) => (
+                        <React.Fragment key={position.id}>
+                            <tbody>
+                                <tr>
+                                    <td>{position.nom}</td>
+                                    <td>{position.descripcio}</td>
+                                    <td>✏️</td>
+                                    <td>🗑️</td>
+                                </tr>
+                            </tbody>
+                        </React.Fragment>
+                    ))}
                 </table>
             </div>
         </div>
