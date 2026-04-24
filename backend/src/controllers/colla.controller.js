@@ -160,41 +160,32 @@ const createCollaPosition = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { nom, abreviacio, telefon, correus_contacte, data_creacio, adreca, poblacio } = req.body;
+        const { nom, descripcio } = req.body;
 
-        const dataCreacio = toDateOrNull(data_creacio);
-        const userId = req.user.id;
+        const collaActiva = req.query.id;
 
         await client.query("BEGIN");
 
         const exists = await client.query(
-            'SELECT id FROM colles WHERE nom = $1',
-            [nom]
+            'SELECT id FROM posicions WHERE id_colla = $1 AND nom = $2',
+            [collaActiva, nom]
         );
 
         if (exists.rows.length > 0) {
             await client.query("ROLLBACK");
-            return res.status(400).json({ message: 'El nom de la colla ja existeix.' });
+            return res.status(400).json({ message: 'El nom de la posició ja existeix.' });
         }
 
-        const resultColla = await client.query(
-            `INSERT INTO colles (nom, abreviacio, telefon, correus_contacte, data_creacio, adreca, poblacio)
-             VALUES ($1, $2, $3, $4, $5, $6, $7)
+        const resultPosicio = await client.query(
+            `INSERT INTO posicions (nom, descripcio, id_colla)
+             VALUES ($1, $2, $3)
              RETURNING *`,
-            [nom, abreviacio, telefon, correus_contacte, dataCreacio, adreca, poblacio]
-        );
-
-        const idColla = resultColla.rows[0].id;
-
-        await client.query(
-            `INSERT INTO membres_colla (id_usuari, id_colla, id_rol, actiu, data_acces)
-             VALUES ($1, $2, $3, $4, NOW())`,
-            [userId, idColla, 1, true]
+            [nom, descripcio, collaActiva]
         );
 
         await client.query("COMMIT");
 
-        res.status(200).json(resultColla.rows[0]);
+        res.status(200).json(resultPosicio.rows[0]);
 
     } catch (error) {
         await client.query("ROLLBACK");
@@ -212,11 +203,68 @@ const createCollaPosition = async (req, res) => {
 };
 
 const updateCollaPositions = async (req, res) => {
+    const client = await pool.connect();
 
+    try {
+        const id_posicio = req.query.id;
+
+        const { descripcio } = req.body;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `UPDATE posicions 
+            SET descripcio = $2
+            WHERE id = $1
+            RETURNING *`,
+            [id_posicio, descripcio]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+        res.status(500).json({ message: 'Error al modificar la posició' });
+
+    } finally {
+        client.release();
+    }
 };
 
 const deleteCollaPositions = async (req, res) => {
+    const client = await pool.connect();
 
+    try {
+        const id_posicio = req.query.id;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `DELETE FROM posicions 
+            WHERE id = $1
+            RETURNING *`,
+            [id_posicio]
+        );
+
+        await client.query("COMMIT");
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Posició no trobada" });
+        }
+
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+        res.status(500).json({ message: 'Error al eliminar la posició' });
+
+    } finally {
+        client.release();
+    }
 };
 
 module.exports = {

@@ -14,6 +14,6 @@ router.get('/getCollesUser', auth, getCollesUser);
 router.get('/getCollaPositions', auth, getCollaPositions);
 router.post('/createCollaPosition', auth, createCollaPosition);
 router.post('/updateCollaPositions', auth, updateCollaPositions);
-router.post('/deleteCollaPositions', auth, deleteCollaPositions);
+router.delete('/deleteCollaPositions', auth, deleteCollaPositions);
 
 module.exports = router;

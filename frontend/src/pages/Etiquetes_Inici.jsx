@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { FaPlusSquare, FaSearch, FaSave, FaTimesCircle } from "react-icons/fa";
+import { FaPlusSquare, FaSearch, FaSave, FaTimesCircle, FaTrashAlt, FaPencilAlt, FaRegEye } from "react-icons/fa";
 
 import './Etiquetes_Inici.css';
 
@@ -15,13 +15,20 @@ function Etiquetes() {
 
     const [selectedTag, setSelectedTag] = useState("posicions");
     const [positions, setPositions] = useState([]);
+    const [rols, setRols] = useState([]);
     const [message, setTempMessage] = useState(null);
 
-    const [showModal, setShowModal] = useState(false);
+    const [showModalPosicions, setShowModalPosicions] = useState(false);
+    const [showModalRols, setShowModalRols] = useState(false);
     const [newTag, setNewTag] = useState({
         nom: "",
         descripcio: ""
     });
+
+    const [error, setError] = useState("");
+    const [isCreate, setCreate] = useState(true);
+    const [currentPosition, setCurrentPosition] = useState(null);
+    const [currentRole, setCurrentRole] = useState({});
 
     const isPosition = selectedTag === "posicions";
     const isRole = selectedTag === "rols";
@@ -37,8 +44,9 @@ function Etiquetes() {
     const getCollesPositions = async () => {
 
         const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
 
-        const response = await fetch("http://localhost:5000/colla/getCollaPositions", {
+        const response = await fetch(`http://localhost:5000/colla/getCollaPositions?id=${idColla}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -49,11 +57,107 @@ function Etiquetes() {
         const data = await response.json();
 
         if (response.ok) {
-
             setPositions(data);
             console.log("{DEBUG} Get colla's positions OK")
         } else {
             console.log("{DEBUG} Get colla's positions KO")
+            setError(data.message);
+        }
+    }
+
+    const createPosicio = async (e) => {
+        e.preventDefault();
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        if (newTag.nom == "") {
+            setError(`El camp nom no pot estar buit`);
+            return;
+        }
+
+        const response = await fetch(`http://localhost:5000/colla/createCollaPosition?id=${idColla}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                nom: newTag.nom,
+                descripcio: newTag.descripcio || ""
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Create posicio OK");
+            setError("");
+            setShowModalPosicions(false);
+            setNewTag({ nom: "", descripcio: "" });
+            showTempMessage("Posició creada correctament.");
+            getCollesPositions();
+        } else {
+            console.log("{DEBUG} Create posicio KO");
+            setError(data.message);
+        }
+    }
+
+    const updatePosicio = async (idPosicio) => {
+
+        if (!currentPosition) return;
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/colla/updateCollaPositions?id=${idPosicio}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                descripcio: newTag.descripcio || ""
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Update posicio OK");
+            setError("");
+            setShowModalPosicions(false);
+            setNewTag({ nom: "", descripcio: "" });
+            showTempMessage("Posició modificada correctament.");
+            getCollesPositions();
+        } else {
+            console.log("{DEBUG} Update posicio KO");
+            setError(data.message);
+        }
+    }
+
+    const deletePosicio = async (idPosicio) => {
+
+        if (!window.confirm("Segur que vols eliminar aquesta posició?")) return;
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/colla/deleteCollaPositions?id=${idPosicio}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Delete posicio OK");
+            setError("");
+            showTempMessage("Posició eliminada correctament.");
+            getCollesPositions();
+        } else {
+            console.log("{DEBUG} Delete posicio KO");
             setError(data.message);
         }
     }
@@ -88,7 +192,8 @@ function Etiquetes() {
                     text={isPosition ? 'Afegir posició' : 'Afegir rol'}
                     icon={<FaPlusSquare />}
                     action={() => {
-                        if (isPosition) setShowModal(true);
+                        setCreate(false);
+                        setShowModalPosicions(true);
                     }}
                 />
             </div>
@@ -97,86 +202,198 @@ function Etiquetes() {
                 <FaSearch className="search-icon-tags" />
                 <input type='search' placeholder='Cercar...'></input>
             </div>
-            <div className="table-posicions-tags">
-                <table>
-                    <colgroup>
-                        <col style={{ width: "20%" }} />
-                        <col style={{ width: "40%" }} />
-                        <col style={{ width: "20%" }} />
-                        <col style={{ width: "20%" }} />
-                    </colgroup>
+            {isPosition && (
+                <div className="table-posicions-tags">
+                    <table>
+                        <colgroup>
+                            <col style={{ width: "20%" }} />
+                            <col style={{ width: "60%" }} />
+                            <col style={{ width: "10%" }} />
+                            <col style={{ width: "10%" }} />
+                        </colgroup>
 
-                    <thead>
-                        <tr>
-                            <th>Posició</th>
-                            <th>Descripció</th>
-                            <th>Modificar</th>
-                            <th>Eliminar</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {positions.map((position) => (
-                            <React.Fragment key={position.id}>
-                                <tr>
-                                    <td>{position.nom}</td>
-                                    <td>{position.descripcio}</td>
-                                    <td>✏️</td>
-                                    <td>🗑️</td>
-                                </tr>
-                            </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        <thead>
+                            <tr>
+                                <th>Posició</th>
+                                <th>Descripció</th>
+                                <th>Modificar</th>
+                                <th>Eliminar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {positions.map((position) => (
+                                <>
+                                    <tr>
+                                        <td>{position.nom}</td>
+                                        <td>{position.descripcio}</td>
+                                        <td>
+                                            <button onClick={() => {
+                                                setCurrentPosition(position.id);
+                                                setCreate(false);
+                                                setNewTag({ nom: position.nom, descripcio: position.descripcio });
+                                                setShowModalPosicions(true);
+                                            }}>
+                                                <FaPencilAlt />
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <button onClick={() => deletePosicio(position.id)}>
+                                                <FaTrashAlt />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+            {isRole && (
+                <div className="table-rols-tags">
+                    <table>
+                        <colgroup>
+                            <col style={{ width: "20%" }} />
+                            <col style={{ width: "60%" }} />
+                            <col style={{ width: "10%" }} />
+                            <col style={{ width: "10%" }} />
+                        </colgroup>
 
-            {
-                showModal && (
-                    <div className="modal-overlay-position">
-                        <div className="modal-position">
-                            <h2>Nova posició</h2>
-                            <div className="input-group">
-                                <Input
-                                    name="name"
-                                    type="text"
-                                    placeholder="Nom"
-                                    value={newTag.nom}
-                                    onChange={(e) =>
-                                        setNewTag({ ...newTag, nom: e.target.value })
-                                    }
-                                    inputTitle="Nom"
-                                />
+                        <thead>
+                            <tr>
+                                <th>Rol</th>
+                                <th>Descripció</th>
+                                <th>Modificar</th>
+                                <th>Eliminar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rols.map((rol) => (
+                                <>
+                                    <tr>
+                                        <td>{rol.nom}</td>
+                                        <td>{rol.descripcio}</td>
+                                        <td>
+                                            <button onClick={() => {
+                                                setCurrentRole(rol.id);
+                                                setCreate(false);
+                                                setNewTag({ nom: rol.nom, descripcio: rol.descripcio });
+                                                setShowModalRols(true);
+                                            }}>
+                                                <FaPencilAlt />
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <button onClick={() => {}}>
+                                                <FaTrashAlt />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+            {showModalPosicions && (
+                <div className="modal-overlay-position">
+                    <div className="modal-position">
+                        <h2>
+                            {isCreate ? "Nova posició" : "Modificar posició"}
+                        </h2>
+                        <div className="input-group">
+                            <Input
+                                name="name"
+                                type="text"
+                                placeholder="Nom"
+                                value={newTag.nom}
+                                onChange={(e) =>
+                                    setNewTag({ ...newTag, nom: e.target.value })
+                                }
+                                inputTitle="Nom"
+                                readOnly={!isCreate}
+                            />
+                        </div>
+                        {error && (
+                            <div className="error-message">
+                                {error}
                             </div>
-                            <div>Descripció</div>
-                            <div className="input-group">
-                                <textarea
-                                    placeholder="Descripció"
-                                    value={newTag.descripcio}
-                                    onChange={(e) =>
-                                        setNewTag({ ...newTag, descripcio: e.target.value })
-                                    }
-                                />
-                            </div>
-                            <div className="modal-buttons-position">
+                        )}
+                        <div>Descripció</div>
+                        <div className="input-group">
+                            <textarea
+                                placeholder="Descripció"
+                                value={newTag.descripcio}
+                                onChange={(e) =>
+                                    setNewTag({ ...newTag, descripcio: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div className="modal-buttons-position">
 
-                                <Button
-                                    text="Guardar canvis"
-                                    icon={<FaSave />}
-                                    action={() => {
-                                        console.log(newTag);
-                                        setShowModal(false);
-                                        setNewTag({ nom: "", descripcio: "" });
-                                    }}
-                                />
+                            <Button
+                                text={isCreate ? "Afegir posició" : "Guardar canvis"}
+                                icon={isCreate ? <FaPlusSquare /> : <FaSave />}
+                                action={isCreate ? createPosicio : () => updatePosicio(currentPosition)} />
 
-                                <Button
-                                    text="Cancelar"
-                                    icon={<FaTimesCircle />}
-                                    action={() => setShowModal(false)}
-                                />
-                            </div>
+                            <Button
+                                text="Cancelar"
+                                icon={<FaTimesCircle />}
+                                action={() => { setShowModalPosicions(false) }}
+                            />
                         </div>
                     </div>
-                )
+                </div>
+            )}
+            {showModalRols && (
+                <div className="modal-overlay-role">
+                    <div className="modal-role">
+                        <h2>
+                            {isCreate ? "Nou rol" : "Modificar rol"}
+                        </h2>
+                        <div className="input-group">
+                            <Input
+                                name="name"
+                                type="text"
+                                placeholder="Nom"
+                                value={newTag.nom}
+                                onChange={(e) =>
+                                    setNewTag({ ...newTag, nom: e.target.value })
+                                }
+                                inputTitle="Nom"
+                                readOnly={!isCreate}
+                            />
+                        </div>
+                        {error && (
+                            <div className="error-message">
+                                {error}
+                            </div>
+                        )}
+                        <div>Descripció</div>
+                        <div className="input-group">
+                            <textarea
+                                placeholder="Descripció"
+                                value={newTag.descripcio}
+                                onChange={(e) =>
+                                    setNewTag({ ...newTag, descripcio: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div className="modal-buttons-role">
+
+                            <Button
+                                text={isCreate ? "Afegir posició" : "Guardar canvis"}
+                                icon={isCreate ? <FaPlusSquare /> : <FaSave />}
+                                action={isCreate ? createPosicio : () => updatePosicio(currentPosition)} />
+
+                            <Button
+                                text="Cancelar"
+                                icon={<FaTimesCircle />}
+                                action={() => setShowModalRols(false)}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )
             }
         </div>
     )

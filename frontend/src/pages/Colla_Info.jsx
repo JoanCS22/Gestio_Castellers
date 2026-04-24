@@ -166,7 +166,7 @@ function CollaInfo() {
         if (response.ok) {
             console.log("{DEBUG} Update colla OK");
             setError("");
-            showTempMessage("Colla creada correctament.");
+            showTempMessage("Colla modificada correctament.");
             navigate("/get_data_colla")
         } else {
             console.log("{DEBUG} Update colla KO");
