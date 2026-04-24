@@ -327,7 +327,7 @@ function CollaInfo() {
                                 icon={<FaTimesCircle />}
                                 action={() => {
                                     getDataColla();
-                                    navigate("/see_info_colla");
+                                    navigate("/get_data_colla");
                                 }}
                             />
                         </>

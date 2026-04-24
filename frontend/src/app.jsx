@@ -15,7 +15,6 @@ function App() {
       <Route path="/normal_profile" element={<NormalProfile />} />
       <Route path="/create_colla" element={<CollaInfo />} />
       <Route path="/modify_info_colla" element={<CollaInfo />} />
-      <Route path="/see_info_colla" element={<CollaInfo />} />
       <Route path="/get_data_colla" element={<CollaInfo />} />
       <Route path="/etiquetes" element={<Etiquetes />} />
       <Route path="/rols" element={<Etiquetes />} />
