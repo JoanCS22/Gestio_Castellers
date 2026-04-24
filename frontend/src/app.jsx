@@ -18,6 +18,7 @@ function App() {
       <Route path="/see_info_colla" element={<CollaInfo />} />
       <Route path="/get_data_colla" element={<CollaInfo />} />
       <Route path="/etiquetes" element={<Etiquetes />} />
+      <Route path="/rols" element={<Etiquetes />} />
     </Routes>
   );
 }

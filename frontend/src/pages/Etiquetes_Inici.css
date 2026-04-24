@@ -1,0 +1,57 @@
+.selection-bar {
+    position: static;
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    width: 100%;
+    height: 100%;
+    
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.position-select,
+.grups-select,
+.rols-select {
+    flex: 1;
+    display: flex;
+    align-items: center;
+
+    justify-content: center;
+    height: 100%;
+}
+
+.position-select:hover,
+.grups-select:hover,
+.rols-select:hover{
+    background-color: rgb(219, 219, 219);
+}
+
+.button-section{
+    align-items: center;
+    justify-items: center;
+
+    padding: 20px;
+}
+
+.search-bar{
+    align-items: center;
+    justify-items: center;
+
+    padding: 10px;
+}
+
+.table-posicions {
+border-collapse: collapse;
+width: 50%;
+}
+
+.table-posicions th, .table-posicions td {
+border: 1px solid black;
+padding: 8px;
+text-align: center;
+}
+
+.table-posicions th {
+background-color: #f2f2f2;
+}

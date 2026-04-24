@@ -83,8 +83,9 @@ function CollaInfo() {
         if (response.ok) {
             console.log("{DEBUG} Create colla OK");
             setError("");
+            localStorage.setItem("id_colla", data.id);
             showTempMessage("Colla creada correctament.");
-            navigate("/see_info_colla")
+            navigate("/get_data_colla")
         } else {
             console.log("{DEBUG} Create colla KO");
             setError(data.message);
@@ -166,7 +167,7 @@ function CollaInfo() {
             console.log("{DEBUG} Update colla OK");
             setError("");
             showTempMessage("Colla creada correctament.");
-            navigate("/see_info_colla")
+            navigate("/get_data_colla")
         } else {
             console.log("{DEBUG} Update colla KO");
             setError(data.message);
