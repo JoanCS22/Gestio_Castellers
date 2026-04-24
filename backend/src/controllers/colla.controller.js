@@ -134,4 +134,92 @@ const modifyColla = async (req, res) => {
     }
 };
 
-module.exports = { createColla, getCollesUser, getDataColla, modifyColla };
+const getCollaPositions = async (req, res) => {
+    try {
+        const collaActiva = req.query.id;
+
+        const result = await pool.query(
+            `SELECT * FROM posicions WHERE id_colla = $1`,
+            [collaActiva]
+        );
+
+        if (result.rows == 0) {
+            console.log('{INFO} No positions exist for this colla')
+        }
+
+        res.status(200).json(result.rows);
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({ message: 'Error al rebre les dades {getCollaPositions}' });
+    }
+};
+
+const createCollaPosition = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const { nom, abreviacio, telefon, correus_contacte, data_creacio, adreca, poblacio } = req.body;
+
+        const dataCreacio = toDateOrNull(data_creacio);
+        const userId = req.user.id;
+
+        await client.query("BEGIN");
+
+        const exists = await client.query(
+            'SELECT id FROM colles WHERE nom = $1',
+            [nom]
+        );
+
+        if (exists.rows.length > 0) {
+            await client.query("ROLLBACK");
+            return res.status(400).json({ message: 'El nom de la colla ja existeix.' });
+        }
+
+        const resultColla = await client.query(
+            `INSERT INTO colles (nom, abreviacio, telefon, correus_contacte, data_creacio, adreca, poblacio)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)
+             RETURNING *`,
+            [nom, abreviacio, telefon, correus_contacte, dataCreacio, adreca, poblacio]
+        );
+
+        const idColla = resultColla.rows[0].id;
+
+        await client.query(
+            `INSERT INTO membres_colla (id_usuari, id_colla, id_rol, actiu, data_acces)
+             VALUES ($1, $2, $3, $4, NOW())`,
+            [userId, idColla, 1, true]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(resultColla.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        if (error.code === '23505') {
+            return res.status(400).json({ message: 'El nom ja existeix' });
+        }
+
+        res.status(500).json({ message: 'Error al crear la colla' });
+
+    } finally {
+        client.release();
+    }
+};
+
+const updateCollaPositions = async (req, res) => {
+
+};
+
+const deleteCollaPositions = async (req, res) => {
+
+};
+
+module.exports = {
+    createColla, getCollesUser, getDataColla, modifyColla,
+    getCollaPositions, updateCollaPositions, deleteCollaPositions, createCollaPosition
+};
