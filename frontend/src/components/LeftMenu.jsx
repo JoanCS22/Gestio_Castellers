@@ -67,7 +67,9 @@ const LeftMenu = () => {
               <div onClick={() => {
                 navigate("/get_data_colla");
               }}>Informació colla</div>
-              <div onClick={() => { }}>Membres</div>
+              <div onClick={() => {
+                navigate("/members");
+              }}>Membres</div>
               <div onClick={() => {
                 navigate("/etiquetes");
               }}>Etiquetes</div>

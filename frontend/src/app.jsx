@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard"
 import NormalProfile from "./pages/Usuaris_PerfilNormal";
 import CollaInfo from "./pages/Colla_Info";
 import Etiquetes from "./pages/Etiquetes_Inici";
+import MembresColla from "./pages/Colla_Membres";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
       <Route path="/get_data_colla" element={<CollaInfo />} />
       <Route path="/etiquetes" element={<Etiquetes />} />
       <Route path="/rols" element={<Etiquetes />} />
+      <Route path="/members" element={<MembresColla />} />
     </Routes>
   );
 }

@@ -1,0 +1,83 @@
+.button-add-membres {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+}
+
+.filtres-members {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    width: 90%;
+    margin: 10px auto;
+    flex-wrap: wrap;
+}
+
+.search-tab-members,
+.group-selector-members,
+.position-selector-members {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* DROPDOWN SELECTORS */
+
+.dropdown-grups-members, .dropdown-positions-members {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dropdown-grups-members button, .dropdown-positions-members button {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.dropdown-content-positions-members, .dropdown-content-positions-members {
+    position: absolute;
+    top: 35px;
+    left: 0;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    min-width: 160px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-content-positions-members label, .dropdown-content-positions-members label {
+    cursor: pointer;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* TAULA */
+
+.table-members {
+    border-collapse: collapse;
+    width: 90%;
+    margin: 20px auto;
+    table-layout: fixed;
+}
+
+.table-members table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.table-members th,
+.table-members td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
