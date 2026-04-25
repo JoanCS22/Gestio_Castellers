@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const { createColla, getCollesUser, getDataColla, modifyColla, getCollaPositions, updateCollaPositions, 
-    deleteCollaPositions, createCollaPosition } = require('../controllers/colla.controller');
+const { createColla, getCollesUser, getDataColla, modifyColla, 
+    getCollaPositions, updateCollaPositions, deleteCollaPositions, createCollaPosition, 
+    getCollaRoles, createCollaRoles, updateCollaRoles, deleteCollaRole 
+} = require('../controllers/colla.controller');
 const auth = require('../middleware/auth');
 
 router.post('/createColla', auth, createColla);
@@ -15,5 +17,10 @@ router.get('/getCollaPositions', auth, getCollaPositions);
 router.post('/createCollaPosition', auth, createCollaPosition);
 router.post('/updateCollaPositions', auth, updateCollaPositions);
 router.delete('/deleteCollaPositions', auth, deleteCollaPositions);
+
+router.get('/getCollaRoles', auth, getCollaRoles);
+router.post('/createCollaRoles', auth, createCollaRoles);
+router.post('/updateCollaRoles', auth, updateCollaRoles);
+router.delete('/deleteCollaRole', auth, deleteCollaRole);
 
 module.exports = router;

@@ -8,6 +8,7 @@ import './Etiquetes_Inici.css';
 import TopMenu from "../components/TopMenu";
 import Button from "../components/Button";
 import Input from "../components/Input";
+import PermisoSelector from "../components/PermisoSelector";
 
 function Etiquetes() {
 
@@ -20,9 +21,25 @@ function Etiquetes() {
 
     const [showModalPosicions, setShowModalPosicions] = useState(false);
     const [showModalRols, setShowModalRols] = useState(false);
-    const [newTag, setNewTag] = useState({
+    const [newPositionTag, setNewPositionTag] = useState({
         nom: "",
         descripcio: ""
+    });
+    const [newRoleTag, setNewRoleTag] = useState({
+        nom: "",
+        descripcio: "",
+        permisos: {},
+    });
+    const [permisos, setPermisos] = useState({
+        esdeveniments: "X",
+        proves: "X",
+        plantilles: "X",
+        assistencia: "X",
+        notificacions: "X",
+        colla: "X",
+        permisos: "X",
+        membres: "X",
+        llistats: "X"
     });
 
     const [error, setError] = useState("");
@@ -32,6 +49,13 @@ function Etiquetes() {
 
     const isPosition = selectedTag === "posicions";
     const isRole = selectedTag === "rols";
+
+    const updatePermiso = (key, value) => {
+        setPermisos(prev => ({
+            ...prev,
+            [key]: value
+        }));
+    };
 
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
@@ -71,7 +95,7 @@ function Etiquetes() {
         const token = localStorage.getItem("token");
         const idColla = localStorage.getItem("id_colla");
 
-        if (newTag.nom == "") {
+        if (newPositionTag.nom == "") {
             setError(`El camp nom no pot estar buit`);
             return;
         }
@@ -83,8 +107,8 @@ function Etiquetes() {
                 "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify({
-                nom: newTag.nom,
-                descripcio: newTag.descripcio || ""
+                nom: newPositionTag.nom,
+                descripcio: newPositionTag.descripcio || ""
             }),
         });
 
@@ -94,7 +118,7 @@ function Etiquetes() {
             console.log("{DEBUG} Create posicio OK");
             setError("");
             setShowModalPosicions(false);
-            setNewTag({ nom: "", descripcio: "" });
+            setNewPositionTag({ nom: "", descripcio: "" });
             showTempMessage("Posició creada correctament.");
             getCollesPositions();
         } else {
@@ -116,7 +140,7 @@ function Etiquetes() {
                 "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify({
-                descripcio: newTag.descripcio || ""
+                descripcio: newPositionTag.descripcio || ""
             }),
         });
 
@@ -126,7 +150,7 @@ function Etiquetes() {
             console.log("{DEBUG} Update posicio OK");
             setError("");
             setShowModalPosicions(false);
-            setNewTag({ nom: "", descripcio: "" });
+            setNewPositionTag({ nom: "", descripcio: "" });
             showTempMessage("Posició modificada correctament.");
             getCollesPositions();
         } else {
@@ -162,6 +186,129 @@ function Etiquetes() {
         }
     }
 
+    const getCollesRoles = async () => {
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        const response = await fetch(`http://localhost:5000/colla/getCollaRoles?id=${idColla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setRols(data);
+            console.log("{DEBUG} Get colla's roles OK")
+        } else {
+            console.log("{DEBUG} Get colla's roles KO")
+            setError(data.message);
+        }
+    }
+
+    const createRoles = async (e) => {
+        e.preventDefault();
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        if (newRoleTag.nom == "") {
+            setError(`El camp nom no pot estar buit`);
+            return;
+        }
+
+        const response = await fetch(`http://localhost:5000/colla/createCollaRoles?id=${idColla}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                nom: newRoleTag.nom,
+                descripcio: newRoleTag.descripcio || "",
+                permisos: permisos
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Create posicio OK");
+            setError("");
+            setShowModalPosicions(false);
+            setNewRoleTag({ nom: "", descripcio: "" });
+            showTempMessage("Rol creat correctament.");
+            getCollesPositions();
+        } else {
+            console.log("{DEBUG} Create role KO");
+            setError(data.message);
+        }
+    }
+
+    const updateRoles = async (idPosicio) => {
+
+        if (!currentPosition) return;
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/colla/updateCollaRoles?id=${idPosicio}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                descripcio: newRoleTag.descripcio || "",
+                permisos: permisos
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Update roles OK");
+            setError("");
+            setShowModalPosicions(false);
+            setNewRoleTag({ nom: "", descripcio: "" });
+            showTempMessage("Rol modificat correctament.");
+            getCollesPositions();
+        } else {
+            console.log("{DEBUG} Update roles KO");
+            setError(data.message);
+        }
+    }
+
+    const deleteRoles = async (idPosicio) => {
+
+        if (!window.confirm("Segur que vols eliminar aquest rol?")) return;
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/colla/deleteCollaRole?id=${idPosicio}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Delete roles OK");
+            setError("");
+            showTempMessage("Rol eliminat correctament.");
+            getCollesPositions();
+        } else {
+            console.log("{DEBUG} Delete roles KO");
+            setError(data.message);
+        }
+    }
+
     useEffect(() => {
         getCollesPositions();
     }, []);
@@ -174,10 +321,12 @@ function Etiquetes() {
             <div className="selection-bar-tags">
                 <div className={`position-select-tags ${isPosition ? "active" : ""}`} onClick={() => {
                     setSelectedTag("posicions");
+                    getCollesPositions();
                 }}>Posicions</div>
                 <div className='grups-select-tags'>Grups</div>
                 <div className={`rols-select-tags ${isRole ? "active" : ""}`} onClick={() => {
                     setSelectedTag("rols");
+                    getCollesRoles();
                 }}>Rols</div>
             </div>
             {
@@ -192,8 +341,13 @@ function Etiquetes() {
                     text={isPosition ? 'Afegir posició' : 'Afegir rol'}
                     icon={<FaPlusSquare />}
                     action={() => {
-                        setCreate(false);
-                        setShowModalPosicions(true);
+                        setCreate(true);
+
+                        if (isPosition) {
+                            setShowModalPosicions(true);
+                        } else {
+                            setShowModalRols(true);
+                        }
                     }}
                 />
             </div>
@@ -230,7 +384,7 @@ function Etiquetes() {
                                             <button onClick={() => {
                                                 setCurrentPosition(position.id);
                                                 setCreate(false);
-                                                setNewTag({ nom: position.nom, descripcio: position.descripcio });
+                                                setNewPositionTag({ nom: position.nom, descripcio: position.descripcio });
                                                 setShowModalPosicions(true);
                                             }}>
                                                 <FaPencilAlt />
@@ -276,14 +430,14 @@ function Etiquetes() {
                                             <button onClick={() => {
                                                 setCurrentRole(rol.id);
                                                 setCreate(false);
-                                                setNewTag({ nom: rol.nom, descripcio: rol.descripcio });
+                                                setNewRoleTag({ nom: rol.nom, descripcio: rol.descripcio });
                                                 setShowModalRols(true);
                                             }}>
                                                 <FaPencilAlt />
                                             </button>
                                         </td>
                                         <td>
-                                            <button onClick={() => {}}>
+                                            <button onClick={() => { }}>
                                                 <FaTrashAlt />
                                             </button>
                                         </td>
@@ -305,9 +459,9 @@ function Etiquetes() {
                                 name="name"
                                 type="text"
                                 placeholder="Nom"
-                                value={newTag.nom}
+                                value={newPositionTag.nom}
                                 onChange={(e) =>
-                                    setNewTag({ ...newTag, nom: e.target.value })
+                                    setNewPositionTag({ ...newPositionTag, nom: e.target.value })
                                 }
                                 inputTitle="Nom"
                                 readOnly={!isCreate}
@@ -322,9 +476,9 @@ function Etiquetes() {
                         <div className="input-group">
                             <textarea
                                 placeholder="Descripció"
-                                value={newTag.descripcio}
+                                value={newPositionTag.descripcio}
                                 onChange={(e) =>
-                                    setNewTag({ ...newTag, descripcio: e.target.value })
+                                    setNewPositionTag({ ...newPositionTag, descripcio: e.target.value })
                                 }
                             />
                         </div>
@@ -355,9 +509,9 @@ function Etiquetes() {
                                 name="name"
                                 type="text"
                                 placeholder="Nom"
-                                value={newTag.nom}
+                                value={newRoleTag.nom}
                                 onChange={(e) =>
-                                    setNewTag({ ...newTag, nom: e.target.value })
+                                    setNewRoleTag({ ...newRoleTag, nom: e.target.value })
                                 }
                                 inputTitle="Nom"
                                 readOnly={!isCreate}
@@ -372,12 +526,71 @@ function Etiquetes() {
                         <div className="input-group">
                             <textarea
                                 placeholder="Descripció"
-                                value={newTag.descripcio}
+                                value={newRoleTag.descripcio}
                                 onChange={(e) =>
-                                    setNewTag({ ...newTag, descripcio: e.target.value })
+                                    setNewRoleTag({ ...newRoleTag, descripcio: e.target.value })
                                 }
                             />
                         </div>
+
+                        <div className="permisos-wrapper">
+
+                            <PermisoSelector
+                                label="Esdeveniments"
+                                value={permisos.esdeveniments}
+                                onChange={(v) => updatePermiso("esdeveniments", v)}
+                            />
+
+                            <PermisoSelector
+                                label="Proves"
+                                value={permisos.proves}
+                                onChange={(v) => updatePermiso("proves", v)}
+                            />
+
+                            <PermisoSelector
+                                label="Plantilles"
+                                value={permisos.plantilles}
+                                onChange={(v) => updatePermiso("plantilles", v)}
+                            />
+
+                            <PermisoSelector
+                                label="Assistència"
+                                value={permisos.assistencia}
+                                onChange={(v) => updatePermiso("assistencia", v)}
+                            />
+
+                            <PermisoSelector
+                                label="Notificacions"
+                                value={permisos.notificacions}
+                                onChange={(v) => updatePermiso("notificacions", v)}
+                            />
+
+                            <PermisoSelector
+                                label="Colla"
+                                value={permisos.colla}
+                                onChange={(v) => updatePermiso("colla", v)}
+                            />
+
+                            <PermisoSelector
+                                label="Permisos"
+                                value={permisos.permisos}
+                                onChange={(v) => updatePermiso("permisos", v)}
+                            />
+
+                            <PermisoSelector
+                                label="Membres"
+                                value={permisos.membres}
+                                onChange={(v) => updatePermiso("membres", v)}
+                            />
+
+                            <PermisoSelector
+                                label="Llistats"
+                                value={permisos.llistats}
+                                onChange={(v) => updatePermiso("llistats", v)}
+                            />
+
+                        </div>
+
                         <div className="modal-buttons-role">
 
                             <Button

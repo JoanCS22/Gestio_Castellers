@@ -61,21 +61,23 @@
     justify-content: center;
 }
 
-.table-posicions-tags {
+.table-posicions-tags, .table-rols-tags {
     border-collapse: collapse;
     width: 80%;
     margin: 20px auto;
     table-layout: fixed;
 }
 
-.table-posicions-tags table {
+.table-posicions-tags table, .table-rols-tags table {
     width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
 }
 
 .table-posicions-tags th,
-.table-posicions-tags td {
+.table-posicions-tags td,
+.table-rols-tags th,
+.table-rols-tags td {
     border: 1px solid black;
     padding: 8px;
     text-align: center;

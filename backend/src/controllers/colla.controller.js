@@ -260,7 +260,140 @@ const deleteCollaPositions = async (req, res) => {
     } catch (error) {
         await client.query("ROLLBACK");
         console.error(error);
-        res.status(500).json({ message: 'Error al eliminar la posició' });
+        res.status(500).json({ message: `Error a l'eliminar la posició` });
+
+    } finally {
+        client.release();
+    }
+};
+
+const getCollaRoles = async (req, res) => {
+    try {
+        const collaActiva = req.query.id;
+
+        const result = await pool.query(
+            `SELECT * FROM rols WHERE (id_colla = $1 OR nom in ('Administrador', 'Membre'))`,
+            [collaActiva]
+        );
+
+        if (result.rows == 0) {
+            console.log('{INFO} No roles exist for this colla')
+        }
+
+        res.status(200).json(result.rows);
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({ message: 'Error al rebre les dades {getCollaRoles}' });
+    }
+};
+
+const createCollaRoles = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const { nom, descripcio, permisos } = req.body;
+
+        const collaActiva = req.query.id;
+
+        await client.query("BEGIN");
+
+        const exists = await client.query(
+            'SELECT id FROM rols WHERE id_colla = $1 AND nom = $2',
+            [collaActiva, nom]
+        );
+
+        if (exists.rows.length > 0) {
+            await client.query("ROLLBACK");
+            return res.status(400).json({ message: 'El nom del rol ja existeix.' });
+        }
+
+        const resultRol = await client.query(
+            `INSERT INTO rols (nom, descripcio, permisos, id_colla)
+             VALUES ($1, $2, $3, $4)
+             RETURNING *`,
+            [nom, descripcio, permisos, collaActiva]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(resultPosicio.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        if (error.code === '23505') {
+            return res.status(400).json({ message: 'El nom ja existeix' });
+        }
+
+        res.status(500).json({ message: 'Error al crear la colla' });
+
+    } finally {
+        client.release();
+    }
+};
+
+const updateCollaRoles = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const id_rol = req.query.id;
+
+        const { descripcio, permisos } = req.body;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `UPDATE rols 
+            SET descripcio = $2, permisos = $3
+            WHERE id = $1
+            RETURNING *`,
+            [id_rol, descripcio, permisos]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+        res.status(500).json({ message: 'Error al modificar el rol' });
+
+    } finally {
+        client.release();
+    }
+};
+
+const deleteCollaRole = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const id_rol = req.query.id;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `DELETE FROM rols 
+            WHERE id = $1
+            RETURNING *`,
+            [id_rol]
+        );
+
+        await client.query("COMMIT");
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Rol no trobat" });
+        }
+
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+        res.status(500).json({ message: `Error a l'eliminar el rol` });
 
     } finally {
         client.release();
@@ -269,5 +402,6 @@ const deleteCollaPositions = async (req, res) => {
 
 module.exports = {
     createColla, getCollesUser, getDataColla, modifyColla,
-    getCollaPositions, updateCollaPositions, deleteCollaPositions, createCollaPosition
+    getCollaPositions, updateCollaPositions, deleteCollaPositions, createCollaPosition,
+    getCollaRoles, createCollaRoles, updateCollaRoles, deleteCollaRole
 };
