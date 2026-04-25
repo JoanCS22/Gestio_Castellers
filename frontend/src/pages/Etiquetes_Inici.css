@@ -10,7 +10,7 @@
     box-sizing: border-box;
 }
 
-.selected-current-tag{
+.selected-current-tag {
     background-color: #bdbdbd;
 }
 
@@ -19,10 +19,10 @@
 .rols-select-tags {
     flex: 1;
     display: flex;
-    align-items: center;      
+    align-items: center;
     justify-content: center;
 
-    height: 100%;            
+    height: 100%;
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.1s ease;
 }
@@ -61,14 +61,16 @@
     justify-content: center;
 }
 
-.table-posicions-tags, .table-rols-tags {
+.table-posicions-tags,
+.table-rols-tags {
     border-collapse: collapse;
     width: 80%;
     margin: 20px auto;
     table-layout: fixed;
 }
 
-.table-posicions-tags table, .table-rols-tags table {
+.table-posicions-tags table,
+.table-rols-tags table {
     width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
@@ -85,7 +87,7 @@
 
 /* MODAL POSICIÓ */
 
-.modal-overlay-position {
+.modal-overlay-position, .modal-overlay-role {
     position: fixed;
     top: 0;
     left: 0;
@@ -101,7 +103,7 @@
     z-index: 1000;
 }
 
-.modal-position {
+.modal-position, .modal-role {
     background: white;
     padding: 30px;
     border-radius: 12px;
@@ -119,18 +121,18 @@
     display: flex;
 }
 
-.input-group > * {
+.input-group>* {
     width: 100%;
 }
 
-.modal-position h2 {
+.modal-position h2, .modal-role h2 {
     text-align: center;
     margin-bottom: 10px;
 }
 
 .modal-position input,
 .modal-position textarea {
-    width: 100%;          
+    width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 6px;
@@ -144,8 +146,45 @@
     resize: none;
 }
 
-.modal-buttons-position {
+.modal-buttons-position,
+.modal-buttons-role {
     display: flex;
     justify-content: space-between;
     margin-top: 10px;
+}
+
+/* MODAL ROLS */
+
+.modal-role {
+    width: 700px;
+}
+
+.modal-role .top-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.permisos-wrapper {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+}
+
+.permiso-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 6px 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+}
+
+.permiso-row span {
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: capitalize;
 }

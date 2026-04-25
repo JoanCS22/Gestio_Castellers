@@ -318,7 +318,7 @@ const createCollaRoles = async (req, res) => {
 
         await client.query("COMMIT");
 
-        res.status(200).json(resultPosicio.rows[0]);
+        res.status(200).json(resultRol.rows[0]);
 
     } catch (error) {
         await client.query("ROLLBACK");
@@ -328,7 +328,7 @@ const createCollaRoles = async (req, res) => {
             return res.status(400).json({ message: 'El nom ja existeix' });
         }
 
-        res.status(500).json({ message: 'Error al crear la colla' });
+        res.status(500).json({ message: 'Error al crear el rol' });
 
     } finally {
         client.release();

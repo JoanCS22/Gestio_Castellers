@@ -14,13 +14,17 @@ function Etiquetes() {
 
     const location = useLocation();
 
+    const [message, setTempMessage] = useState(null);
+    const [error, setError] = useState("");
+
     const [selectedTag, setSelectedTag] = useState("posicions");
+
     const [positions, setPositions] = useState([]);
     const [rols, setRols] = useState([]);
-    const [message, setTempMessage] = useState(null);
 
     const [showModalPosicions, setShowModalPosicions] = useState(false);
     const [showModalRols, setShowModalRols] = useState(false);
+
     const [newPositionTag, setNewPositionTag] = useState({
         nom: "",
         descripcio: ""
@@ -28,9 +32,9 @@ function Etiquetes() {
     const [newRoleTag, setNewRoleTag] = useState({
         nom: "",
         descripcio: "",
-        permisos: {},
     });
-    const [permisos, setPermisos] = useState({
+
+    const defaultPermisos = {
         esdeveniments: "X",
         proves: "X",
         plantilles: "X",
@@ -40,12 +44,13 @@ function Etiquetes() {
         permisos: "X",
         membres: "X",
         llistats: "X"
-    });
+    };
 
-    const [error, setError] = useState("");
+    const [permisos, setPermisos] = useState(defaultPermisos);
+
     const [isCreate, setCreate] = useState(true);
     const [currentPosition, setCurrentPosition] = useState(null);
-    const [currentRole, setCurrentRole] = useState({});
+    const [currentRole, setCurrentRole] = useState(null);
 
     const isPosition = selectedTag === "posicions";
     const isRole = selectedTag === "rols";
@@ -56,6 +61,8 @@ function Etiquetes() {
             [key]: value
         }));
     };
+
+    const resetPermisos = () => setPermisos(defaultPermisos);
 
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
@@ -239,23 +246,24 @@ function Etiquetes() {
         if (response.ok) {
             console.log("{DEBUG} Create posicio OK");
             setError("");
-            setShowModalPosicions(false);
+            setShowModalRols(false);
             setNewRoleTag({ nom: "", descripcio: "" });
             showTempMessage("Rol creat correctament.");
-            getCollesPositions();
+            resetPermisos();
+            getCollesRoles();
         } else {
             console.log("{DEBUG} Create role KO");
             setError(data.message);
         }
     }
 
-    const updateRoles = async (idPosicio) => {
+    const updateRoles = async (idRol) => {
 
-        if (!currentPosition) return;
+        if (!currentRole) return;
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch(`http://localhost:5000/colla/updateCollaRoles?id=${idPosicio}`, {
+        const response = await fetch(`http://localhost:5000/colla/updateCollaRoles?id=${idRol}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -272,23 +280,24 @@ function Etiquetes() {
         if (response.ok) {
             console.log("{DEBUG} Update roles OK");
             setError("");
-            setShowModalPosicions(false);
+            setShowModalRols(false);
             setNewRoleTag({ nom: "", descripcio: "" });
+            resetPermisos();
             showTempMessage("Rol modificat correctament.");
-            getCollesPositions();
+            getCollesRoles();
         } else {
             console.log("{DEBUG} Update roles KO");
             setError(data.message);
         }
     }
 
-    const deleteRoles = async (idPosicio) => {
+    const deleteRoles = async (idRol) => {
 
         if (!window.confirm("Segur que vols eliminar aquest rol?")) return;
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch(`http://localhost:5000/colla/deleteCollaRole?id=${idPosicio}`, {
+        const response = await fetch(`http://localhost:5000/colla/deleteCollaRole?id=${idRol}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
@@ -302,7 +311,7 @@ function Etiquetes() {
             console.log("{DEBUG} Delete roles OK");
             setError("");
             showTempMessage("Rol eliminat correctament.");
-            getCollesPositions();
+            getCollesRoles();
         } else {
             console.log("{DEBUG} Delete roles KO");
             setError(data.message);
@@ -322,11 +331,15 @@ function Etiquetes() {
                 <div className={`position-select-tags ${isPosition ? "active" : ""}`} onClick={() => {
                     setSelectedTag("posicions");
                     getCollesPositions();
+                    setShowModalPosicions(false);
+                    setShowModalRols(false);
                 }}>Posicions</div>
                 <div className='grups-select-tags'>Grups</div>
                 <div className={`rols-select-tags ${isRole ? "active" : ""}`} onClick={() => {
                     setSelectedTag("rols");
                     getCollesRoles();
+                    setShowModalPosicions(false);
+                    setShowModalRols(false);
                 }}>Rols</div>
             </div>
             {
@@ -344,8 +357,11 @@ function Etiquetes() {
                         setCreate(true);
 
                         if (isPosition) {
+                            setNewPositionTag({ nom: "", descripcio: ""})
                             setShowModalPosicions(true);
                         } else {
+                            setNewRoleTag({ nom: "", descripcio: ""});
+                            resetPermisos();
                             setShowModalRols(true);
                         }
                     }}
@@ -377,7 +393,7 @@ function Etiquetes() {
                         <tbody>
                             {positions.map((position) => (
                                 <>
-                                    <tr>
+                                    <tr key={position.id}>
                                         <td>{position.nom}</td>
                                         <td>{position.descripcio}</td>
                                         <td>
@@ -423,21 +439,28 @@ function Etiquetes() {
                         <tbody>
                             {rols.map((rol) => (
                                 <>
-                                    <tr>
+                                    <tr key={rol.id}>
                                         <td>{rol.nom}</td>
                                         <td>{rol.descripcio}</td>
                                         <td>
                                             <button onClick={() => {
-                                                setCurrentRole(rol.id);
-                                                setCreate(false);
-                                                setNewRoleTag({ nom: rol.nom, descripcio: rol.descripcio });
-                                                setShowModalRols(true);
+                                                if (rol.nom != "Administrador" && rol.nom != 'Membre') {
+                                                    setCurrentRole(rol.id);
+                                                    setCreate(false);
+                                                    setNewRoleTag({ nom: rol.nom, descripcio: rol.descripcio });
+                                                    setPermisos(rol.permisos || defaultPermisos);
+                                                    setShowModalRols(true);
+                                                }
                                             }}>
                                                 <FaPencilAlt />
                                             </button>
                                         </td>
                                         <td>
-                                            <button onClick={() => { }}>
+                                            <button onClick={() => {
+                                                if (rol.nom != "Administrador" && rol.nom != 'Membre') {
+                                                    deleteRoles(rol.id);
+                                                }
+                                            }}>
                                                 <FaTrashAlt />
                                             </button>
                                         </td>
@@ -492,7 +515,7 @@ function Etiquetes() {
                             <Button
                                 text="Cancelar"
                                 icon={<FaTimesCircle />}
-                                action={() => { setShowModalPosicions(false) }}
+                                action={() => { setShowModalPosicions(false); setError(""); }}
                             />
                         </div>
                     </div>
@@ -534,74 +557,26 @@ function Etiquetes() {
                         </div>
 
                         <div className="permisos-wrapper">
-
-                            <PermisoSelector
-                                label="Esdeveniments"
-                                value={permisos.esdeveniments}
-                                onChange={(v) => updatePermiso("esdeveniments", v)}
-                            />
-
-                            <PermisoSelector
-                                label="Proves"
-                                value={permisos.proves}
-                                onChange={(v) => updatePermiso("proves", v)}
-                            />
-
-                            <PermisoSelector
-                                label="Plantilles"
-                                value={permisos.plantilles}
-                                onChange={(v) => updatePermiso("plantilles", v)}
-                            />
-
-                            <PermisoSelector
-                                label="Assistència"
-                                value={permisos.assistencia}
-                                onChange={(v) => updatePermiso("assistencia", v)}
-                            />
-
-                            <PermisoSelector
-                                label="Notificacions"
-                                value={permisos.notificacions}
-                                onChange={(v) => updatePermiso("notificacions", v)}
-                            />
-
-                            <PermisoSelector
-                                label="Colla"
-                                value={permisos.colla}
-                                onChange={(v) => updatePermiso("colla", v)}
-                            />
-
-                            <PermisoSelector
-                                label="Permisos"
-                                value={permisos.permisos}
-                                onChange={(v) => updatePermiso("permisos", v)}
-                            />
-
-                            <PermisoSelector
-                                label="Membres"
-                                value={permisos.membres}
-                                onChange={(v) => updatePermiso("membres", v)}
-                            />
-
-                            <PermisoSelector
-                                label="Llistats"
-                                value={permisos.llistats}
-                                onChange={(v) => updatePermiso("llistats", v)}
-                            />
-
+                            {Object.keys(permisos).map(key => (
+                                <PermisoSelector
+                                    key={key}
+                                    label={key}
+                                    value={permisos[key]}
+                                    onChange={(v) => updatePermiso(key, v)}
+                                />
+                            ))}
                         </div>
 
                         <div className="modal-buttons-role">
-
                             <Button
-                                text={isCreate ? "Afegir posició" : "Guardar canvis"}
+                                text={isCreate ? "Afegir Rol" : "Guardar canvis"}
                                 icon={isCreate ? <FaPlusSquare /> : <FaSave />}
-                                action={isCreate ? createPosicio : () => updatePosicio(currentPosition)} />
+                                action={isCreate ? createRoles : () => updateRoles(currentRole)} />
 
                             <Button
                                 text="Cancelar"
                                 icon={<FaTimesCircle />}
-                                action={() => setShowModalRols(false)}
+                                action={() => {setShowModalRols(false); setError("") }}
                             />
                         </div>
                     </div>
