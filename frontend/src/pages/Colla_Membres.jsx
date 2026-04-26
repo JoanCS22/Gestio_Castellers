@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { FaPlusSquare, FaSearch } from "react-icons/fa";
+import { FaPlusSquare, FaSearch, FaUserEdit } from "react-icons/fa";
 
 import './Colla_Membres.css';
 
@@ -9,6 +9,8 @@ import TopMenu from "../components/TopMenu";
 import Button from "../components/Button";
 
 function MembresColla() {
+
+    const navigate = useNavigate();
 
     const [error, setError] = useState("");
 
@@ -158,15 +160,25 @@ function MembresColla() {
                     </thead>
                     <tbody>
                         {members.map((member) => (
-                            <>
-                                <tr key={member.id}>
-                                    <td>{member.nom}</td>
-                                    <td>{member.mote}</td>
-                                    <td>{member.posicions}</td>
-                                    <td>{member.rol}</td>
-                                    <td>{member.data_acces}</td>
-                                </tr>
-                            </>
+                            <tr key={member.id}>
+                                <td>
+                                    <div className="member-name-cell">
+                                        <span>{`${member.nom} ${member.cognoms}`}</span>
+                                        <FaUserEdit
+                                            className="icon-user-membre"
+                                            onClick={() => {
+                                                navigate(`/tecnica_profile?userId=${member.id_usuari}&collaId=${member.id_colla}`)
+                                            }}
+                                        />
+                                    </div>
+                                </td>
+                                <td>{member.mote}</td>
+                                <td>{member.posicions?.join(", ") || "-"}</td>
+                                <td>{member.rol}</td>
+                                <td>
+                                    {new Date(member.data_acces).toLocaleDateString("es-ES")}
+                                </td>
+                            </tr>
                         ))}
                     </tbody>
                 </table>

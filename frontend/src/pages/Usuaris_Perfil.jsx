@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import { FaSave, FaTimesCircle, FaPencilAlt } from "react-icons/fa";
 
@@ -7,10 +7,19 @@ import Input from "../components/Input";
 import TopMenu from "../components/TopMenu";
 import Button from "../components/Button";
 
-import "./Usuaris_PerfilNormal.css";
+import "./Usuaris_Perfil.css";
 
-function NormalProfile() {
+function UserProfile() {
     const navigate = useNavigate();
+
+    const location = useLocation();
+
+    const params = new URLSearchParams(location.search);
+
+    const userId = params.get("userId");
+    const collaId = params.get("collaId");
+
+    const isTecnica = location.pathname === '/tecnica_profile';
 
     const [form, setForm] = useState({
         nom: "",
@@ -23,7 +32,9 @@ function NormalProfile() {
         pes: "",
         alcada: "",
         dataLesio: "",
-        infoExtra: ""
+        infoExtra: "",
+        posicions: "",
+        grups: ""
     });
 
     const [genere, setGenere] = useState("M");
@@ -113,7 +124,7 @@ function NormalProfile() {
             });
 
             setLesionat(data.lesionat || false);
-            setGenere(data.genere || "Altre");
+            setGenere(data.genere || "altre");
             setCanalla(data.canalla || false);
 
             console.log("{DEBUG} Get user's data OK")
@@ -127,8 +138,6 @@ function NormalProfile() {
         e.preventDefault();
 
         const token = localStorage.getItem("token");
-
-        const errors = comprovaNums();
 
         if (errors.length > 0) {
             setError(`Els següents camps han de ser numèrics i positius: ${errors.join(", ")}`);
@@ -268,7 +277,7 @@ function NormalProfile() {
                         <button className={`gender-btn ${genere === "F" ? "active" : ""}`} onClick={() => setGenere("F")}>
                             F
                         </button>
-                        <button className={`gender-btn ${genere === "Altre" ? "active" : ""}`} onClick={() => setGenere("Altre")}>
+                        <button className={`gender-btn ${genere === "altre" ? "active" : ""}`} onClick={() => setGenere("altre")}>
                             Altres
                         </button>
                     </div>
@@ -371,6 +380,30 @@ function NormalProfile() {
                         onChange={handleChange}
                     />
                 </div>
+
+                {isTecnica && (
+                    <>
+                        <div className="grid-positions-profile">
+                            <Input
+                                name="posicions"
+                                type="posicions"
+                                inputTitle="Posicions"
+                                value={form.posicions}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div className="grid-groups-profile">
+                            <Input
+                                name="grups"
+                                type="grups"
+                                inputTitle="Grups"
+                                value={form.grups}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </>
+                )}
+
                 {error && (
                     <div className="error-message">
                         {error}
@@ -383,13 +416,17 @@ function NormalProfile() {
                         action={updateData}
                     />
 
-                    <Button
-                        text="Canviar contrasenya"
-                        icon={<FaPencilAlt />}
-                        action={() => {
-                            alert("Funcionalitat encara no implementada.");
-                        }}
-                    />
+                    {!isTecnica && (
+                        <>
+                            <Button
+                                text="Canviar contrasenya"
+                                icon={<FaPencilAlt />}
+                                action={() => {
+                                    alert("Funcionalitat encara no implementada.");
+                                }}
+                            />
+                        </>
+                    )}
 
                     <Button
                         text="Cancelar"
@@ -403,4 +440,4 @@ function NormalProfile() {
     );
 }
 
-export default NormalProfile;
+export default UserProfile;

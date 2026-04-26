@@ -13,6 +13,8 @@ const LeftMenu = () => {
   const [openMenuAgenda, setOpenAgenda] = useState(false);
   const [openMenuColla, setOpenColla] = useState(false);
 
+  const storedId = localStorage.getItem("id_colla");
+
   useEffect(() => {
     setOpenLeft(false);
     setOpenAgenda(false);
@@ -43,41 +45,51 @@ const LeftMenu = () => {
             <span className='menu-title'>LA PLAÇA</span>
           </div>
 
-          <div className='menu-section' onClick={() => setOpenAgenda(!openMenuAgenda)}>
-            Agenda {openMenuAgenda ? <FaCaretUp /> : <FaCaretDown />}
-          </div>
+          {(storedId != null) ? (
+            <>
+              <div className='menu-section' onClick={() => setOpenAgenda(!openMenuAgenda)}>
+                Agenda {openMenuAgenda ? <FaCaretUp /> : <FaCaretDown />}
+              </div>
 
-          {openMenuAgenda && (
-            <div className='submenu'>
-              <div onClick={() => { }}>Esdeveniments</div>
-              <div onClick={() => { }}>Proves</div>
-              <div onClick={() => { }}>Assistència</div>
-            </div>
+              {openMenuAgenda && (
+                <div className='submenu'>
+                  <div onClick={() => { }}>Esdeveniments</div>
+                  <div onClick={() => { }}>Proves</div>
+                  <div onClick={() => { }}>Assistència</div>
+                </div>
+              )}
+
+              <div className='menu-item' onClick={() => { }}>Plantilles</div>
+              <div className='menu-item' onClick={() => { }}>Notificacions</div>
+
+              <div className='menu-section' onClick={() => setOpenColla(!openMenuColla)}>
+                La colla {openMenuColla ? <FaCaretUp /> : <FaCaretDown />}
+              </div>
+
+              {openMenuColla && (
+                <div className='submenu'>
+                  <div onClick={() => {
+                    navigate("/get_data_colla");
+                  }}>Informació colla</div>
+                  <div onClick={() => {
+                    navigate("/members");
+                  }}>Membres</div>
+                  <div onClick={() => {
+                    navigate("/etiquetes");
+                  }}>Etiquetes</div>
+                </div>
+              )}
+
+              <div className='menu-item' onClick={() => { }}>Llistats</div>
+            </>
+          ) : (
+            <>
+              <div className='menu-item' onClick={() => {
+                setOpenLeft(false);
+                navigate("/create_colla");
+              }}> Crear colla </div>
+            </>
           )}
-
-          <div className='menu-item' onClick={() => { }}>Plantilles</div>
-          <div className='menu-item' onClick={() => { }}>Notificacions</div>
-
-          <div className='menu-section' onClick={() => setOpenColla(!openMenuColla)}>
-            La colla {openMenuColla ? <FaCaretUp /> : <FaCaretDown />}
-          </div>
-
-          {openMenuColla && (
-            <div className='submenu'>
-              <div onClick={() => {
-                navigate("/get_data_colla");
-              }}>Informació colla</div>
-              <div onClick={() => {
-                navigate("/members");
-              }}>Membres</div>
-              <div onClick={() => {
-                navigate("/etiquetes");
-              }}>Etiquetes</div>
-            </div>
-          )}
-
-          <div className='menu-item' onClick={() => { }}>Llistats</div>
-
         </div>
       )}
     </div>
