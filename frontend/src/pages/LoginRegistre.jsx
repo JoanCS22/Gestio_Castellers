@@ -53,9 +53,17 @@ function LoginRegistre() {
                 }),
             });
 
+            if (response.status === 401 || response.status === 403) {
+                localStorage.clear();
+                navigate("/login");
+                return;
+            }
+
             const data = await response.json();
 
             if (response.ok) {
+                localStorage.clear();
+
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
 
@@ -90,6 +98,12 @@ function LoginRegistre() {
                         contrasenya: password,
                     }),
                 });
+
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.clear();
+                    navigate("/login");
+                    return;
+                }   
 
                 const data = await response.json();
 

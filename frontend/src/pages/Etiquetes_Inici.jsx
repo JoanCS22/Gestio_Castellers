@@ -85,6 +85,12 @@ function Etiquetes() {
             }
         });
 
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
         const data = await response.json();
 
         if (response.ok) {
@@ -119,6 +125,12 @@ function Etiquetes() {
             }),
         });
 
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
         const data = await response.json();
 
         if (response.ok) {
@@ -151,6 +163,12 @@ function Etiquetes() {
             }),
         });
 
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
         const data = await response.json();
 
         if (response.ok) {
@@ -180,6 +198,12 @@ function Etiquetes() {
             },
         });
 
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
         const data = await response.json();
 
         if (response.ok) {
@@ -205,6 +229,12 @@ function Etiquetes() {
                 "Authorization": `Bearer ${token}`
             }
         });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
 
         const data = await response.json();
 
@@ -241,6 +271,12 @@ function Etiquetes() {
             }),
         });
 
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
         const data = await response.json();
 
         if (response.ok) {
@@ -275,6 +311,12 @@ function Etiquetes() {
             }),
         });
 
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
         const data = await response.json();
 
         if (response.ok) {
@@ -304,6 +346,12 @@ function Etiquetes() {
                 "Authorization": `Bearer ${token}`
             },
         });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
 
         const data = await response.json();
 

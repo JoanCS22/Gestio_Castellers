@@ -39,6 +39,14 @@
     nom VARCHAR(255) UNIQUE NOT NULL,
     descripcio VARCHAR(255),
     permisos JSONB NOT NULL DEFAULT '{}'
+
+    id_colla BIGINT NOT NULL,
+
+    FOREIGN KEY (id_colla)
+    REFERENCES colles(id)
+    ON DELETE CASCADE,
+
+    UNIQUE (nom, id_colla)
   );
 
   CREATE TABLE colles (
@@ -84,7 +92,15 @@
   CREATE TABLE posicions (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nom VARCHAR(255) NOT NULL,
-    descripcio VARCHAR(255)
+    descripcio VARCHAR(255),
+
+    id_colla BIGINT NOT NULL,
+
+    FOREIGN KEY (id_colla)
+    REFERENCES colles(id)
+    ON DELETE CASCADE,
+
+    UNIQUE (nom, id_colla)
   );
 
   CREATE TABLE posicio_usuari (
@@ -106,6 +122,14 @@
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nom VARCHAR(255) UNIQUE NOT NULL,
     descripcio VARCHAR(255)
+
+    id_colla BIGINT NOT NULL,
+
+    FOREIGN KEY (id_colla)
+    REFERENCES colles(id)
+    ON DELETE CASCADE,
+
+    UNIQUE (nom, id_colla)
   );
 
   CREATE TABLE grup_usuari (

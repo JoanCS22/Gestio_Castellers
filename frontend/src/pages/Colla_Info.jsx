@@ -78,6 +78,12 @@ function CollaInfo() {
             }),
         });
 
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
         const data = await response.json();
 
         if (response.ok) {
@@ -104,6 +110,12 @@ function CollaInfo() {
                 "Authorization": `Bearer ${token}`
             }
         });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
 
         const data = await response.json();
 
@@ -160,6 +172,12 @@ function CollaInfo() {
                 poblacio: form.poblacio || ""
             }),
         });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
 
         const data = await response.json();
 

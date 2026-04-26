@@ -10,7 +10,6 @@ import Button from "../components/Button";
 
 function MembresColla() {
 
-    const [message, setTempMessage] = useState(null);
     const [error, setError] = useState("");
 
     const [members, setMembers] = useState([]);
@@ -44,6 +43,40 @@ function MembresColla() {
         const values = Array.from(e.target.selectedOptions, option => option.value);
         setSelectedPositions(values);
     };
+
+    const getCollaMembers = async () => {
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        const response = await fetch(`http://localhost:5000/members/getMembers?id=${idColla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setMembers(data);
+            console.log("{DEBUG} Get colla's members OK")
+        } else {
+            console.log("{DEBUG} Get colla's members KO")
+            setError(data.message);
+        }
+    }
+
+    useEffect(() => {
+        getCollaMembers();
+    }, []);
 
     return (
         <div>
@@ -124,7 +157,17 @@ function MembresColla() {
                         </tr>
                     </thead>
                     <tbody>
-
+                        {members.map((member) => (
+                            <>
+                                <tr key={member.id}>
+                                    <td>{member.nom}</td>
+                                    <td>{member.mote}</td>
+                                    <td>{member.posicions}</td>
+                                    <td>{member.rol}</td>
+                                    <td>{member.data_acces}</td>
+                                </tr>
+                            </>
+                        ))}
                     </tbody>
                 </table>
             </div>

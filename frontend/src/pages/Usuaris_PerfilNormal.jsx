@@ -88,6 +88,12 @@ function NormalProfile() {
             }
         });
 
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
         const data = await response.json();
 
         if (response.ok) {
@@ -151,6 +157,12 @@ function NormalProfile() {
                 canalla: canalla
             }),
         });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
 
         const data = await response.json();
 
