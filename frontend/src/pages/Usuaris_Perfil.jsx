@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { FaSave, FaTimesCircle, FaPencilAlt } from "react-icons/fa";
+import { FaSave, FaTimesCircle, FaPencilAlt, FaUserAltSlash } from "react-icons/fa";
 
 import Input from "../components/Input";
 import TopMenu from "../components/TopMenu";
@@ -416,11 +416,21 @@ function UserProfile() {
                         action={updateData}
                     />
 
-                    {!isTecnica && (
+                    {!isTecnica ? (
                         <>
                             <Button
                                 text="Canviar contrasenya"
                                 icon={<FaPencilAlt />}
+                                action={() => {
+                                    alert("Funcionalitat encara no implementada.");
+                                }}
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                text="Eliminar usuari"
+                                icon={<FaUserAltSlash />}
                                 action={() => {
                                     alert("Funcionalitat encara no implementada.");
                                 }}
@@ -431,7 +441,7 @@ function UserProfile() {
                     <Button
                         text="Cancelar"
                         icon={<FaTimesCircle />}
-                        action={() => navigate("/dashboard")}
+                        action={() => navigate(-1)}
                     />
                 </div>
 

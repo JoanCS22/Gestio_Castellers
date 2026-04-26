@@ -37,6 +37,50 @@ const getMembers = async (req, res) => {
     }
 }
 
+const searchUsers = async (req, res) => {
+    try {
+        const { nom, cognoms, email } = req.body;
+
+        let conditions = [];
+        let values = [];
+
+        if (nom) {
+            values.push(`%${nom}%`);
+            conditions.push(`u.nom ILIKE $${values.length}`);
+        }
+
+        if (cognoms) {
+            values.push(`%${cognoms}%`);
+            conditions.push(`u.cognoms ILIKE $${values.length}`);
+        }
+
+        if (email) {
+            values.push(`%${email}%`);
+            conditions.push(`u.email ILIKE $${values.length}`);
+        }
+
+        const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+        const result = await pool.query(
+            `SELECT u.id, u.nom, u.cognoms, u.email
+            FROM usuaris u
+            ${whereClause}`,
+            values
+        );
+
+        if (result.rows.length === 0) {
+            console.log('{INFO} No users exist with these filters')
+        }
+
+        res.status(200).json(result.rows);
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({ message: 'Error al rebre les dades {searchUsers}' });
+    }
+}
+
 const addMember = async (req, res) => {
 
 }
@@ -49,4 +93,4 @@ const deleteMember = async (req, res) => {
 
 }
 
-module.exports = { getMembers, addMember, modifyMember, deleteMember };
+module.exports = { getMembers, addMember, modifyMember, deleteMember, searchUsers };
