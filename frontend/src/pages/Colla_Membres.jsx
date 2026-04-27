@@ -14,6 +14,7 @@ function MembresColla() {
     const navigate = useNavigate();
 
     const [error, setError] = useState("");
+    const [message, setTempMessage] = useState(null);
 
     const [members, setMembers] = useState([]);
 
@@ -53,6 +54,14 @@ function MembresColla() {
     const handlePositionsChange = (e) => {
         const values = Array.from(e.target.selectedOptions, option => option.value);
         setSelectedPositions(values);
+    };
+
+    const showTempMessage = (message, type = "success") => {
+        setTempMessage({ message, type });
+
+        setTimeout(() => {
+            setTempMessage(null);
+        }, 2000);
     };
 
     const getCollaMembers = async () => {
@@ -120,6 +129,40 @@ function MembresColla() {
         }
     }
 
+    const addUserToColla = async (idUser) => {
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        const response = await fetch(`http://localhost:5000/members/addMember?id=${idColla}&userid=${idUser}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setError("");
+            showTempMessage("Usuari afegit correctament a la colla.");
+            setTimeout(() => {
+                navigate(`/tecnica_profile?userId=${idUser}&collaId=${idColla}`);
+            }, 2000);
+            console.log("{DEBUG} Add user to colla OK")
+        } else {
+            console.log("{DEBUG} Add user to colla KO")
+            setError(data.message);
+        }
+    }
+
     useEffect(() => {
         getCollaMembers();
     }, []);
@@ -129,6 +172,11 @@ function MembresColla() {
             <TopMenu
                 title='Membres colla'
             />
+            {message && (
+                <div className={`message ${message.type}`}>
+                    {message.message}
+                </div>
+            )}
             <div className="button-add-membres">
                 <Button
                     text='Afegir membre'
@@ -206,7 +254,7 @@ function MembresColla() {
                     </thead>
                     <tbody>
                         {members.map((member) => (
-                            <tr key={member.id}>
+                            <tr key={member.id_usuari}>
                                 <td>
                                     <div className="member-name-cell">
                                         <span>{`${member.nom} ${member.cognoms}`}</span>
@@ -230,54 +278,56 @@ function MembresColla() {
                 </table>
             </div>
             {showModalAddMember && (
-                <div className="modal-overlay-position">
-                    <div className="modal-position">
+                <div className="modal-overlay-search">
+                    <div className="modal-search">
                         <h2>
                             Afegir membre
                         </h2>
-                        <div className="members-new-name">
-                            <Input
-                                name="name"
-                                type="text"
-                                placeholder="Nom"
-                                value={modalTags.nom}
-                                onChange={(e) =>
-                                    setModalTags({ ...modalTags, nom: e.target.value })
-                                }
-                                inputTitle="Nom"
-                            />
+                        <div className="inputs-grid-search">
+                            <div className="search-results-name">
+                                <Input
+                                    name="name"
+                                    type="text"
+                                    placeholder="Nom"
+                                    value={modalTags.nom}
+                                    onChange={(e) =>
+                                        setModalTags({ ...modalTags, nom: e.target.value })
+                                    }
+                                    inputTitle="Nom"
+                                />
+                            </div>
+                            <div className="search-results-surname">
+                                <Input
+                                    name="cognoms"
+                                    type="text"
+                                    placeholder="Cognoms"
+                                    value={modalTags.cognoms}
+                                    onChange={(e) =>
+                                        setModalTags({ ...modalTags, cognoms: e.target.value })
+                                    }
+                                    inputTitle="Cognoms"
+                                />
+                            </div>
+                            <div className="search-results-email">
+                                <Input
+                                    name="email"
+                                    type="text"
+                                    placeholder="Correu electrònic"
+                                    value={modalTags.correu}
+                                    onChange={(e) =>
+                                        setModalTags({ ...modalTags, correu: e.target.value })
+                                    }
+                                    inputTitle="Correu electrònic"
+                                />
+                            </div>
                         </div>
-                        <div className="members-new-surname">
-                            <Input
-                                name="cognoms"
-                                type="text"
-                                placeholder="Cognoms"
-                                value={modalTags.cognoms}
-                                onChange={(e) =>
-                                    setModalTags({ ...modalTags, cognoms: e.target.value })
-                                }
-                                inputTitle="Cognoms"
-                            />
-                        </div>
-                        <div className="members-new-email">
-                            <Input
-                                name="email"
-                                type="text"
-                                placeholder="Correu electrònic"
-                                value={modalTags.correu}
-                                onChange={(e) =>
-                                    setModalTags({ ...modalTags, correu: e.target.value })
-                                }
-                                inputTitle="Correu electrònic"
-                            />
-                        </div>
-                        <div className="modal-buttons-position">
+                        <div className="modal-buttons-search">
                             <Button
                                 text="Tornar"
                                 icon={<FaArrowLeft />}
                                 action={() => {
                                     setShowModalAddMember(false);
-                                    setModalTags([]);
+                                    setModalTags({ nom: "", cognoms: "", correu: "" });
                                 }} />
 
                             <Button
@@ -286,56 +336,58 @@ function MembresColla() {
                                 action={searchUsers}
                             />
                         </div>
-                        {searchResults.length > 0 && (
-                            <>
-                                <table>
-                                    <colgroup>
-                                        <col style={{ width: "35%" }} />
-                                        <col style={{ width: "20%" }} />
-                                        <col style={{ width: "35%" }} />
-                                        <col style={{ width: "10%" }} />
-                                    </colgroup>
+                        <div className="table-search-users">
+                            <table>
+                                <colgroup>
+                                    <col style={{ width: "35%" }} />
+                                    <col style={{ width: "20%" }} />
+                                    <col style={{ width: "35%" }} />
+                                    <col style={{ width: "10%" }} />
+                                </colgroup>
 
-                                    <thead>
-                                        <tr>
-                                            <th>Correu</th>
-                                            <th>Nom</th>
-                                            <th>Cognoms</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {searchResults.map((user) => (
-                                            <>
-                                                <tr key={user.id}>
-                                                    <td>{user.email}</td>
-                                                    <td>{user.nom}</td>
-                                                    <td>{user.cognoms}</td>
-                                                    <td>
-                                                        {members.some(m => m.id_usuari === user.id) ? (
-                                                            <>
-                                                                <FaRegCheckSquare />
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <button onClick={() => {
-                                                                    setShowModalAddMember(false);
-                                                                    setSearchResults([]);
-                                                                    setModalTags({ nom: "", cognoms: "", correu: "" });
-                                                                    /* TODO: Añadir miembro */
-                                                                }}>
-                                                                    <FaPlusSquare />
-                                                                </button>
-                                                            </>
-                                                        )}
-                                                    </td>
-                                                </tr >
-                                            </>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </>
-                        )}
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Cognoms</th>
+                                        <th>Correu</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                {searchResults.length > 0 && (
+                                    <>
+                                        <tbody>
+                                            {searchResults.map((user) => (
+                                                <>
+                                                    <tr key={user.id}>
+                                                        <td>{user.nom}</td>
+                                                        <td>{user.cognoms}</td>
+                                                        <td>{user.email}</td>
+                                                        <td>
+                                                            {members.some(m => m.id_usuari === user.id) ? (
+                                                                <>
+                                                                    <FaRegCheckSquare />
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <button onClick={() => {
+                                                                        setShowModalAddMember(false);
+                                                                        setSearchResults([]);
+                                                                        setModalTags({ nom: "", cognoms: "", correu: "" });
+                                                                        addUserToColla(user.id);
+                                                                    }}>
+                                                                        <FaPlusSquare />
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </td>
+                                                    </tr >
+                                                </>
+                                            ))}
+                                        </tbody>
+                                    </>
+                                )}
+                            </table>
+                        </div>
                     </div>
                 </div>
             )

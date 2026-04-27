@@ -101,3 +101,80 @@
     padding: 8px;
     text-align: center;
 }
+
+/* table-search-users */
+
+.table-search-users {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 10px auto;
+    table-layout: fixed;
+}
+
+.table-search-users table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.table-search-users th,
+.table-search-users td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
+
+/* MODAL SEARCH USERS */
+
+.modal-overlay-search {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 1000;
+}
+
+.modal-search {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+
+    width: 900px;
+    max-width: 90%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.modal-search h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.search-results-name,
+.search-results-surname,
+.search-results-email {
+    width: 100%;
+}
+
+.modal-search .inputs-grid-search {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.modal-buttons-search {
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+    margin-top: 10px;
+}

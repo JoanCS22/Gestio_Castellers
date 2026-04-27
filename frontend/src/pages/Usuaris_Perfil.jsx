@@ -91,7 +91,7 @@ function UserProfile() {
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch("http://localhost:5000/profile/getUserData", {
+        const response = await fetch(`http://localhost:5000/profile/getUserData?userId=${userId}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -144,7 +144,7 @@ function UserProfile() {
             return;
         }
 
-        const response = await fetch("http://localhost:5000/profile/modifyUserData", {
+        const response = await fetch(`http://localhost:5000/profile/modifyUserData?userId=${userId}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -185,13 +185,48 @@ function UserProfile() {
         }
     }
 
+    const deleteMemberFromColla = async () => {
+
+        const token = localStorage.getItem("token");
+
+        if (!window.confirm("Segur que vols eliminar a l'usuari de la colla?")) return;
+
+        const response = await fetch(`http://localhost:5000/members/deleteMember?id=${collaId}&userid=${userId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setError("");
+            showTempMessage("Usuari eliminat correctament de la colla.");
+            setTimeout(() => {
+                navigate(`/members`);
+            }, 2000);
+            console.log("{DEBUG} Delete user from colla OK")
+        } else {
+            console.log("{DEBUG} Delete user from colla KO")
+            setError(data.message);
+        }
+    }
+
     useEffect(() => {
         getData();
     }, []);
 
     return (
         <div>
-            <TopMenu title="Les meves dades" tornar />
+            <TopMenu title={isTecnica ? `Dades ${form.mote}` : "Les meves dades"} tornar />
 
             {message && (
                 <div className={`message ${message.type}`}>
@@ -432,7 +467,7 @@ function UserProfile() {
                                 text="Eliminar usuari"
                                 icon={<FaUserAltSlash />}
                                 action={() => {
-                                    alert("Funcionalitat encara no implementada.");
+                                    deleteMemberFromColla();
                                 }}
                             />
                         </>

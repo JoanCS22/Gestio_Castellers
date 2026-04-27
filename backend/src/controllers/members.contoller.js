@@ -82,7 +82,24 @@ const searchUsers = async (req, res) => {
 }
 
 const addMember = async (req, res) => {
+    try {
+        const collaActiva = req.query.id;
+        const userId = req.query.userid;
 
+        const result = await pool.query(
+            `INSERT INTO membres_colla (id_usuari, id_colla, id_rol, actiu, data_acces)
+             VALUES ($1, $2, 2, true, NOW())
+             RETURNING *`,
+            [userId, collaActiva]
+        );
+
+        res.status(200).json(result.rows);
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({ message: 'Error al rebre les dades {addMember}' });
+    }
 }
 
 const modifyMember = async (req, res) => {
@@ -90,7 +107,24 @@ const modifyMember = async (req, res) => {
 }
 
 const deleteMember = async (req, res) => {
+    try {
+        const collaActiva = req.query.id;
+        const userId = req.query.userid;
 
+        const result = await pool.query(
+            `DELETE FROM membres_colla 
+             WHERE id_usuari = $1 AND id_colla = $2
+             RETURNING *`,
+            [userId, collaActiva]
+        );
+
+        res.status(200).json(result.rows);
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({ message: 'Error al rebre les dades {deleteMember}' });
+    }
 }
 
 module.exports = { getMembers, addMember, modifyMember, deleteMember, searchUsers };

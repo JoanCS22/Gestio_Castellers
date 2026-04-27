@@ -14,7 +14,11 @@ const toDateOrNull = (value) => {
 
 const getUserData = async (req, res) => {
     try {
-        const userId = req.user.id;
+
+        const requestedUserId = req.query.userId;
+        const loggedUserId = req.user.id;
+
+        const userId = requestedUserId || loggedUserId;
 
         const result = await pool.query(
             `SELECT * FROM usuaris WHERE id = $1`,
@@ -36,7 +40,10 @@ const getUserData = async (req, res) => {
 
 const modifyUserData = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const requestedUserId = req.query.userId;
+        const loggedUserId = req.user.id;
+
+        const userId = requestedUserId || loggedUserId;
 
         const { nom, cognoms, mote, telefon, altura_espatlles, envergadura, pes,
             altura_total, data_lesio, comentari, lesionat, genere, canalla } = req.body;
