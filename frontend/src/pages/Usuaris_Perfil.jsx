@@ -280,8 +280,7 @@ function UserProfile() {
 
         if (response.ok) {
             console.log("{DEBUG} Modify user's data OK");
-            setError("");
-            showTempMessage("Informació actualitzada correctament.");
+            showTempMessage("Informació general de l'usuari actualitzada correctament.");
         } else {
             console.log("{DEBUG} Modify user's data KO");
             setError(data.message);

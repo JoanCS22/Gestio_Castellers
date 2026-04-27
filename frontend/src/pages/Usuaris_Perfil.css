@@ -49,7 +49,7 @@
 
 .flex-buttons {
     grid-column: 1 / 5;
-    grid-row: 6;
+    grid-row: 7;
 
     display: flex;
     justify-content: center;
@@ -132,7 +132,7 @@
 
 .error-message {
     grid-column: 1 / 5;   
-    grid-row: 5;        
+    grid-row: 6;        
 
     display: flex;
     justify-content: center;
@@ -187,6 +187,21 @@
 
 .multi-dropdown-item:hover {
     background: #f2f2f2;
+}
+
+.grid-role-profile {
+    grid-column: 1;
+    grid-row: 5;
+}
+
+.grid-positions-profile {
+    grid-column: 2;
+    grid-row: 5;
+}
+
+.grid-groups-profile {
+    grid-column: 3 / 5;
+    grid-row: 5;
 }
 
 /* Role selector */
