@@ -138,7 +138,57 @@ const getDataMember = async (req, res) => {
 }
 
 const modifyMember = async (req, res) => {
+    const client = await pool.connect();
 
+    try {
+        const collaActiva = req.query.collaid;
+        const userId = req.query.userid;
+
+        const { id_rol, ids_posicions } = req.body;
+
+        await client.query("BEGIN");
+
+        const resultUpdate = await client.query(
+            `UPDATE membres_colla 
+            SET id_rol = $3
+            WHERE id_usuari = $1 AND id_colla = $2
+            RETURNING *`,
+            [userId, collaActiva, id_rol]
+        );
+
+        if (resultUpdate.rows.length === 0) {
+            await client.query("ROLLBACK");
+            return res.status(404).json({ message: 'Membre no trobat.' });
+        }
+
+        await client.query(
+            `DELETE FROM posicio_usuari
+             WHERE id_usuari = $1 AND id_colla = $2`,
+            [userId, collaActiva]
+        );
+
+        if (ids_posicions.length > 0) {
+            for (let i = 0; i < ids_posicions.length; i++) {
+                await client.query(
+                    `INSERT INTO posicio_usuari (id_usuari, id_colla, id_posicio)
+                 VALUES ($1, $2, $3)
+                 RETURNING *`,
+                    [userId, collaActiva, ids_posicions[i]]
+                );
+            }
+        }
+
+        await client.query("COMMIT");
+
+        res.status(200).json(resultUpdate.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+        res.status(500).json({ message: 'Error al modificar les dades {MemberData}' });
+    } finally {
+        client.release();
+    }
 }
 
 const deleteMember = async (req, res) => {

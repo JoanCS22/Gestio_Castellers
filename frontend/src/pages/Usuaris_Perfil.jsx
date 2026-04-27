@@ -164,8 +164,6 @@ function UserProfile() {
 
         if (response.ok) {
 
-            console.log(data);
-
             const row = data[0] || {};
 
             setSelectedPositions((row.posicions_ids || []).map(String));
@@ -239,8 +237,7 @@ function UserProfile() {
         }
     }
 
-    const updateData = async (e) => {
-        e.preventDefault();
+    const updateData = async () => {
 
         const token = localStorage.getItem("token");
         const errors = comprovaNums();
@@ -287,6 +284,51 @@ function UserProfile() {
             showTempMessage("Informació actualitzada correctament.");
         } else {
             console.log("{DEBUG} Modify user's data KO");
+            setError(data.message);
+        }
+    }
+
+    const modifyMember = async () => {
+
+        const token = localStorage.getItem("token");
+
+        let errors = [];
+
+        if (!selectedRole) {
+            errors.push("El camp de rol no pot estar buit.");
+        }
+
+        if (errors.length > 0) {
+            setError(errors.join("\n"));
+            return;
+        }
+
+        const response = await fetch(`http://localhost:5000/members/modifyMember?collaid=${collaId}&userid=${userId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                id_rol: selectedRole,
+                ids_posicions: selectedPositions
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setError("");
+            showTempMessage("Dades del membre actualitzades correctament.");
+            console.log("{DEBUG} Modify member OK")
+        } else {
+            console.log("{DEBUG} Modify member KO")
             setError(data.message);
         }
     }
@@ -568,7 +610,6 @@ function UserProfile() {
                         </div>
                     </>
                 )}
-
                 {error && (
                     <div className="error-message">
                         {error}
@@ -578,7 +619,12 @@ function UserProfile() {
                     <Button
                         text="Guardar canvis"
                         icon={<FaSave />}
-                        action={updateData}
+                        action={() => {
+                            updateData();
+                            if (isTecnica) {
+                                modifyMember();
+                            }
+                        }}
                     />
 
                     {!isTecnica ? (
