@@ -6,6 +6,7 @@ import { FaSave, FaTimesCircle, FaPencilAlt, FaUserAltSlash } from "react-icons/
 import Input from "../components/Input";
 import TopMenu from "../components/TopMenu";
 import Button from "../components/Button";
+import MultiSelectDropdown from "../components/MultiSelectDropdown";
 
 import "./Usuaris_Perfil.css";
 
@@ -32,9 +33,7 @@ function UserProfile() {
         pes: "",
         alcada: "",
         dataLesio: "",
-        infoExtra: "",
-        posicions: "",
-        grups: ""
+        infoExtra: ""
     });
 
     const [genere, setGenere] = useState("M");
@@ -43,6 +42,14 @@ function UserProfile() {
     const [error, setError] = useState("");
     const [message, setTempMessage] = useState(null);
     const [foto, setFoto] = useState("/prueba.jpg");
+
+    const [existingGroups, setExistingGroups] = useState([]);
+    const [existingPositions, setExistingPositions] = useState([]);
+    const [existingRoles, setExistingRoles] = useState([]);
+
+    const [selectedPositions, setSelectedPositions] = useState([]);
+    const [selectedGroups, setSelectedGroups] = useState([]);
+    const [selectedRole, setSelectedRole] = useState("");
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -134,10 +141,109 @@ function UserProfile() {
         }
     }
 
+    const getDataMember = async () => {
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        const response = await fetch(`http://localhost:5000/members/getDataMember?userid=${userId}&collaid=${idColla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+
+            console.log(data);
+
+            const row = data[0] || {};
+
+            setSelectedPositions((row.posicions_ids || []).map(String));
+            setSelectedGroups((row.grups_ids || []).map(String));
+            setSelectedRole(row.rol_id ? String(row.rol_id) : "");
+
+            console.log("{DEBUG} Get member's data OK")
+        } else {
+            console.log("{DEBUG} Get member's data KO")
+            setError(data.message);
+        }
+    }
+
+    const getCollesPositions = async () => {
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        const response = await fetch(`http://localhost:5000/colla/getCollaPositions?id=${idColla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setExistingPositions(data);
+            console.log("{DEBUG} Get colla's positions OK")
+        } else {
+            console.log("{DEBUG} Get colla's positions KO")
+            setError(data.message);
+        }
+    }
+
+    const getCollesRoles = async () => {
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        const response = await fetch(`http://localhost:5000/colla/getCollaRoles?id=${idColla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setExistingRoles(data);
+            console.log("{DEBUG} Get colla's roles OK")
+        } else {
+            console.log("{DEBUG} Get colla's roles KO")
+            setError(data.message);
+        }
+    }
+
     const updateData = async (e) => {
         e.preventDefault();
 
         const token = localStorage.getItem("token");
+        const errors = comprovaNums();
 
         if (errors.length > 0) {
             setError(`Els següents camps han de ser numèrics i positius: ${errors.join(", ")}`);
@@ -222,7 +328,12 @@ function UserProfile() {
 
     useEffect(() => {
         getData();
-    }, []);
+        if (isTecnica) {
+            getDataMember();
+            getCollesRoles();
+            getCollesPositions();
+        }
+    }, [userId, collaId, isTecnica]);
 
     return (
         <div>
@@ -418,22 +529,41 @@ function UserProfile() {
 
                 {isTecnica && (
                     <>
+                        <div className="grid-role-profile">
+                            <label className="field-label-role">Rol</label>
+
+                            <div className="select-wrapper-role">
+                                <select
+                                    value={selectedRole}
+                                    onChange={(e) => setSelectedRole(e.target.value)}
+                                    className="custom-select-role"
+                                >
+                                    <option value="">Selecciona rol</option>
+
+                                    {existingRoles.map(r => (
+                                        <option key={r.id} value={String(r.id)}>
+                                            {r.nom}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
                         <div className="grid-positions-profile">
-                            <Input
-                                name="posicions"
-                                type="posicions"
-                                inputTitle="Posicions"
-                                value={form.posicions}
-                                onChange={handleChange}
+                            Posicions:
+                            <MultiSelectDropdown
+                                options={existingPositions}
+                                selected={selectedPositions}
+                                setSelected={setSelectedPositions}
+                                placeholder="Selecciona posicions"
                             />
                         </div>
                         <div className="grid-groups-profile">
-                            <Input
-                                name="grups"
-                                type="grups"
-                                inputTitle="Grups"
-                                value={form.grups}
-                                onChange={handleChange}
+                            Grups:
+                            <MultiSelectDropdown
+                                options={existingGroups}
+                                selected={selectedGroups}
+                                setSelected={setSelectedGroups}
+                                placeholder="Selecciona grups"
                             />
                         </div>
                     </>

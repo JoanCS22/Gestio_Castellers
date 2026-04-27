@@ -102,6 +102,41 @@ const addMember = async (req, res) => {
     }
 }
 
+const getDataMember = async (req, res) => {
+    try {
+        const collaActiva = req.query.collaid;
+        const userId = req.query.userid;
+
+        const result = await pool.query(
+            `SELECT r.id AS rol_id, r.nom AS rol_nom,
+             ARRAY_REMOVE(ARRAY_AGG(DISTINCT g.id), NULL) AS grups_ids,
+             ARRAY_REMOVE(ARRAY_AGG(DISTINCT g.nom), NULL) AS grups_noms,
+             ARRAY_REMOVE(ARRAY_AGG(DISTINCT p.id), NULL) AS posicions_ids,
+             ARRAY_REMOVE(ARRAY_AGG(DISTINCT p.nom), NULL) AS posicions_noms
+             FROM membres_colla mc
+             LEFT JOIN rols r ON r.id = mc.id_rol
+             LEFT JOIN grup_usuari ug ON ug.id_usuari = mc.id_usuari AND ug.id_colla = mc.id_colla
+             LEFT JOIN grups g ON g.id = ug.id_grup
+             LEFT JOIN posicio_usuari up ON up.id_usuari = mc.id_usuari AND up.id_colla = mc.id_colla
+             LEFT JOIN posicions p ON p.id = up.id_posicio
+             WHERE mc.id_colla = $1 AND mc.id_usuari = $2
+             GROUP BY r.id, r.nom;`,
+            [collaActiva, userId]
+        );
+
+        if (result.rows.length === 0) {
+            console.log('{INFO} No results exist for this member.')
+        }
+
+        res.status(200).json(result.rows);
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({ message: 'Error al rebre les dades {getCollaRoles}' });
+    }
+}
+
 const modifyMember = async (req, res) => {
 
 }
@@ -127,4 +162,4 @@ const deleteMember = async (req, res) => {
     }
 }
 
-module.exports = { getMembers, addMember, modifyMember, deleteMember, searchUsers };
+module.exports = { getMembers, addMember, modifyMember, deleteMember, searchUsers, getDataMember };
