@@ -14,11 +14,10 @@ const toDateOrNull = (value) => {
 
 const getUserData = async (req, res) => {
     try {
-
         const requestedUserId = req.query.userId;
         const loggedUserId = req.user.id;
 
-        const userId = requestedUserId || loggedUserId;
+        const userId = !requestedUserId || requestedUserId === "null" ? loggedUserId : requestedUserId;
 
         const result = await pool.query(
             `SELECT * FROM usuaris WHERE id = $1`,

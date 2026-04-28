@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaBars, FaOutdent, FaCaretDown, FaCaretUp } from "react-icons/fa";
+
+import { getPermissions } from "../utils/utils.jsx"
 import './LeftMenu.css';
 
 const LeftMenu = () => {
@@ -14,6 +16,8 @@ const LeftMenu = () => {
   const [openMenuColla, setOpenColla] = useState(false);
 
   const storedId = localStorage.getItem("id_colla");
+
+  //const permissions = getPermissions();
 
   useEffect(() => {
     setOpenLeft(false);

@@ -1,0 +1,1 @@
+export const getPermissions = () => JSON.parse(localStorage.getItem("permissions") || "{}");

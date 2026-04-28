@@ -71,12 +71,46 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
       console.log("{DEBUG} Get user's colles OK")
     } else {
       console.log("{DEBUG} Get user's colles KO")
-      setError(data.message);
+    }
+  }
+
+  const getMemberPermissions = async () => {
+
+    const token = localStorage.getItem("token");
+    const idColla = localStorage.getItem("id_colla");
+    const iduser = localStorage.getItem("user");
+
+    const response = await fetch(`http://localhost:5000/members/getMemberPermissions?id=${idColla}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      localStorage.clear();
+      navigate("/login");
+      return;
+    }
+
+    const data = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem("permissions", JSON.stringify(data.permisos));
+      console.log(data.permisos);
+      console.log("{DEBUG} Get colla's roles OK")
+    } else {
+      console.log("{DEBUG} Get colla's roles KO")
     }
   }
 
   useEffect(() => {
     getCollesUser();
+
+    if (localStorage.getItem("id_colla") && !localStorage.getItem("permissions")) {
+      getMemberPermissions();
+    }
   }, []);
 
   return (

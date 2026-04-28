@@ -212,4 +212,28 @@ const deleteMember = async (req, res) => {
     }
 }
 
-module.exports = { getMembers, addMember, modifyMember, deleteMember, searchUsers, getDataMember };
+const getMemberPermissions = async (req, res) => {
+    try {
+        const collaActiva = req.query.id;
+        const loggedUserId = req.user.id;
+
+        console.log(`Colla: ${collaActiva}; User: ${loggedUserId}`)
+
+        const result = await pool.query(
+            `SELECT r.permisos 
+             FROM rols r, membres_colla mc 
+             WHERE mc.id_usuari = $1 AND (r.id_colla = $2 OR r.nom in ('Administrador', 'Membre')) 
+             AND mc.id_rol = r.id`,
+            [loggedUserId, collaActiva]
+        );
+
+        res.status(200).json(result.rows);
+
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({ message: 'Error al rebre les dades {deleteMember}' });
+    }
+}
+
+module.exports = { getMembers, addMember, modifyMember, deleteMember, searchUsers, getDataMember, getMemberPermissions };
