@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import { FaSave, FaTimesCircle, FaPencilAlt, FaPlusSquare } from "react-icons/fa";
 
+import { getPermissions } from "../utils/utils.jsx"
+
 import Input from "../components/Input";
 import TopMenu from "../components/TopMenu";
 import Button from "../components/Button";
@@ -13,6 +15,10 @@ function CollaInfo() {
     const navigate = useNavigate();
 
     const location = useLocation();
+
+    //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
+    const permissions = getPermissions();
+    const hasWritePermission = (key) => permissions[key] === "W";
 
     const [form, setForm] = useState({
         nom: "",
@@ -325,11 +331,17 @@ function CollaInfo() {
                     )}
 
                     {isReadOnly && (
-                        <Button
-                            text="Modificar dades colla"
-                            icon={<FaPencilAlt />}
-                            action={() => navigate("/modify_info_colla")}
-                        />
+                        <>
+                            {hasWritePermission("colla") && (
+                                <>
+                                    <Button
+                                        text="Modificar dades colla"
+                                        icon={<FaPencilAlt />}
+                                        action={() => navigate("/modify_info_colla")}
+                                    />
+                                </>
+                            )}
+                        </>
                     )}
 
                     {isModify && (

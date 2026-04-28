@@ -227,7 +227,7 @@ const getMemberPermissions = async (req, res) => {
             [loggedUserId, collaActiva]
         );
 
-        res.status(200).json(result.rows);
+        res.status(200).json(result.rows[0]);
 
     } catch (error) {
 

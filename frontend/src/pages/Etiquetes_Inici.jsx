@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import { FaPlusSquare, FaSearch, FaSave, FaTimesCircle, FaTrashAlt, FaPencilAlt, FaRegEye } from "react-icons/fa";
 
+import { getPermissions } from "../utils/utils.jsx"
+
 import './Etiquetes_Inici.css';
 
 import TopMenu from "../components/TopMenu";
@@ -13,6 +15,12 @@ import PermisoSelector from "../components/PermisoSelector";
 function Etiquetes() {
 
     const location = useLocation();
+
+    //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
+    const permissions = getPermissions();
+    const hasWritePermission = (key) => permissions[key] === "W";
+
+    const hasAccess = (key) => permissions[key] !== "X";
 
     const [message, setTempMessage] = useState(null);
     const [error, setError] = useState("");
@@ -383,12 +391,17 @@ function Etiquetes() {
                     setShowModalRols(false);
                 }}>Posicions</div>
                 <div className='grups-select-tags'>Grups</div>
-                <div className={`rols-select-tags ${isRole ? "active" : ""}`} onClick={() => {
-                    setSelectedTag("rols");
-                    getCollesRoles();
-                    setShowModalPosicions(false);
-                    setShowModalRols(false);
-                }}>Rols</div>
+                {hasAccess("permisos") && (
+                    <>
+                        <div className={`rols-select-tags ${isRole ? "active" : ""}`} onClick={() => {
+                            setSelectedTag("rols");
+                            getCollesRoles();
+                            setShowModalPosicions(false);
+                            setShowModalRols(false);
+                        }}>Rols</div>
+                    </>
+                )}
+
             </div>
             {
                 message && (
@@ -398,22 +411,26 @@ function Etiquetes() {
                 )
             }
             <div className="button-section-tags">
-                <Button
-                    text={isPosition ? 'Afegir posició' : 'Afegir rol'}
-                    icon={<FaPlusSquare />}
-                    action={() => {
-                        setCreate(true);
-
-                        if (isPosition) {
-                            setNewPositionTag({ nom: "", descripcio: ""})
-                            setShowModalPosicions(true);
-                        } else {
-                            setNewRoleTag({ nom: "", descripcio: ""});
-                            resetPermisos();
-                            setShowModalRols(true);
-                        }
-                    }}
-                />
+                {((hasWritePermission("colla") && isPosition) || (!isPosition && hasWritePermission("permisos"))) && (
+                    <>
+                        <Button
+                            text={isPosition ? 'Afegir posició' : 'Afegir rol'}
+                            icon={<FaPlusSquare />}
+                            action={() => {
+                                if (isPosition) {
+                                    setCreate(true);
+                                    setNewPositionTag({ nom: "", descripcio: "" })
+                                    setShowModalPosicions(true);
+                                } else {
+                                    setCreate(true);
+                                    setNewRoleTag({ nom: "", descripcio: "" });
+                                    resetPermisos();
+                                    setShowModalRols(true);
+                                }
+                            }}
+                        />
+                    </>
+                )}
             </div>
             <div className="search-bar-tags">
                 <span>Cercar:</span>
@@ -446,58 +463,11 @@ function Etiquetes() {
                                         <td>{position.descripcio}</td>
                                         <td>
                                             <button onClick={() => {
-                                                setCurrentPosition(position.id);
-                                                setCreate(false);
-                                                setNewPositionTag({ nom: position.nom, descripcio: position.descripcio });
-                                                setShowModalPosicions(true);
-                                            }}>
-                                                <FaPencilAlt />
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <button onClick={() => deletePosicio(position.id)}>
-                                                <FaTrashAlt />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-            {isRole && (
-                <div className="table-rols-tags">
-                    <table>
-                        <colgroup>
-                            <col style={{ width: "20%" }} />
-                            <col style={{ width: "60%" }} />
-                            <col style={{ width: "10%" }} />
-                            <col style={{ width: "10%" }} />
-                        </colgroup>
-
-                        <thead>
-                            <tr>
-                                <th>Rol</th>
-                                <th>Descripció</th>
-                                <th>Modificar</th>
-                                <th>Eliminar</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rols.map((rol) => (
-                                <>
-                                    <tr key={rol.id}>
-                                        <td>{rol.nom}</td>
-                                        <td>{rol.descripcio}</td>
-                                        <td>
-                                            <button onClick={() => {
-                                                if (rol.nom != "Administrador" && rol.nom != 'Membre') {
-                                                    setCurrentRole(rol.id);
+                                                if (hasWritePermission("colla")) {
+                                                    setCurrentPosition(position.id);
                                                     setCreate(false);
-                                                    setNewRoleTag({ nom: rol.nom, descripcio: rol.descripcio });
-                                                    setPermisos(rol.permisos || defaultPermisos);
-                                                    setShowModalRols(true);
+                                                    setNewPositionTag({ nom: position.nom, descripcio: position.descripcio });
+                                                    setShowModalPosicions(true);
                                                 }
                                             }}>
                                                 <FaPencilAlt />
@@ -505,133 +475,192 @@ function Etiquetes() {
                                         </td>
                                         <td>
                                             <button onClick={() => {
-                                                if (rol.nom != "Administrador" && rol.nom != 'Membre') {
-                                                    deleteRoles(rol.id);
+                                                if (hasWritePermission("colla")) {
+                                                    deletePosicio(position.id);
                                                 }
                                             }}>
                                                 <FaTrashAlt />
                                             </button>
                                         </td>
-                                    </tr>
+                                    </tr >
                                 </>
                             ))}
                         </tbody>
                     </table>
-                </div>
-            )}
-            {showModalPosicions && (
-                <div className="modal-overlay-position">
-                    <div className="modal-position">
-                        <h2>
-                            {isCreate ? "Nova posició" : "Modificar posició"}
-                        </h2>
-                        <div className="input-group">
-                            <Input
-                                name="name"
-                                type="text"
-                                placeholder="Nom"
-                                value={newPositionTag.nom}
-                                onChange={(e) =>
-                                    setNewPositionTag({ ...newPositionTag, nom: e.target.value })
-                                }
-                                inputTitle="Nom"
-                                readOnly={!isCreate}
-                            />
-                        </div>
-                        {error && (
-                            <div className="error-message">
-                                {error}
-                            </div>
-                        )}
-                        <div>Descripció</div>
-                        <div className="input-group">
-                            <textarea
-                                placeholder="Descripció"
-                                value={newPositionTag.descripcio}
-                                onChange={(e) =>
-                                    setNewPositionTag({ ...newPositionTag, descripcio: e.target.value })
-                                }
-                            />
-                        </div>
-                        <div className="modal-buttons-position">
-
-                            <Button
-                                text={isCreate ? "Afegir posició" : "Guardar canvis"}
-                                icon={isCreate ? <FaPlusSquare /> : <FaSave />}
-                                action={isCreate ? createPosicio : () => updatePosicio(currentPosition)} />
-
-                            <Button
-                                text="Cancelar"
-                                icon={<FaTimesCircle />}
-                                action={() => { setShowModalPosicions(false); setError(""); }}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
-            {showModalRols && (
-                <div className="modal-overlay-role">
-                    <div className="modal-role">
-                        <h2>
-                            {isCreate ? "Nou rol" : "Modificar rol"}
-                        </h2>
-                        <div className="input-group">
-                            <Input
-                                name="name"
-                                type="text"
-                                placeholder="Nom"
-                                value={newRoleTag.nom}
-                                onChange={(e) =>
-                                    setNewRoleTag({ ...newRoleTag, nom: e.target.value })
-                                }
-                                inputTitle="Nom"
-                                readOnly={!isCreate}
-                            />
-                        </div>
-                        {error && (
-                            <div className="error-message">
-                                {error}
-                            </div>
-                        )}
-                        <div>Descripció</div>
-                        <div className="input-group">
-                            <textarea
-                                placeholder="Descripció"
-                                value={newRoleTag.descripcio}
-                                onChange={(e) =>
-                                    setNewRoleTag({ ...newRoleTag, descripcio: e.target.value })
-                                }
-                            />
-                        </div>
-
-                        <div className="permisos-wrapper">
-                            {Object.keys(permisos).map(key => (
-                                <PermisoSelector
-                                    key={key}
-                                    label={key}
-                                    value={permisos[key]}
-                                    onChange={(v) => updatePermiso(key, v)}
-                                />
-                            ))}
-                        </div>
-
-                        <div className="modal-buttons-role">
-                            <Button
-                                text={isCreate ? "Afegir Rol" : "Guardar canvis"}
-                                icon={isCreate ? <FaPlusSquare /> : <FaSave />}
-                                action={isCreate ? createRoles : () => updateRoles(currentRole)} />
-
-                            <Button
-                                text="Cancelar"
-                                icon={<FaTimesCircle />}
-                                action={() => {setShowModalRols(false); setError("") }}
-                            />
-                        </div>
-                    </div>
                 </div>
             )
             }
-        </div>
+            {
+                isRole && (
+                    <div className="table-rols-tags">
+                        <table>
+                            <colgroup>
+                                <col style={{ width: "20%" }} />
+                                <col style={{ width: "60%" }} />
+                                <col style={{ width: "10%" }} />
+                                <col style={{ width: "10%" }} />
+                            </colgroup>
+
+                            <thead>
+                                <tr>
+                                    <th>Rol</th>
+                                    <th>Descripció</th>
+                                    <th>Modificar</th>
+                                    <th>Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {rols.map((rol) => (
+                                    <>
+                                        <tr key={rol.id}>
+                                            <td>{rol.nom}</td>
+                                            <td>{rol.descripcio}</td>
+                                            <td>
+                                                <button onClick={() => {
+                                                    if (rol.nom != "Administrador" && rol.nom != 'Membre' && hasWritePermission("permisos")) {
+                                                        setCurrentRole(rol.id);
+                                                        setCreate(false);
+                                                        setNewRoleTag({ nom: rol.nom, descripcio: rol.descripcio });
+                                                        setPermisos(rol.permisos || defaultPermisos);
+                                                        setShowModalRols(true);
+                                                    }
+                                                }}>
+                                                    <FaPencilAlt />
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <button onClick={() => {
+                                                    if (rol.nom != "Administrador" && rol.nom != 'Membre' && hasWritePermission("permisos")) {
+                                                        deleteRoles(rol.id);
+                                                    }
+                                                }}>
+                                                    <FaTrashAlt />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )
+            }
+            {
+                showModalPosicions && (
+                    <div className="modal-overlay-position">
+                        <div className="modal-position">
+                            <h2>
+                                {isCreate ? "Nova posició" : "Modificar posició"}
+                            </h2>
+                            <div className="input-group">
+                                <Input
+                                    name="name"
+                                    type="text"
+                                    placeholder="Nom"
+                                    value={newPositionTag.nom}
+                                    onChange={(e) =>
+                                        setNewPositionTag({ ...newPositionTag, nom: e.target.value })
+                                    }
+                                    inputTitle="Nom"
+                                    readOnly={!isCreate}
+                                />
+                            </div>
+                            {error && (
+                                <div className="error-message">
+                                    {error}
+                                </div>
+                            )}
+                            <div>Descripció</div>
+                            <div className="input-group">
+                                <textarea
+                                    placeholder="Descripció"
+                                    value={newPositionTag.descripcio}
+                                    onChange={(e) =>
+                                        setNewPositionTag({ ...newPositionTag, descripcio: e.target.value })
+                                    }
+                                />
+                            </div>
+                            <div className="modal-buttons-position">
+
+                                <Button
+                                    text={isCreate ? "Afegir posició" : "Guardar canvis"}
+                                    icon={isCreate ? <FaPlusSquare /> : <FaSave />}
+                                    action={isCreate ? createPosicio : () => updatePosicio(currentPosition)} />
+
+                                <Button
+                                    text="Cancelar"
+                                    icon={<FaTimesCircle />}
+                                    action={() => { setShowModalPosicions(false); setError(""); }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+            {
+                showModalRols && (
+                    <div className="modal-overlay-role">
+                        <div className="modal-role">
+                            <h2>
+                                {isCreate ? "Nou rol" : "Modificar rol"}
+                            </h2>
+                            <div className="input-group">
+                                <Input
+                                    name="name"
+                                    type="text"
+                                    placeholder="Nom"
+                                    value={newRoleTag.nom}
+                                    onChange={(e) =>
+                                        setNewRoleTag({ ...newRoleTag, nom: e.target.value })
+                                    }
+                                    inputTitle="Nom"
+                                    readOnly={!isCreate}
+                                />
+                            </div>
+                            {error && (
+                                <div className="error-message">
+                                    {error}
+                                </div>
+                            )}
+                            <div>Descripció</div>
+                            <div className="input-group">
+                                <textarea
+                                    placeholder="Descripció"
+                                    value={newRoleTag.descripcio}
+                                    onChange={(e) =>
+                                        setNewRoleTag({ ...newRoleTag, descripcio: e.target.value })
+                                    }
+                                />
+                            </div>
+
+                            <div className="permisos-wrapper">
+                                {Object.keys(permisos).map(key => (
+                                    <PermisoSelector
+                                        key={key}
+                                        label={key}
+                                        value={permisos[key]}
+                                        onChange={(v) => updatePermiso(key, v)}
+                                    />
+                                ))}
+                            </div>
+
+                            <div className="modal-buttons-role">
+                                <Button
+                                    text={isCreate ? "Afegir Rol" : "Guardar canvis"}
+                                    icon={isCreate ? <FaPlusSquare /> : <FaSave />}
+                                    action={isCreate ? createRoles : () => updateRoles(currentRole)} />
+
+                                <Button
+                                    text="Cancelar"
+                                    icon={<FaTimesCircle />}
+                                    action={() => { setShowModalRols(false); setError("") }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+        </div >
     )
 }
 

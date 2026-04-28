@@ -17,7 +17,9 @@ const LeftMenu = () => {
 
   const storedId = localStorage.getItem("id_colla");
 
-  //const permissions = getPermissions();
+  //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
+  const permissions = getPermissions();
+  const hasAccess = (key) => permissions[key] !== "X";
 
   useEffect(() => {
     setOpenLeft(false);
@@ -72,15 +74,25 @@ const LeftMenu = () => {
 
               {openMenuColla && (
                 <div className='submenu'>
-                  <div onClick={() => {
-                    navigate("/get_data_colla");
-                  }}>Informació colla</div>
-                  <div onClick={() => {
-                    navigate("/members");
-                  }}>Membres</div>
-                  <div onClick={() => {
-                    navigate("/etiquetes");
-                  }}>Etiquetes</div>
+
+                  {hasAccess("colla") && (
+                    <div onClick={() => {
+                      navigate("/get_data_colla");
+                    }}>Informació colla</div>
+                  )}
+
+                  {hasAccess("membres") && (
+                    <div onClick={() => {
+                      navigate("/members");
+                    }}>Membres</div>
+                  )}
+
+                  {hasAccess("colla") && (
+                    <div onClick={() => {
+                      navigate("/etiquetes");
+                    }}>Etiquetes</div>
+                  )}
+
                 </div>
               )}
 

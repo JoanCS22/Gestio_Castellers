@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import { FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare } from "react-icons/fa";
 
+import { getPermissions } from "../utils/utils.jsx"
+
 import './Colla_Membres.css';
 
 import TopMenu from "../components/TopMenu";
@@ -12,6 +14,10 @@ import Input from "../components/Input";
 function MembresColla() {
 
     const navigate = useNavigate();
+
+    //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
+    const permissions = getPermissions();
+    const hasWritePermission = (key) => permissions[key] === "W";
 
     const [error, setError] = useState("");
     const [message, setTempMessage] = useState(null);
@@ -178,13 +184,17 @@ function MembresColla() {
                 </div>
             )}
             <div className="button-add-membres">
-                <Button
-                    text='Afegir membre'
-                    icon={<FaPlusSquare />}
-                    action={() => {
-                        setShowModalAddMember(true);
-                    }}
-                />
+                <>
+                    {hasWritePermission("membres") && (
+                        <Button
+                            text='Afegir membre'
+                            icon={<FaPlusSquare />}
+                            action={() => {
+                                setShowModalAddMember(true);
+                            }}
+                        />
+                    )}
+                </>
             </div>
             <div className="filtres-members">
                 <div className="search-tab-members">
@@ -258,12 +268,16 @@ function MembresColla() {
                                 <td>
                                     <div className="member-name-cell">
                                         <span>{`${member.nom} ${member.cognoms}`}</span>
-                                        <FaUserEdit
-                                            className="icon-user-membre"
-                                            onClick={() => {
-                                                navigate(`/tecnica_profile?userId=${member.id_usuari}&collaId=${member.id_colla}`)
-                                            }}
-                                        />
+                                        <>
+                                            {hasWritePermission("membres") && (
+                                                <FaUserEdit
+                                                    className="icon-user-membre"
+                                                    onClick={() => {
+                                                        navigate(`/tecnica_profile?userId=${member.id_usuari}&collaId=${member.id_colla}`)
+                                                    }}
+                                                />
+                                            )}
+                                        </>
                                     </div>
                                 </td>
                                 <td>{member.mote}</td>

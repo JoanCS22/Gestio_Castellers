@@ -98,17 +98,16 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
 
     if (response.ok) {
       localStorage.setItem("permissions", JSON.stringify(data.permisos));
-      console.log(data.permisos);
-      console.log("{DEBUG} Get colla's roles OK")
+      console.log("{DEBUG} Get user's roles OK")
     } else {
-      console.log("{DEBUG} Get colla's roles KO")
+      console.log("{DEBUG} Get user's roles KO")
     }
   }
 
   useEffect(() => {
     getCollesUser();
 
-    if (localStorage.getItem("id_colla") && !localStorage.getItem("permissions")) {
+    if (localStorage.getItem("id_colla")) {
       getMemberPermissions();
     }
   }, []);
