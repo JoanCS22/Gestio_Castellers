@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { createEsdeveniment, getEsdevenimentInfo, modifyEsdeveniment, getFutureEsdeveniments, getPastEsdeveniments } = require('../controllers/colla.controller');
+const { createEsdeveniment, getEsdevenimentInfo, modifyEsdeveniment, getFutureEsdeveniments, getPastEsdeveniments } = require('../controllers/esdeveniments.controller');
 const auth = require('../middleware/auth');
 
 router.post('/createEsdeveniment', auth, createEsdeveniment);
