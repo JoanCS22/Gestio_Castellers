@@ -5,6 +5,7 @@ const authRoutes = require('./routes/authentication.routes');
 const profileRoutes = require('./routes/profile.routes');
 const collaRoutes = require('./routes/colla.routes');
 const memberRoutes = require('./routes/members.routes');
+const esdevenimentRoutes = require('./routes/esdeveniments.routes');
 
 require("dotenv").config();
 
@@ -26,5 +27,6 @@ app.use('/', authRoutes);
 app.use('/profile', profileRoutes); 
 app.use('/colla', collaRoutes);
 app.use('/members', memberRoutes);
+app.use('/esdeveniments', esdevenimentRoutes);
 
 module.exports = app;

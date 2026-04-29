@@ -1,0 +1,57 @@
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 50px;
+    padding: 20px;
+    margin: 20px;
+    height: 550px;
+}
+
+.left-column-dashboard {
+    display: grid;
+    grid-template-rows: 20% 80%;
+    gap: 25px;
+
+}
+
+.dashboard-grid-esdeveniment {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+}
+
+.dashboard-grid-proves {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+}
+
+.right-column-dashboard {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 50px;
+    width: 100%;
+    justify-items: stretch;
+}
+
+.dashboard-grid-notificacions {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+}
+
+.dashboard-grid-propers-esdeveniments {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+}
+
+.dashboard-grid-notificacions,
+.dashboard-grid-propers-esdeveniments {
+    width: 100%;
+}
+
+.dashboard-grid-esdeveniment,
+.dashboard-grid-proves,
+.dashboard-grid-notificacions,
+.dashboard-grid-propers-esdeveniments {
+    border: 1px solid black;
+    border-radius: 25px;
+    padding: 10px;
+}
