@@ -5,6 +5,7 @@ import UserProfile from "./pages/Usuaris_Perfil";
 import CollaInfo from "./pages/Colla_Info";
 import Etiquetes from "./pages/Etiquetes_Inici";
 import MembresColla from "./pages/Colla_Membres";
+import EsdevenimentsList from "./pages/Esdeveniments_Inici";
 
 function App() {
   return (
@@ -27,6 +28,9 @@ function App() {
       <Route path="/rols" element={<Etiquetes />} />
 
       <Route path="/members" element={<MembresColla />} />
+
+      <Route path="/esdeveniments" element={<EsdevenimentsList />} />
+
     </Routes>
   );
 }

@@ -59,7 +59,11 @@ const LeftMenu = () => {
 
               {openMenuAgenda && (
                 <div className='submenu'>
-                  <div onClick={() => { }}>Esdeveniments</div>
+                  {hasAccess("esdeveniments") && (
+                    <div onClick={() => { 
+                      navigate("/esdeveniments");
+                    }}>Esdeveniments</div>
+                  )}
                   <div onClick={() => { }}>Proves</div>
                   <div onClick={() => { }}>Assistència</div>
                 </div>

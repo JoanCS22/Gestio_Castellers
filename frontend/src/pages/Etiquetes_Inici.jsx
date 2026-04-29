@@ -401,8 +401,8 @@ function Etiquetes() {
                         }}>Rols</div>
                     </>
                 )}
-
             </div>
+            
             {
                 message && (
                     <div className={`message ${message.type}`}>
