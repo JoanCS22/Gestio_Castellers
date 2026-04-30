@@ -58,8 +58,6 @@ function CollaInfo() {
     const createColla = async (e) => {
         e.preventDefault();
 
-        console.log("{DEBUG} Entra a funció CreateColla");
-
         const token = localStorage.getItem("token");
 
         if (form.nom == "") {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { FaSave, FaTimesCircle, FaPencilAlt, FaPlusSquare, FaSearch } from "react-icons/fa";
+import { FaSave, FaTimesCircle, FaPencilAlt, FaPlusSquare, FaSearch, FaRegEye } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
 
@@ -20,6 +20,7 @@ function EsdevenimentsList() {
     //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
     const permissions = getPermissions();
     const hasWritePermission = (key) => permissions[key] === "W";
+    const hasAccess = (key) => permissions[key] !== "X";
 
     const [message, setTempMessage] = useState(null);
     const [error, setError] = useState("");
@@ -46,6 +47,66 @@ function EsdevenimentsList() {
             setTempMessage(null);
         }, 2000);
     };
+
+    const getCollesPastEsdeveniments = async () => {
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        const response = await fetch(`http://localhost:5000/esdeveniments/getPastEsdeveniments?id=${idColla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setPassats(data);
+            console.log("{DEBUG} Get colla's past esdeveniments OK")
+        } else {
+            console.log("{DEBUG} Get colla's past esdeveniments KO")
+            setError(data.message);
+        }
+    }
+
+    const getCollesFutureEsdeveniments = async () => {
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        const response = await fetch(`http://localhost:5000/esdeveniments/getFutureEsdeveniments?id=${idColla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setFuturs(data);
+            console.log("{DEBUG} Get colla's future esdeveniments OK")
+        } else {
+            console.log("{DEBUG} Get colla's future esdeveniments KO")
+            setError(data.message);
+        }
+    }
 
     return (
         <div>
@@ -74,9 +135,7 @@ function EsdevenimentsList() {
                             text="Afegir esdeveniment"
                             icon={<FaPlusSquare />}
                             action={() => {
-                                if (true) {
-                                } else {
-                                }
+                                navigate("/create_esdeveniment");
                             }}
                         />
                     </>
@@ -162,27 +221,44 @@ function EsdevenimentsList() {
                             <>
                                 <tr key={esdeveniment.id}>
                                     <td>{esdeveniment.nom}</td>
-                                    <td>{esdeveniment.descripcio}</td>
+                                    <td>{esdeveniment.tipus}</td>
                                     <td>
-                                        <button onClick={() => {
-                                            if (hasWritePermission("colla")) {
-                                                setCurrentPosition(esdeveniment.id);
-                                                setCreate(false);
-                                                setNewPositionTag({ nom: esdeveniment.nom, descripcio: esdeveniment.descripcio });
-                                                setShowModalPosicions(true);
-                                            }
-                                        }}>
-                                            <FaPencilAlt />
-                                        </button>
+                                        {esdeveniment.data}
+                                        {esdeveniment.hora}
                                     </td>
                                     <td>
-                                        <button onClick={() => {
-                                            if (hasWritePermission("colla")) {
-                                                deletePosicio(position.id);
-                                            }
-                                        }}>
-                                            <FaTrashAlt />
-                                        </button>
+                                        <Button
+                                            text="Consultar"
+                                            icon={<FaRegEye />}
+                                            action={() => {
+                                                //navigate("/esdeveniment_info");
+                                            }}
+                                        />
+                                        {hasWritePermission("colla") && (
+                                            <>
+                                                <Button
+                                                    text="Modificar"
+                                                    icon={<FaPencilAlt />}
+                                                    action={() => {
+                                                        //navigate("/esdeveniment_modify");
+                                                    }}
+                                                />
+                                            </>
+                                        )}
+                                        <Button
+                                            text="Proves"
+                                            icon={<FaPencilAlt />}
+                                            action={() => {
+
+                                            }}
+                                        />
+                                        <Button
+                                            text="Assistència"
+                                            icon={<FaPencilAlt />}
+                                            action={() => {
+
+                                            }}
+                                        />
                                     </td>
                                 </tr >
                             </>
