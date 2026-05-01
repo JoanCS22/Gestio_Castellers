@@ -76,7 +76,7 @@
 .checkbox-esdeveniments-tots {
     display: flex;
     align-items: center;
-    gap: 6px; 
+    gap: 6px;
 }
 
 /* TAULA ESDEVENIMENTS */
@@ -95,8 +95,28 @@
 }
 
 .table-esdeveniments th,
-.table-esdeveniments td{
+.table-esdeveniments td {
     border: 1px solid black;
     padding: 8px;
     text-align: center;
+}
+
+.date-time-cell-esdeveniments {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+
+/* BUTTONS TAULA */
+.buttons-esdeveniments-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    justify-items: center;
+    align-items: center;
 }

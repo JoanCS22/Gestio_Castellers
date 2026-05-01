@@ -120,16 +120,17 @@ const getFutureEsdeveniments = async (req, res) => {
         await client.query("BEGIN");
 
         const result = await client.query(
-            `SELECT id, nom, tipus, data, hora
+            `SELECT id, nom, tipus, data_esdeveniment, hora, visible
              FROM esdeveniments 
              WHERE id_colla = $1 
-             AND (data_esdeveniment > NOW() OR (data_esdeveniment::date = CURRENT_DATE AND hora > CURRENT_TIME))`,
+             AND (data_esdeveniment + hora) > NOW()
+             ORDER BY (data_esdeveniment + hora) ASC`,
             [id_colla]
         );
 
         await client.query("COMMIT");
 
-        res.status(200).json(result.rows[0]);
+        res.status(200).json(result.rows);
 
     } catch (error) {
         await client.query("ROLLBACK");
@@ -151,16 +152,17 @@ const getPastEsdeveniments = async (req, res) => {
         await client.query("BEGIN");
 
         const result = await client.query(
-            `SELECT id, nom, tipus, data, hora
+            `SELECT id, nom, tipus, data_esdeveniment, hora, visible
              FROM esdeveniments 
              WHERE id_colla = $1 
-             AND (data_esdeveniment < NOW() OR (data_esdeveniment::date = CURRENT_DATE AND hora < CURRENT_TIME))`,
+             AND (data_esdeveniment + hora) < NOW()
+             ORDER BY (data_esdeveniment + hora) DESC`,
             [id_colla]
         );
 
         await client.query("COMMIT");
 
-        res.status(200).json(result.rows[0]);
+        res.status(200).json(result.rows);
 
     } catch (error) {
         await client.query("ROLLBACK");

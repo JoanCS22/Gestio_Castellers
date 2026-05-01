@@ -13,6 +13,8 @@ function Dashboard() {
 
     const [existsEvent, setExistsEvent] = useState(true);
 
+    const [futurs, setFuturs] = useState([]);
+
     return (
         <div>
             <TopMenu
@@ -49,7 +51,7 @@ function Dashboard() {
                         </div>
                     </div>
                     <div className="dashboard-grid-proves">
-                        
+
                     </div>
                 </div>
 

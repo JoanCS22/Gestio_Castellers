@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { FaSave, FaTimesCircle, FaPencilAlt, FaPlusSquare, FaSearch, FaRegEye } from "react-icons/fa";
+import { FaSave, FaTimesCircle, FaPencilAlt, FaPlusSquare, FaSearch, FaRegEye, FaUsers, FaClipboardList } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
 
@@ -33,7 +33,7 @@ function EsdevenimentsList() {
     const [assaig, setAssaig] = useState(false);
     const [actuacio, setActuacio] = useState(false);
     const [altres, setAltres] = useState(false);
-    const [tots, setTots] = useState(false);
+    const [tots, setTots] = useState(true);
 
     const isFuturs = selectedTag === "futurs";
     const isPassats = selectedTag === "passats";
@@ -108,6 +108,11 @@ function EsdevenimentsList() {
         }
     }
 
+    useEffect(() => {
+        getCollesFutureEsdeveniments();
+        getCollesPastEsdeveniments();
+    }, []);
+
     return (
         <div>
             <TopMenu
@@ -162,7 +167,7 @@ function EsdevenimentsList() {
                         </div>
                     </div>
                     <div className="checkbox-esdeveniments-actuacio">
-                        <span>Actuacio:</span>
+                        <span>Actuació:</span>
                         <div className="checkbox-container-esdeveniments">
                             <input
                                 type="checkbox"
@@ -219,48 +224,60 @@ function EsdevenimentsList() {
                     <tbody>
                         {currentEsdeveniments.map((esdeveniment) => (
                             <>
-                                <tr key={esdeveniment.id}>
-                                    <td>{esdeveniment.nom}</td>
-                                    <td>{esdeveniment.tipus}</td>
-                                    <td>
-                                        {esdeveniment.data}
-                                        {esdeveniment.hora}
-                                    </td>
-                                    <td>
-                                        <Button
-                                            text="Consultar"
-                                            icon={<FaRegEye />}
-                                            action={() => {
-                                                //navigate("/esdeveniment_info");
-                                            }}
-                                        />
-                                        {hasWritePermission("colla") && (
-                                            <>
-                                                <Button
-                                                    text="Modificar"
-                                                    icon={<FaPencilAlt />}
-                                                    action={() => {
-                                                        //navigate("/esdeveniment_modify");
-                                                    }}
-                                                />
-                                            </>
-                                        )}
-                                        <Button
-                                            text="Proves"
-                                            icon={<FaPencilAlt />}
-                                            action={() => {
+                                {(esdeveniment.visible || hasWritePermission("esdeveniments")) && (
+                                    <>
+                                        <tr key={esdeveniment.id}>
+                                            <td>{esdeveniment.nom}</td>
+                                            <td>{esdeveniment.tipus}</td>
+                                            <td>
+                                                <div className="date-time-cell-esdeveniments">
+                                                    <div className="date-esdeveniments">
+                                                        {new Date(esdeveniment.data_esdeveniment).toLocaleDateString("es-ES")}
+                                                    </div>
+                                                    <div className="time-esdeveniments">
+                                                        {esdeveniment.hora}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="buttons-esdeveniments-list">
+                                                    <Button
+                                                        text="Consultar"
+                                                        icon={<FaRegEye />}
+                                                        action={() => {
+                                                            navigate(`/consult_esdeveniment?idEsdeveniment=${esdeveniment.id}`);
+                                                        }}
+                                                    />
+                                                    {hasWritePermission("colla") && (
+                                                        <>
+                                                            <Button
+                                                                text="Modificar"
+                                                                icon={<FaPencilAlt />}
+                                                                action={() => {
+                                                                    navigate(`/modify_esdeveniment?idEsdeveniment=${esdeveniment.id}`);
+                                                                }}
+                                                            />
+                                                        </>
+                                                    )}
+                                                    <Button
+                                                        text="Proves"
+                                                        icon={<FaPencilAlt />}
+                                                        action={() => {
 
-                                            }}
-                                        />
-                                        <Button
-                                            text="Assistència"
-                                            icon={<FaPencilAlt />}
-                                            action={() => {
+                                                        }}
+                                                    />
+                                                    <Button
+                                                        text="Assistència"
+                                                        icon={<FaClipboardList />}
+                                                        action={() => {
 
-                                            }}
-                                        />
-                                    </td>
-                                </tr >
+                                                        }}
+                                                    />
+                                                </div>
+                                            </td>
+                                        </tr >
+                                    </>
+                                )}
                             </>
                         ))}
                     </tbody>
