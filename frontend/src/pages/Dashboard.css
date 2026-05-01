@@ -1,51 +1,52 @@
+* {
+    box-sizing: border-box;
+}
+
 .dashboard-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
-    gap: 50px;
-    padding: 20px;
-    margin: 20px;
-    height: 550px;
+    padding: 30px;
+    height: 630px;
+    gap: 20px;
+
+    border: 2px solid blue; 
+}
+
+.left-column-dashboard,
+.right-column-dashboard {
+    display: grid;
+    height: 100%;
+    width: 100%;
+    gap: 25px;
+
+    min-width: 0; 
 }
 
 .left-column-dashboard {
     display: grid;
     grid-template-rows: 20% 80%;
     gap: 25px;
-
-}
-
-.dashboard-grid-esdeveniment {
-    grid-column: 1 / 2;
-    grid-row: 1 / 2;
-}
-
-.dashboard-grid-proves {
-    grid-column: 1 / 2;
-    grid-row: 2 / 3;
+    padding: 10px;
+    align-content: center;
 }
 
 .right-column-dashboard {
-    display: grid;
     grid-template-rows: 1fr 1fr;
-    gap: 50px;
-    width: 100%;
+    gap: 30px;
     justify-items: stretch;
 }
 
-.dashboard-grid-notificacions {
-    grid-column: 2 / 3;
-    grid-row: 1 / 2;
-}
-
-.dashboard-grid-propers-esdeveniments {
-    grid-column: 2 / 3;
-    grid-row: 2 / 3;
-}
-
-.dashboard-grid-notificacions,
-.dashboard-grid-propers-esdeveniments {
+hr {
     width: 100%;
+    border: none;
+    border-top: 1px solid #000;
+    margin: 10px 0;
+    flex-shrink: 0;
 }
+
+/* =========================
+   CARDS / BLOQUES
+========================= */
 
 .dashboard-grid-esdeveniment,
 .dashboard-grid-proves,
@@ -54,4 +55,46 @@
     border: 1px solid black;
     border-radius: 25px;
     padding: 10px;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;       
+    overflow: hidden;    
+}
+
+.dashboard-grid * {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+
+.upper-esdeveniments-part {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dashboard-assistencia-ok,
+.dashboard-assistencia-ko,
+.dashboard-assistencia-unknown {
+    border: 2px solid rgb(167, 167, 167);
+    border-radius: 15%;
+    width: 30px;
+    height: 20px;
+}
+
+.dashboard-assistencia-ok {
+    background-color: rgb(171, 255, 87);
+}
+
+.dashboard-assistencia-ko {
+    background-color: rgb(255, 116, 116);
+}
+
+.dashboard-assistencia-unknown {
+    background-color: rgb(255, 230, 87);
 }

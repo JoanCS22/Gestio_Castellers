@@ -217,8 +217,6 @@ const getMemberPermissions = async (req, res) => {
         const collaActiva = req.query.id;
         const loggedUserId = req.user.id;
 
-        console.log(`Colla: ${collaActiva}; User: ${loggedUserId}`)
-
         const result = await pool.query(
             `SELECT r.permisos 
              FROM rols r, membres_colla mc 

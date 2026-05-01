@@ -472,7 +472,7 @@ function EsdevenimentsInfo() {
                                 </>
                             )}
                             <Button
-                                text="Tornar a llista"
+                                text="Llista esdeveniments"
                                 icon={<FaClipboardList />}
                                 action={() => navigate("/esdeveniments")}
                             />

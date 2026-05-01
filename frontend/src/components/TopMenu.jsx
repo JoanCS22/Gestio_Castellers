@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaBars, FaUserCircle, FaArrowLeft, FaPlusSquare, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
+import { getPermissions } from "../utils/utils.jsx"
+
 import LeftMenu from "./LeftMenu";
 
 import "./TopMenu.css";
 
-function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
+function TopMenu({ title = "text", tornar = false, canvi_colla = false, onReady }) {
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false)
@@ -14,7 +16,7 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
   const [message, setTempMessage] = useState(null);
 
   const [colles, setColles] = useState([]);
-  const [title_colla, setTitle] = useState(colles?.[0]?.nom || 'Crear nova colla');
+  const [title_colla, setTitle] = useState('Crear nova colla');
 
   const logoutApp = () => {
     localStorage.clear();
@@ -105,11 +107,19 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
   }
 
   useEffect(() => {
-    getCollesUser();
+    const init = async () => {
+      await getCollesUser();
 
-    if (localStorage.getItem("id_colla")) {
-      getMemberPermissions();
-    }
+      const idColla = localStorage.getItem("id_colla");
+
+      if (idColla) {
+        await getMemberPermissions();
+      }
+
+      if (onReady) onReady();
+    };
+
+    init();
   }, []);
 
   return (
@@ -129,10 +139,12 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false }) {
               <div className="dropdown-colla">
                 {colles.map((colla) => (
                   <React.Fragment key={colla.id}>
-                    <div className="dropdown-item-colla" onClick={() => {
+                    <div className="dropdown-item-colla" onClick={async() => {
                       localStorage.setItem("id_colla", colla.id);
                       setTitle(colla.nom)
                       setOpenColla(false);
+                      await getMemberPermissions(); 
+                      if (onReady) onReady();
                     }}>
                       {colla.nom}
                     </div>
