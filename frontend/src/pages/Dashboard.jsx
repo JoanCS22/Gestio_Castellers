@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { getPermissions } from "../utils/utils.jsx"
 
-import { FaPencilAlt, FaUsers, FaRegEye } from "react-icons/fa";
+import { FaPencilAlt, FaUsers, FaRegEye, FaCalendarAlt } from "react-icons/fa";
 
 import TopMenu from "../components/TopMenu";
 import Button from "../components/Button";
@@ -50,10 +50,10 @@ function Dashboard() {
             let result = data;
 
             if (hasWritePermission("esdeveniments")) {
-                result = data.slice(0, 5);
+                result = data.slice(0, 4);
 
             } else if (hasReadPermission("esdeveniments")) {
-                result = data.filter(e => e.visible === true).slice(0, 5);
+                result = data.filter(e => e.visible === true).slice(0, 4);
             } else {
                 result = [];
             }
@@ -87,9 +87,12 @@ function Dashboard() {
 
                             {futurs.length > 0 && (
                                 <>
-                                    <div className="dashboard-assistencia-ok">OK</div>
-                                    <div className="dashboard-assistencia-ko">KO</div>
-                                    <div className="dashboard-assistencia-unknown">??</div>
+                                    <div className="dashboard-numbers-assistance">
+                                        <div className="dashboard-assistencia-ok">OK</div>
+                                        <div className="dashboard-assistencia-ko">KO</div>
+                                        <div className="dashboard-assistencia-unknown">??</div>
+                                    </div>
+
 
                                     <Button
                                         text="Consultar"
@@ -130,7 +133,47 @@ function Dashboard() {
                     <div className="dashboard-grid-notificacions">
                     </div>
                     <div className="dashboard-grid-propers-esdeveniments">
-
+                        <div className="dashboard-grid-propers-esdeveniments-title" onClick={() => {
+                            navigate("/esdeveniments");
+                        }}>
+                            <span>Propers esdeveniments</span>
+                            <FaCalendarAlt />
+                        </div>
+                        <hr />
+                        {futurs.length > 0 ? (
+                            <>
+                                {futurs.map((esdeveniment) => (
+                                    <>
+                                        {(esdeveniment.visible || hasWritePermission("esdeveniments")) && (
+                                            <>
+                                                <div className="dashboard-grid-propers-esdeveniments-element" onClick={() => {
+                                                    navigate(`/consult_esdeveniment?idEsdeveniment=${esdeveniment.id}`);
+                                                }}>
+                                                    <div className="dashboard-grid-propers-esdeveniments-element-left">
+                                                        <div className="dashboard-grid-propers-esdeveniments-element-left-title">
+                                                            {esdeveniment.nom}
+                                                        </div>
+                                                        <div className="dashboard-grid-propers-esdeveniments-element-left-datetime">
+                                                            {new Date(esdeveniment.data_esdeveniment).toLocaleDateString("es-ES")}, {esdeveniment.hora}
+                                                        </div>
+                                                    </div>
+                                                    <div className="dashboard-grid-propers-esdeveniments-element-right">
+                                                        <div className="dashboard-assistencia-ok">OK</div>
+                                                        <div className="dashboard-assistencia-ko">KO</div>
+                                                        <div className="dashboard-assistencia-unknown">??</div>
+                                                    </div>
+                                                </div>
+                                                <hr />
+                                            </>
+                                        )}
+                                    </>
+                                ))}
+                            </>
+                        ) : (
+                            <>
+                                <span>No existeixen futurs esdeveniments</span>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
