@@ -17,7 +17,7 @@ const createEsdeveniment = async (req, res) => {
 
         await client.query("BEGIN");
 
-        const resultPosicio = await client.query(
+        const resultEsdeveniment = await client.query(
             `INSERT INTO esdeveniments (id_colla, nom, tipus, data_esdeveniment, hora, duracio, 
              adreca, link_adreca, visible, acompanyat, bus, data_inici_inscripcions, 
              info_addicional, codi_confirmacio, data_creacio, data_actualitzacio)
@@ -28,9 +28,19 @@ const createEsdeveniment = async (req, res) => {
                 info_addicional, codi_confirmacio]
         );
 
+        const idEsdeveniment = resultEsdeveniment.rows[0].id;
+
+        await client.query(
+            `INSERT INTO assistencia (id_esdeveniment, id_usuari, confirmacio_previa, confirmacio_arribada, comentari)
+             SELECT $1, id_usuari, 'pendent', 'pendent', ''
+             FROM membres_colla
+             WHERE id_colla = $2`,
+            [idEsdeveniment, collaActiva]
+        );
+
         await client.query("COMMIT");
 
-        res.status(200).json(resultPosicio.rows[0]);
+        res.status(200).json(resultEsdeveniment.rows[0]);
 
     } catch (error) {
         await client.query("ROLLBACK");

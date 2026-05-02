@@ -60,17 +60,34 @@ const LeftMenu = () => {
               {openMenuAgenda && (
                 <div className='submenu'>
                   {hasAccess("esdeveniments") && (
-                    <div onClick={() => { 
+                    <div onClick={() => {
                       navigate("/esdeveniments");
                     }}>Esdeveniments</div>
                   )}
-                  <div onClick={() => { }}>Proves</div>
-                  <div onClick={() => { }}>Assistència</div>
+                  {hasAccess("proves") && (
+                    <div onClick={() => {
+
+                    }}>Proves</div>
+                  )}
+                  {hasAccess("assistencia") && (
+                    <div onClick={() => {
+
+                    }}>Assistència</div>
+                  )}
                 </div>
               )}
 
-              <div className='menu-item' onClick={() => { }}>Plantilles</div>
-              <div className='menu-item' onClick={() => { }}>Notificacions</div>
+              {hasAccess("plantilles") && (
+                <div className='menu-item' onClick={() => {
+
+                }}>Plantilles</div>
+              )}
+
+              {hasAccess("notificacions") && (
+                <div className='menu-item' onClick={() => {
+
+                }}>Notificacions</div>
+              )}
 
               <div className='menu-section' onClick={() => setOpenColla(!openMenuColla)}>
                 La colla {openMenuColla ? <FaCaretUp /> : <FaCaretDown />}
@@ -100,7 +117,11 @@ const LeftMenu = () => {
                 </div>
               )}
 
-              <div className='menu-item' onClick={() => { }}>Llistats</div>
+              {hasAccess("llistats") && (
+                <div className='menu-item' onClick={() => {
+
+                }}>Llistats</div>
+              )}
             </>
           ) : (
             <>

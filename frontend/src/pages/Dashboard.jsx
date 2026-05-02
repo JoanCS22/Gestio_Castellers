@@ -29,6 +29,10 @@ function Dashboard() {
         const token = localStorage.getItem("token");
         const idColla = localStorage.getItem("id_colla");
 
+        if(!idColla) {
+            return;
+        }
+
         const response = await fetch(`http://localhost:5000/esdeveniments/getFutureEsdeveniments?id=${idColla}`, {
             method: "GET",
             headers: {
