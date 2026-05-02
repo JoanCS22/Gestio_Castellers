@@ -20,8 +20,6 @@ function EsdevenimentsInfo() {
     const params = new URLSearchParams(location.search);
     const idEsdeveniment = params.get("idEsdeveniment");
 
-    console.log("ID:", idEsdeveniment);
-
     //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
     const permissions = getPermissions();
     const hasWritePermission = (key) => permissions[key] === "W";

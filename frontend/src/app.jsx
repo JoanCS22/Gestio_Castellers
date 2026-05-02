@@ -7,6 +7,7 @@ import Etiquetes from "./pages/Etiquetes_Inici";
 import MembresColla from "./pages/Colla_Membres";
 import EsdevenimentsList from "./pages/Esdeveniments_Inici";
 import EsdevenimentsInfo from "./pages/Esdeveniments_Info";
+import LlistatAssistencia from "./pages/Assistencia_Llistat";
 
 function App() {
   return (
@@ -35,6 +36,8 @@ function App() {
       <Route path="/modify_esdeveniment" element={<EsdevenimentsInfo />} />
       <Route path="/consult_esdeveniment" element={<EsdevenimentsInfo />} />
       <Route path="/create_esdeveniment" element={<EsdevenimentsInfo />} />
+
+      <Route path="/assistencia" element={<LlistatAssistencia />} />
 
     </Routes>
   );

@@ -1,0 +1,55 @@
+/* SECCIÓ BOTONS*/
+
+.button-section-assistencia-llistat {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+}
+
+/* SECCIÓ SEARCH BAR */
+
+.filters-llistat-assistencia {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 200px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.search-bar-llistat-assistencia {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.numbers-llistat-assistencia {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px
+}
+
+/* SECCIÓ LIST */
+
+.table-llistat-assistencia {
+    border-collapse: collapse;
+    width: 90%;
+    margin: 20px auto;
+    table-layout: fixed;
+}
+
+.table-llistat-assistencia table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.table-llistat-assistencia th,
+.table-llistat-assistencia td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}

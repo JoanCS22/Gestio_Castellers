@@ -24,12 +24,14 @@ function Dashboard() {
     const [topMenuReady, setTopMenuReady] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
 
+    const currentEsdevenimentId = futurs.length > 0 ? futurs[0].id : null;
+
     const getCollesFutureEsdeveniments = async () => {
 
         const token = localStorage.getItem("token");
         const idColla = localStorage.getItem("id_colla");
 
-        if(!idColla) {
+        if (!idColla) {
             return;
         }
 
@@ -116,7 +118,9 @@ function Dashboard() {
                                         text="Assistència"
                                         icon={<FaUsers />}
                                         action={() => {
-                                            alert("Funcionalitat encara no implementada.");
+                                            if (futurs.length > 0) {
+                                                navigate(`/assistencia?idEsdeveniment=${futurs[0].id}`);
+                                            }
                                         }}
                                     />
                                 </>
