@@ -71,7 +71,7 @@ const LeftMenu = () => {
                   )}
                   {hasAccess("assistencia") && (
                     <div onClick={() => {
-
+                      
                     }}>Assistència</div>
                   )}
                 </div>

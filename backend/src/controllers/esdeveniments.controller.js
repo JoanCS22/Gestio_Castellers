@@ -1,10 +1,5 @@
 const pool = require('../db');
 
-const toDateOrNull = (value) => {
-    if (!value || value === "") return null;
-    return value;
-};
-
 const createEsdeveniment = async (req, res) => {
     const client = await pool.connect();
 

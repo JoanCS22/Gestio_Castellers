@@ -6,6 +6,7 @@ const profileRoutes = require('./routes/profile.routes');
 const collaRoutes = require('./routes/colla.routes');
 const memberRoutes = require('./routes/members.routes');
 const esdevenimentRoutes = require('./routes/esdeveniments.routes');
+const assistenciaRoutes = require('./routes/assistencia.routes');
 
 require("dotenv").config();
 
@@ -28,5 +29,6 @@ app.use('/profile', profileRoutes);
 app.use('/colla', collaRoutes);
 app.use('/members', memberRoutes);
 app.use('/esdeveniments', esdevenimentRoutes);
+app.use('/assistencia', assistenciaRoutes);
 
 module.exports = app;

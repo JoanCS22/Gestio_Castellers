@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { FaCaretUp, FaSearch, FaCheckDouble, FaCheck } from "react-icons/fa";
+import { FaCaretUp, FaSearch, FaCheckDouble, FaCheck, FaPencilAlt } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
 
@@ -42,8 +42,8 @@ const LlistatAssistencia = () => {
 
             <div className="button-section-assistencia-llistat">
                 <Button
-                    text="Modificar assistència"
-                    icon={<FaCaretUp />}
+                    text="La meva assistència"
+                    icon={<FaPencilAlt />}
                     action={() => {
 
                     }}
