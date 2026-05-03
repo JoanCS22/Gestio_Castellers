@@ -142,7 +142,6 @@ function EsdevenimentsInfo() {
             console.log("{DEBUG} Create esdeveniment OK");
             setError("");
             showTempMessage("Esdeveniment creat correctament.");
-            console.log("ID creada:", data.id);
             navigate(`/consult_esdeveniment?idEsdeveniment=${data.id}`);
         } else {
             console.log("{DEBUG} Create esdeveniment KO");

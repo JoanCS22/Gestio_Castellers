@@ -27,6 +27,8 @@ const LlistatAssistencia = () => {
     const [message, setTempMessage] = useState(null);
     const [error, setError] = useState("");
 
+    const [loadingIds, setLoadingIds] = useState([]);
+
     const [assistencia, setAssistencia] = useState([]);
 
     const stats = {
@@ -43,30 +45,32 @@ const LlistatAssistencia = () => {
         no_sap: "si"
     };
 
-    const estatPrevi = (memberId) => {
-        setAssistencia(prev =>
-            prev.map(m => {
-                if (m.id !== memberId) return m;
+    const estatPrevi = (memberId, currentValue) => {
+        const newValue = cicle[currentValue] || "si";
 
-                return {
-                    ...m,
-                    confirmacio_previa: cicle[m.confirmacio_previa] || "si"
-                };
-            })
+        setAssistencia(prev =>
+            prev.map(m =>
+                m.id === memberId
+                    ? { ...m, confirmacio_previa: newValue }
+                    : m
+            )
         );
+
+        return newValue;
     };
 
-    const estatArribada = (memberId) => {
-        setAssistencia(prev =>
-            prev.map(m => {
-                if (m.id !== memberId) return m;
+    const estatArribada = (memberId, currentValue) => {
+        const newValue = cicle[currentValue] || "si";
 
-                return {
-                    ...m,
-                    confirmacio_arribada: cicle[m.confirmacio_arribada] || "si"
-                };
-            })
+        setAssistencia(prev =>
+            prev.map(m =>
+                m.id === memberId
+                    ? { ...m, confirmacio_arribada: newValue }
+                    : m
+            )
         );
+
+        return newValue;
     };
 
     const renderIcon = (value) => {
@@ -89,6 +93,72 @@ const LlistatAssistencia = () => {
             setTempMessage(null);
         }, 1000);
     };
+
+    const modifyAssistenciaPreviaTecnica = async (idAssistencia, confirmacio_previa) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/assistencia/modifyAssistenciaPreviaTecnica?id=${idAssistencia}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                confirmacio_previa: confirmacio_previa
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setError("");
+            showTempMessage("Assistència previa modificada correctament.");
+            console.log("{DEBUG} Modify esdeveniment's assistencia previa OK")
+        } else {
+            console.log("{DEBUG} Modify esdeveniment's assistencia previa KO")
+            setError(data.message);
+        }
+    }
+
+    const confirmAssistenciaTecnica = async (idAssistencia, confirmacio_arribada) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/assistencia/confirmAssistencia?id=${idAssistencia}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                confirmacio_arribada: confirmacio_arribada
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setError("");
+            showTempMessage("Assistència arribada modificada correctament.");
+            console.log("{DEBUG} Modify esdeveniment's assistencia arribada OK")
+        } else {
+            console.log("{DEBUG} Modify esdeveniment's assistencia arribada KO")
+            setError(data.message);
+        }
+    }
 
     const getAssistenciaByEsdeveniment = async () => {
 
@@ -200,19 +270,47 @@ const LlistatAssistencia = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {assistencia.map((member) => (
+                        {assistencia.map((assist) => (
                             <>
-                                <tr key={member.id}>
-                                    <td>{member.mote}</td>
-                                    <td onClick={() => estatPrevi(member.id)}>
-                                        {renderIcon(member.confirmacio_previa)}
+                                <tr key={assist.id}>
+                                    <td>{assist.mote}</td>
+                                    <td
+                                        className={loadingIds.includes(assist.id) ? "loading-assistencia" : ""}
+                                        onClick={() => {
+                                            if (loadingIds.includes(assist.id)) return;
+
+                                            const newValue = estatPrevi(assist.id, assist.confirmacio_previa);
+
+                                            setLoadingIds(prev => [...prev, assist.id]);
+
+                                            modifyAssistenciaPreviaTecnica(assist.id, newValue)
+                                                .finally(() => {
+                                                    setLoadingIds(prev => prev.filter(id => id !== assist.id));
+                                                });
+                                        }}
+                                    >
+                                        {renderIcon(assist.confirmacio_previa)}
                                     </td>
-                                    <td onClick={() => estatArribada(member.id)}>
-                                        {renderIcon(member.confirmacio_arribada)}
+                                    <td
+                                        className={loadingIds.includes(assist.id) ? "loading-assistencia" : ""}
+                                        onClick={() => {
+                                            if (loadingIds.includes(assist.id)) return;
+
+                                            const newValue = estatArribada(assist.id, assist.confirmacio_arribada);
+
+                                            setLoadingIds(prev => [...prev, assist.id]);
+
+                                            confirmAssistenciaTecnica(assist.id, newValue)
+                                                .finally(() => {
+                                                    setLoadingIds(prev => prev.filter(id => id !== assist.id));
+                                                });
+                                        }}
+                                    >
+                                        {renderIcon(assist.confirmacio_arribada)}
                                     </td>
-                                    <td>{member.num_acompanyants}</td>
-                                    <td>{member.comentari}</td>
-                                    <td>  {new Date(member.data_actualitzacio).toLocaleString("es-ES")}</td>
+                                    <td>{assist.num_acompanyants}</td>
+                                    <td>{assist.comentari}</td>
+                                    <td>  {new Date(assist.data_actualitzacio).toLocaleString("es-ES")}</td>
                                 </tr >
                             </>
                         ))}
