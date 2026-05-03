@@ -1,0 +1,21 @@
+/* GRID ASSISTENCIA USUAR */
+
+
+
+/*FIRST ROW*/
+
+.numbers-assistencia-usuari-element{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px
+}
+
+/*SECOND ROW*/
+
+.checkbox-container-assistencia-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}

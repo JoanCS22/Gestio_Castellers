@@ -8,6 +8,7 @@ import MembresColla from "./pages/Colla_Membres";
 import EsdevenimentsList from "./pages/Esdeveniments_Inici";
 import EsdevenimentsInfo from "./pages/Esdeveniments_Info";
 import LlistatAssistencia from "./pages/Assistencia_Llistat";
+import AssistenciaUsuari from "./pages/Assistencia_Usuari"
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
       <Route path="/create_esdeveniment" element={<EsdevenimentsInfo />} />
 
       <Route path="/assistencia" element={<LlistatAssistencia />} />
+      <Route path="/assistencia_usuari" element={<AssistenciaUsuari />} />
 
     </Routes>
   );

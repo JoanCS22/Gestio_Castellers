@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { FaCaretUp, FaSearch, FaCheckDouble, FaCheck, FaPencilAlt, FaTimes, FaQuestion, FaRegQuestionCircle } from "react-icons/fa";
+import { FaSearch, FaCheckDouble, FaCheck, FaPencilAlt, FaTimes, FaQuestion, FaRegQuestionCircle } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
 
@@ -197,6 +197,7 @@ const LlistatAssistencia = () => {
         <div>
             <TopMenu
                 title={`Assistència ${nomEsdeveniment}`}
+                tornar
             />
 
             {
@@ -212,7 +213,7 @@ const LlistatAssistencia = () => {
                     text="La meva assistència"
                     icon={<FaPencilAlt />}
                     action={() => {
-
+                        navigate(`/assistencia_usuari?idEsdeveniment=${idEsdeveniment}`);
                     }}
                 />
             </div>
