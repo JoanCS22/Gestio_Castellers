@@ -5,6 +5,8 @@ import { FaBars, FaOutdent, FaCaretDown, FaCaretUp } from "react-icons/fa";
 import { getPermissions } from "../utils/utils.jsx"
 import './LeftMenu.css';
 
+import { useEvent } from "../utils/EventContext.jsx"
+
 const LeftMenu = () => {
 
   const navigate = useNavigate();
@@ -20,6 +22,8 @@ const LeftMenu = () => {
   //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
   const permissions = getPermissions();
   const hasAccess = (key) => permissions[key] !== "X";
+
+  const { currentEvent } = useEvent();
 
   useEffect(() => {
     setOpenLeft(false);
@@ -71,7 +75,9 @@ const LeftMenu = () => {
                   )}
                   {hasAccess("assistencia") && (
                     <div onClick={() => {
-                      
+                      if (currentEvent) {
+                        navigate(`/assistencia?idEsdeveniment=${currentEvent.id}&nomEsdeveniment=${encodeURIComponent(currentEvent.nom)}`);
+                      }
                     }}>Assistència</div>
                   )}
                 </div>

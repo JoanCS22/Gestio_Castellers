@@ -10,6 +10,8 @@ import Button from "../components/Button";
 
 import "./Dashboard.css";
 
+import { useEvent } from "../utils/EventContext.jsx"
+
 function Dashboard() {
     const navigate = useNavigate();
 
@@ -25,6 +27,8 @@ function Dashboard() {
     const [refreshKey, setRefreshKey] = useState(0);
 
     const currentEsdevenimentId = futurs.length > 0 ? futurs[0].id : null;
+
+    const { setCurrentEvent } = useEvent();
 
     const getCollesFutureEsdeveniments = async () => {
 
@@ -65,6 +69,7 @@ function Dashboard() {
             }
 
             setFuturs(result);
+            setCurrentEvent(result[0]);
             console.log("{DEBUG} Get colla's future esdeveniments OK")
         } else {
             console.log("{DEBUG} Get colla's future esdeveniments KO")
@@ -99,7 +104,6 @@ function Dashboard() {
                                         <div className="dashboard-assistencia-unknown">??</div>
                                     </div>
 
-
                                     <Button
                                         text="Consultar"
                                         icon={<FaRegEye />}
@@ -119,7 +123,7 @@ function Dashboard() {
                                         icon={<FaUsers />}
                                         action={() => {
                                             if (futurs.length > 0) {
-                                                navigate(`/assistencia?idEsdeveniment=${futurs[0].id}`);
+                                                navigate(`/assistencia?idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`);
                                             }
                                         }}
                                     />

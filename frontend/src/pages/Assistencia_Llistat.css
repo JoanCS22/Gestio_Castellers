@@ -29,7 +29,26 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px
+    gap: 40px
+}
+
+.numbers-llistat-assistencia-element{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px
+}
+
+.dashboard-assistencia-pendant,
+.dashboard-assistencia-doble {
+    border: 2px solid rgb(167, 167, 167);
+    border-radius: 15%;
+    width: 50px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* SECCIÓ LIST */
@@ -52,4 +71,53 @@
     border: 1px solid black;
     padding: 8px;
     text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.list-assistencia-ok,
+.list-assistencia-ko,
+.list-assistencia-unknown,
+.list-assistencia-pendant {
+    border: 1px solid rgb(167, 167, 167);
+    border-radius: 15%;
+    width: 40px;
+    height: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
+.list-assistencia-ok:hover,
+.list-assistencia-ko:hover,
+.list-assistencia-unknown:hover,
+.list-assistencia-pendant:hover {
+    border: 1px solid black;  
+    opacity: 0.6;  
+}
+
+.list-assistencia-ok {
+    background-color: rgb(171, 255, 87);
+}
+
+.list-assistencia-ko {
+    background-color: rgb(255, 116, 116);
+}
+
+.list-assistencia-unknown {
+    background-color: rgb(255, 230, 87);
+}
+
+.list-assistencia-pendant {
+    background-color: rgb(228, 228, 228);
+}
+
+.list-assistencia-doble{
+    background-color: rgb(128, 255, 0);
 }

@@ -4,17 +4,18 @@ const getAssistenciaList = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const id_esdeveniment = req.query.id;
+        const id_assistencia = req.query.id;
 
         await client.query("BEGIN");
 
         const result = await client.query(
-            `SELECT a.*, r.acompanyat as boolCompanyia, r.bus as boolBus
-             FROM assistencia a, esdeveniments e
-             WHERE a.id = $1
-             AND a.id_esdeveniment = e.id
-             ORDER BY nom ASC`,
-            [id_esdeveniment]
+            `SELECT a.*, e.acompanyat as boolCompanyia, e.bus as boolBus, u.mote
+             FROM assistencia a
+             JOIN esdeveniments e ON a.id_esdeveniment = e.id
+             JOIN usuaris u ON u.id = a.id_usuari
+             WHERE a.id_esdeveniment = $1
+             ORDER BY u.mote ASC`,
+            [id_assistencia]
         );
 
         await client.query("COMMIT");

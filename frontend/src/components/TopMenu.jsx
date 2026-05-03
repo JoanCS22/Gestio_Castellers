@@ -139,11 +139,11 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false, onReady 
               <div className="dropdown-colla">
                 {colles.map((colla) => (
                   <React.Fragment key={colla.id}>
-                    <div className="dropdown-item-colla" onClick={async() => {
+                    <div className="dropdown-item-colla" onClick={async () => {
                       localStorage.setItem("id_colla", colla.id);
                       setTitle(colla.nom)
                       setOpenColla(false);
-                      await getMemberPermissions(); 
+                      await getMemberPermissions();
                       if (onReady) onReady();
                     }}>
                       {colla.nom}

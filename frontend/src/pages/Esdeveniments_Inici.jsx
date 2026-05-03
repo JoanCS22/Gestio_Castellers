@@ -270,7 +270,7 @@ function EsdevenimentsList() {
                                                         text="Assistència"
                                                         icon={<FaClipboardList />}
                                                         action={() => {
-
+                                                            navigate(`/assistencia?idEsdeveniment=${esdeveniment.id}&nomEsdeveniment=${encodeURIComponent(esdeveniment.nom)}`);
                                                         }}
                                                     />
                                                 </div>
