@@ -49,6 +49,8 @@ function EsdevenimentsInfo() {
     const [tipus, setTipus] = useState("Assaig");
     const [tipusAltres, setTipusAltres] = useState("");
 
+    const [showModal, setShowModal] = useState(false);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -466,6 +468,13 @@ function EsdevenimentsInfo() {
                                         icon={<FaPencilAlt />}
                                         action={() => navigate(`/modify_esdeveniment?idEsdeveniment=${idEsdeveniment}`)}
                                     />
+                                    <Button
+                                        text="Mostrar codi"
+                                        icon={<FaRegEye />}
+                                        action={() => {
+                                            setShowModal(true);
+                                        }}
+                                    />
                                 </>
                             )}
                             <Button
@@ -515,6 +524,22 @@ function EsdevenimentsInfo() {
                     )}
                 </div>
             </div>
+            {showModal && (
+                <div className="modal-overlay-esdeveniments">
+                    <div className="modal-esdeveniments">
+                        <h2>
+                            {form.codi}
+                        </h2>
+                        <div className="modal-buttons-esdeveniments">                        
+                            <Button
+                                text="Tancar"
+                                icon={<FaTimesCircle />}
+                                action={() => { setShowModal(false);}}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

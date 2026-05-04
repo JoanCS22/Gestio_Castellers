@@ -118,3 +118,54 @@
     gap: 50px;
     width: 100%;   
 }
+
+/* MODAL VERIFICACIÓ ASSISTÈNCIA */
+
+.modal-overlay-assistencia {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 1000;
+}
+
+.modal-assistencia {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+
+    width: 500px;
+    max-width: 90%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-assistencia {
+    width: 100%;
+    display: flex;
+}
+
+.input-assistencia>* {
+    width: 100%;
+}
+
+.modal-assistencia h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.modal-buttons-assistencia{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}

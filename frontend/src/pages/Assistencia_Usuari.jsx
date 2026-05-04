@@ -394,46 +394,6 @@ const AssistenciaUsuari = () => {
                     />
                 </div>
             </div>
-            {
-                showModal && (
-                    <div className="modal-overlay-position">
-                        <div className="modal-position">
-                            <h2>
-                                Introdueix el codi
-                            </h2>
-                            <div className="input-group">
-                                <Input
-                                    name="codi"
-                                    type="text"
-                                    placeholder="Codi"
-                                    value={modalText}
-                                    onChange={(e) =>
-                                        setModalText(e.target.value)
-                                    }
-                                    inputTitle="Codi"
-                                />
-                            </div>
-                            {error && (
-                                <div className="error-message">
-                                    {error}
-                                </div>
-                            )}
-                            <div className="modal-buttons-position">
-                                <Button
-                                    text="Verificar codi"
-                                    icon={<FaPaperPlane />}
-                                    action={verifyCode}
-                                />
-                                <Button
-                                    text="Cancelar"
-                                    icon={<FaTimesCircle />}
-                                    action={() => { setShowModal(false); setError(""); }}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
         </div>
     )
 }
