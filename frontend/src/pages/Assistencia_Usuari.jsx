@@ -21,6 +21,17 @@ const AssistenciaUsuari = () => {
     const params = new URLSearchParams(location.search);
     const id_esdeveniment = params.get("idEsdeveniment");
 
+    const [message, setTempMessage] = useState(null);
+    const [error, setError] = useState("");
+
+    const showTempMessage = (message, type = "success") => {
+        setTempMessage({ message, type });
+
+        setTimeout(() => {
+            setTempMessage(null);
+        }, 2000);
+    };
+
     const [currentEsdeveniment, setCurrentEsdeveniment] = useState({
         nom: "",
         data: "",
@@ -34,15 +45,27 @@ const AssistenciaUsuari = () => {
     const [tipus, setTipus] = useState("Assaig");
 
     const [currentAssistance, setCurrentAssistance] = useState({
+        id: 0,
         comentari: "",
-        num_acompanyants: 0
+        num_acompanyants: 0,
+        temps_tard: 0,
+        temps_aviat: 0,
     });
 
-    const [assistenciaPrevia, setAssistenciaPrevia] = useState("si");
+    const [assistenciaSeleccionada, setAssistenciaSeleccionada] = useState(null);
+
     const [busAssistencia, setBusAssistencia] = useState(false);
     const [arribaTard, setArribaTard] = useState(false);
     const [marxaAviat, setMarxaAviat] = useState(false);
 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setCurrentAssistance((prev) => ({
+            ...prev,
+            [name]: value
+        }));
+    };
 
     const getEsdevenimentInfo = async () => {
 
@@ -71,6 +94,8 @@ const AssistenciaUsuari = () => {
                 hora: data.hora,
                 data_inscripcions: data.data_inici_inscripcions.split("T")[0],
                 codi: data.codi_confirmacio,
+                temps_tard: data.temps_tard,
+                temps_aviat: data.temps_aviat,
             });
 
             setTipus(data.tipus);
@@ -84,15 +109,110 @@ const AssistenciaUsuari = () => {
         }
     }
 
+    const getAssistenciaActual = async () => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/assistencia/getAssistenciaByMember?id=${id_esdeveniment}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setCurrentAssistance({
+                id: data.id,
+                comentari: data.comentari,
+                num_acompanyants: data.num_acompanyants,
+                temps_tard: data.temps_tard,
+                temps_aviat: data.temps_aviat,
+            });
+
+            setAssistenciaSeleccionada(data.confirmacio_previa);
+            setBusAssistencia(data.bus);
+            setArribaTard(data.arriba_tard);
+            setMarxaAviat(data.marxa_aviat);
+
+            console.log("{DEBUG} Get esdeveniments's data OK")
+        } else {
+            console.log("{DEBUG} Get esdeveniments's data KO")
+            setError(data.message);
+        }
+    }
+
+    const modifyAssistenciaPrevia = async () => {
+
+        const token = localStorage.getItem("token");
+
+        if (assistenciaSeleccionada === "") {
+            setError(`Has de seleccionar algun valor d'assistència`);
+            return;
+        }
+
+        console.log(`Id assistencia: ${currentAssistance.id}`);
+
+        const response = await fetch(`http://localhost:5000/assistencia/modifyAssistenciaPrevia?id=${currentAssistance.id}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                confirmacio_previa: assistenciaSeleccionada,
+                bus: busAssistencia,
+                num_acompanyants: currentAssistance.num_acompanyants,
+                arriba_tard: arribaTard,
+                marxa_aviat: marxaAviat,
+                comentari: currentAssistance.comentari,
+                temps_tard: currentAssistance.temps_tard,
+                temps_aviat: currentAssistance.temps_aviat
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Modify assistència prèvia OK");
+            setError("");
+            showTempMessage("Assistència modificada correctament.");
+        } else {
+            console.log("{DEBUG} Modify assistència prèvia KO");
+            setError(data.message);
+        }
+    }
+
     useEffect(() => {
         getEsdevenimentInfo();
+        getAssistenciaActual();
     }, []);
 
     return (
         <div>
             <TopMenu
                 title={`Assistència ${currentEsdeveniment.nom}`}
+                tornar
             />
+            {message && (
+                <div className={`message ${message.type}`}>
+                    {message.message}
+                </div>
+            )}
             <div className='grid-assistencia-usuari'>
                 <div className='grid-assistencia-usuari-title'>
                     {tipus} el dia {new Date(currentEsdeveniment.data).toLocaleDateString("es-ES")} a les {currentEsdeveniment.hora}
@@ -100,43 +220,61 @@ const AssistenciaUsuari = () => {
                 <div className='grid-assistencia-usuari-first-row'>
                     <div className='grid-assistencia-usuari-first-row-buttons'>
                         <span>Assistència</span>
-                        <div className="numbers-assistencia-usuari-element">
+                        <div
+                            className={`numbers-assistencia-usuari-element-ok 
+                                ${assistenciaSeleccionada === "si" ? "active-assistencia" : ""}`}
+                            onClick={() => setAssistenciaSeleccionada("si")}>
                             <FaCheck />
                         </div>
-                        <div className="numbers-assistencia-usuari-element">
+                        <div
+                            className={`numbers-assistencia-usuari-element-ko 
+                                ${assistenciaSeleccionada === "no" ? "active-assistencia" : ""}`}
+                            onClick={() => setAssistenciaSeleccionada("no")}>
                             <FaTimes />
                         </div>
-                        <div className="numbers-assistencia-usuari-element">
+
+                        <div
+                            className={`numbers-assistencia-usuari-element-unknown 
+                                ${assistenciaSeleccionada === "no_sap" ? "active-assistencia" : ""}`}
+                            onClick={() => setAssistenciaSeleccionada("no_sap")}>
                             <FaQuestion />
                         </div>
                     </div>
                     <div className='grid-assistencia-usuari-first-row-bus'>
-                        <span>Vaig amb bus:</span>
-                        <div className="checkbox-container-assistencia-info">
-                            <input
-                                type="checkbox"
-                                checked={busAssistencia}
-                                onChange={
-                                    (e) => {
-                                        setBusAssistencia(e.target.checked)
-                                    }
-                                }
-                            />
-                        </div>
+                        {(bus && tipus !== "Assaig") && (
+                            <>
+                                <span>Vaig amb bus:</span>
+                                <div className="checkbox-container-assistencia-info">
+                                    <input
+                                        type="checkbox"
+                                        checked={busAssistencia}
+                                        onChange={
+                                            (e) => {
+                                                setBusAssistencia(e.target.checked)
+                                            }
+                                        }
+                                    />
+                                </div>
+                            </>
+                        )}
                     </div>
                     <div className='grid-assistencia-usuari-first-row-companions'>
                         <span>Acompanyants: </span>
-                        <input
+                        <Input
+                            name="num_acompanyants"
                             type="number"
+                            placeholder="Nombre d'acompanyants"
                             value={currentAssistance.num_acompanyants}
+                            onChange={handleChange}
+                            inputTitle="Acompanyants"
                         />
                     </div>
                 </div>
                 <div className='grid-assistencia-usuari-second-row'>
                     <div className='grid-assistencia-usuari-second-row-tard'>
-                        <div className='grid-assistencia-usuari-second-row-check'>
-                            <span>Arribo tard:</span>
-                            <div className="checkbox-container-assistencia-info">
+                        {acompanyat && (
+                            <>
+                                <span>Arribo tard:</span>
                                 <input
                                     type="checkbox"
                                     checked={arribaTard}
@@ -146,30 +284,44 @@ const AssistenciaUsuari = () => {
                                         }
                                     }
                                 />
-                            </div>
-                        </div>
-                        <div className='grid-assistencia-usuari-second-row-input'>
-
-                        </div>
+                            </>
+                        )}
+                        {arribaTard && (
+                            <>
+                                <Input
+                                    name="temps_tard"
+                                    type="number"
+                                    placeholder="Temps que arribaré tard..."
+                                    value={currentAssistance.temps_tard}
+                                    onChange={handleChange}
+                                    inputTitle="Quant? (en minuts)"
+                                />
+                            </>
+                        )}
                     </div>
                     <div className='grid-assistencia-usuari-second-row-aviat'>
-                        <div className='grid-assistencia-usuari-second-row-check'>
-                            <span>Marxo d'hora:</span>
-                            <div className="checkbox-container-assistencia-info">
-                                <input
-                                    type="checkbox"
-                                    checked={marxaAviat}
-                                    onChange={
-                                        (e) => {
-                                            setMarxaAviat(e.target.checked)
-                                        }
-                                    }
+                        <span>Marxo d'hora:</span>
+                        <input
+                            type="checkbox"
+                            checked={marxaAviat}
+                            onChange={
+                                (e) => {
+                                    setMarxaAviat(e.target.checked)
+                                }
+                            }
+                        />
+                        {marxaAviat && (
+                            <>
+                                <Input
+                                    name="temps_aviat"
+                                    type="number"
+                                    placeholder="Temps que marxaré aviat..."
+                                    value={currentAssistance.temps_aviat}
+                                    onChange={handleChange}
+                                    inputTitle="Quant? (en minuts)"
                                 />
-                            </div>
-                        </div>
-                        <div className='grid-assistencia-usuari-second-row-input'>
-
-                        </div>
+                            </>
+                        )}
                     </div>
                 </div>
                 <div className='grid-assistencia-usuari-third-row'>
@@ -178,14 +330,19 @@ const AssistenciaUsuari = () => {
                         type="textarea"
                         inputTitle="Comentari"
                         value={currentAssistance.comentari}
-                        onChange={() => { }}
+                        onChange={handleChange}
                     />
                 </div>
+                {error && (
+                    <div className="error-message">
+                        {error}
+                    </div>
+                )}
                 <div className='grid-assistencia-usuari-buttons'>
                     <Button
                         text="Guardar assistència"
                         icon={<FaSave />}
-                        action={() => { }}
+                        action={modifyAssistenciaPrevia}
                     />
                     <Button
                         text="Confirmació in situ"

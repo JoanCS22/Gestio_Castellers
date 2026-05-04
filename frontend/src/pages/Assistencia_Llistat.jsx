@@ -197,7 +197,6 @@ const LlistatAssistencia = () => {
         <div>
             <TopMenu
                 title={`Assistència ${nomEsdeveniment}`}
-                tornar
             />
 
             {

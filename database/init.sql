@@ -208,6 +208,9 @@
     data_creacio TIMESTAMPTZ DEFAULT now(),
     data_actualitzacio TIMESTAMPTZ DEFAULT now(),
 
+    temps_tard INT DEFAULT 0 CHECK (temps_tard >= 0),
+    temps_aviat INT DEFAULT 0 CHECK (temps_aviat >= 0),
+
     UNIQUE (id_usuari, id_esdeveniment),
 
     FOREIGN KEY (id_esdeveniment)
