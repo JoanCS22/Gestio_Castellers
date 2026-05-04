@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { FaCheckDouble, FaSave, FaCheck, FaTimes, FaQuestion } from "react-icons/fa";
+import { FaCheckDouble, FaSave, FaCheck, FaTimes, FaQuestion, FaPaperPlane, FaTimesCircle } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
 
@@ -57,6 +57,9 @@ const AssistenciaUsuari = () => {
     const [busAssistencia, setBusAssistencia] = useState(false);
     const [arribaTard, setArribaTard] = useState(false);
     const [marxaAviat, setMarxaAviat] = useState(false);
+
+    const [showModal, setShowModal] = useState(false);
+    const [modalText, setModalText] = useState("");
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -159,8 +162,6 @@ const AssistenciaUsuari = () => {
             return;
         }
 
-        console.log(`Id assistencia: ${currentAssistance.id}`);
-
         const response = await fetch(`http://localhost:5000/assistencia/modifyAssistenciaPrevia?id=${currentAssistance.id}`, {
             method: "POST",
             headers: {
@@ -193,6 +194,46 @@ const AssistenciaUsuari = () => {
             showTempMessage("Assistència modificada correctament.");
         } else {
             console.log("{DEBUG} Modify assistència prèvia KO");
+            setError(data.message);
+        }
+    }
+
+    const verifyCode = async () => {
+
+        const token = localStorage.getItem("token");
+
+        if (modalText !== currentEsdeveniment.codi) {
+            setError(`Codi incorrecte`);
+            return;
+        }
+
+        const response = await fetch(`http://localhost:5000/assistencia/confirmAssistencia?id=${currentAssistance.id}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                confirmacio_arribada: "si"
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Modify assistència arribada OK");
+            setModalText("");
+            setShowModal(false);
+            setError("");
+            showTempMessage("Assistència confirmada correctament.");
+        } else {
+            console.log("{DEBUG} Modify assistència arribada KO");
             setError(data.message);
         }
     }
@@ -347,10 +388,52 @@ const AssistenciaUsuari = () => {
                     <Button
                         text="Confirmació in situ"
                         icon={<FaCheckDouble />}
-                        action={() => { }}
+                        action={() => {
+                            setShowModal(true);
+                        }}
                     />
                 </div>
             </div>
+            {
+                showModal && (
+                    <div className="modal-overlay-position">
+                        <div className="modal-position">
+                            <h2>
+                                Introdueix el codi
+                            </h2>
+                            <div className="input-group">
+                                <Input
+                                    name="codi"
+                                    type="text"
+                                    placeholder="Codi"
+                                    value={modalText}
+                                    onChange={(e) =>
+                                        setModalText(e.target.value)
+                                    }
+                                    inputTitle="Codi"
+                                />
+                            </div>
+                            {error && (
+                                <div className="error-message">
+                                    {error}
+                                </div>
+                            )}
+                            <div className="modal-buttons-position">
+                                <Button
+                                    text="Verificar codi"
+                                    icon={<FaPaperPlane />}
+                                    action={verifyCode}
+                                />
+                                <Button
+                                    text="Cancelar"
+                                    icon={<FaTimesCircle />}
+                                    action={() => { setShowModal(false); setError(""); }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
         </div>
     )
 }
