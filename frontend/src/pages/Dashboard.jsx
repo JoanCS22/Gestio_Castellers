@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { getPermissions } from "../utils/utils.jsx"
 
-import { FaPencilAlt, FaUsers, FaRegEye, FaCalendarAlt } from "react-icons/fa";
+import { FaPencilAlt, FaUsers, FaRegEye, FaCalendarAlt, FaCheck, FaTimes, FaQuestion } from "react-icons/fa";
 
 import TopMenu from "../components/TopMenu";
 import Button from "../components/Button";
@@ -27,6 +27,18 @@ function Dashboard() {
     const [refreshKey, setRefreshKey] = useState(0);
 
     const currentEsdevenimentId = futurs.length > 0 ? futurs[0].id : null;
+
+    const [assistenciaByEvent, setAssistenciaByEvent] = useState({});
+
+    const getStats = (id) => {
+        const assistencia = assistenciaByEvent[id] || [];
+
+        return {
+            ok: assistencia.filter(a => a.confirmacio_previa === "si").length,
+            ko: assistencia.filter(a => a.confirmacio_previa === "no").length,
+            unknown: assistencia.filter(a => a.confirmacio_previa === "no_sap").length,
+        };
+    };
 
     const { setCurrentEvent } = useEvent();
 
@@ -77,11 +89,50 @@ function Dashboard() {
         }
     }
 
+    const getAssistenciaByEsdeveniment = async (idEsdeveniment) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/assistencia/getAssistenciaList?id=${idEsdeveniment}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setAssistenciaByEvent(prev => ({
+                ...prev,
+                [idEsdeveniment]: data
+            }));
+            console.log("{DEBUG} Get esdeveniment's assistencia OK")
+        } else {
+            console.log("{DEBUG} Get esdeveniment's assistencia KO")
+            setError(data.message);
+        }
+    }
+
     useEffect(() => {
         if (!refreshKey) return;
-
         getCollesFutureEsdeveniments();
     }, [refreshKey]);
+
+    useEffect(() => {
+        if (futurs.length > 0) {
+            futurs.forEach(e => {
+                getAssistenciaByEsdeveniment(e.id);
+            });
+        }
+    }, [futurs]);
 
     return (
         <div>
@@ -96,23 +147,27 @@ function Dashboard() {
                         <div className="upper-esdeveniments-part">
                             <span>{futurs.length > 0 ? futurs[0].nom : "No hi ha esdeveniments"}</span>
 
-                            {futurs.length > 0 && (
-                                <>
-                                    <div className="dashboard-numbers-assistance">
-                                        <div className="dashboard-assistencia-ok">OK</div>
-                                        <div className="dashboard-assistencia-ko">KO</div>
-                                        <div className="dashboard-assistencia-unknown">??</div>
-                                    </div>
+                            {futurs.length > 0 && (() => {
+                                const stats = getStats(futurs[0].id);
 
-                                    <Button
-                                        text="Consultar"
-                                        icon={<FaRegEye />}
-                                        action={() => {
-                                            navigate(`/consult_esdeveniment?idEsdeveniment=${futurs[0].id}`);
-                                        }}
-                                    />
-                                </>
-                            )}
+                                return (
+                                    <>
+                                        <div className="dashboard-numbers-assistance">
+                                            <div className="dashboard-assistencia-ok">{stats.ok}</div>
+                                            <div className="dashboard-assistencia-ko">{stats.ko}</div>
+                                            <div className="dashboard-assistencia-unknown">{stats.unknown}</div>
+                                        </div>
+
+                                        <Button
+                                            text="Consultar"
+                                            icon={<FaRegEye />}
+                                            action={() => {
+                                                navigate(`/consult_esdeveniment?idEsdeveniment=${futurs[0].id}`);
+                                            }}
+                                        />
+                                    </>
+                                );
+                            })()}
                         </div>
                         <hr />
                         <div className="lower-esdeveniments-part">
@@ -122,11 +177,37 @@ function Dashboard() {
                                         text="Assistència"
                                         icon={<FaUsers />}
                                         action={() => {
-                                            if (futurs.length > 0) {
+                                            if (hasWritePermission("esdeveniments")) {
                                                 navigate(`/assistencia?idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`);
+                                            } else if (hasReadPermission("esdeveniments")) {
+                                                navigate(`/assistencia_usuari?idEsdeveniment=${futurs[0].id}`)
                                             }
                                         }}
                                     />
+                                    <div className='grid-assistencia-dashboard'>
+                                        <div
+                                            className={`numbers-assistencia-usuari-element-ok`}
+                                            onClick={() => {
+                                                navigate(`/assistencia_usuari?idEsdeveniment=${futurs[0].id}&estatInicial=si`)
+                                            }}>
+                                            <FaCheck />
+                                        </div>
+                                        <div
+                                            className={`numbers-assistencia-usuari-element-ko`}
+                                            onClick={() => {
+                                                navigate(`/assistencia_usuari?idEsdeveniment=${futurs[0].id}&estatInicial=no`)
+                                            }}>
+                                            <FaTimes />
+                                        </div>
+
+                                        <div
+                                            className={`numbers-assistencia-usuari-element-unknown`}
+                                            onClick={() => {
+                                                navigate(`/assistencia_usuari?idEsdeveniment=${futurs[0].id}&estatInicial=no_sap`)
+                                            }}>
+                                            <FaQuestion />
+                                        </div>
+                                    </div>
                                 </>
                             ) : (
                                 <>
@@ -154,37 +235,41 @@ function Dashboard() {
                         <hr />
                         {futurs.length > 0 ? (
                             <>
-                                {futurs.map((esdeveniment) => (
-                                    <>
-                                        {(esdeveniment.visible || hasWritePermission("esdeveniments")) && (
-                                            <>
-                                                <div className="dashboard-grid-propers-esdeveniments-element" onClick={() => {
+                                {futurs.map((esdeveniment) => {
+                                    if (!(esdeveniment.visible || hasWritePermission("esdeveniments"))) return null;
+
+                                    const stats = getStats(esdeveniment.id);
+
+                                    return (
+                                        <div key={esdeveniment.id}>
+                                            <div
+                                                className="dashboard-grid-propers-esdeveniments-element"
+                                                onClick={() => {
                                                     navigate(`/consult_esdeveniment?idEsdeveniment=${esdeveniment.id}`);
-                                                }}>
-                                                    <div className="dashboard-grid-propers-esdeveniments-element-left">
-                                                        <div className="dashboard-grid-propers-esdeveniments-element-left-title">
-                                                            {esdeveniment.nom}
-                                                        </div>
-                                                        <div className="dashboard-grid-propers-esdeveniments-element-left-datetime">
-                                                            {new Date(esdeveniment.data_esdeveniment).toLocaleDateString("es-ES")}, {esdeveniment.hora}
-                                                        </div>
+                                                }}
+                                            >
+                                                <div className="dashboard-grid-propers-esdeveniments-element-left">
+                                                    <div className="dashboard-grid-propers-esdeveniments-element-left-title">
+                                                        {esdeveniment.nom}
                                                     </div>
-                                                    <div className="dashboard-grid-propers-esdeveniments-element-right">
-                                                        <div className="dashboard-assistencia-ok">OK</div>
-                                                        <div className="dashboard-assistencia-ko">KO</div>
-                                                        <div className="dashboard-assistencia-unknown">??</div>
+                                                    <div className="dashboard-grid-propers-esdeveniments-element-left-datetime">
+                                                        {new Date(esdeveniment.data_esdeveniment).toLocaleDateString("es-ES")}, {esdeveniment.hora}
                                                     </div>
                                                 </div>
-                                                <hr />
-                                            </>
-                                        )}
-                                    </>
-                                ))}
+
+                                                <div className="dashboard-grid-propers-esdeveniments-element-right">
+                                                    <div className="dashboard-assistencia-ok">{stats.ok}</div>
+                                                    <div className="dashboard-assistencia-ko">{stats.ko}</div>
+                                                    <div className="dashboard-assistencia-unknown">{stats.unknown}</div>
+                                                </div>
+                                            </div>
+                                            <hr />
+                                        </div>
+                                    );
+                                })}
                             </>
                         ) : (
-                            <>
-                                <span>No existeixen futurs esdeveniments</span>
-                            </>
+                            <span>No existeixen futurs esdeveniments</span>
                         )}
                     </div>
                 </div>

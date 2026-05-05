@@ -149,3 +149,16 @@ hr {
     background-color: #cfcfcf;
     border-radius: 10px;
 }
+
+.lower-esdeveniments-part{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px
+}
+
+.grid-assistencia-dashboard {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}

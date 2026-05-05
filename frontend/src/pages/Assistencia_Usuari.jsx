@@ -21,6 +21,8 @@ const AssistenciaUsuari = () => {
     const params = new URLSearchParams(location.search);
     const id_esdeveniment = params.get("idEsdeveniment");
 
+    const initial_state = params.get("estatInicial");
+
     const [message, setTempMessage] = useState(null);
     const [error, setError] = useState("");
 
@@ -141,7 +143,12 @@ const AssistenciaUsuari = () => {
                 temps_aviat: data.temps_aviat,
             });
 
-            setAssistenciaSeleccionada(data.confirmacio_previa);
+            if (initial_state !== null) {
+                setAssistenciaSeleccionada(initial_state);
+            } else {
+                setAssistenciaSeleccionada(data.confirmacio_previa);
+            }
+
             setBusAssistencia(data.bus);
             setArribaTard(data.arriba_tard);
             setMarxaAviat(data.marxa_aviat);
@@ -394,6 +401,46 @@ const AssistenciaUsuari = () => {
                     />
                 </div>
             </div>
+
+            {showModal && (
+                    <div className="modal-overlay-assistencia">
+                        <div className="modal-assistencia">
+                            <h2>
+                                Verificar codi
+                            </h2>
+                            <div className="input-assistencia">
+                                <Input
+                                    name="code"
+                                    type="text"
+                                    placeholder="Codi"
+                                    value={modalText}
+                                    onChange={(e) =>
+                                        setModalText(e.target.value)
+                                    }
+                                    inputTitle="Codi"
+                                />
+                            </div>
+                            {error && (
+                                <div className="error-message">
+                                    {error}
+                                </div>
+                            )}
+                            <div className="modal-buttons-assistencia">
+                                <Button
+                                    text="Verificar codi"
+                                    icon={<FaPaperPlane />}
+                                    action={verifyCode} 
+                                    />
+                                <Button
+                                    text="Cancelar"
+                                    icon={<FaTimesCircle />}
+                                    action={() => { setShowModal(false); setError(""); }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
         </div>
     )
 }

@@ -22,6 +22,7 @@ const LeftMenu = () => {
   //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
   const permissions = getPermissions();
   const hasAccess = (key) => permissions[key] !== "X";
+  const hasWritePermission = (key) => permissions[key] === "W";
 
   const { currentEvent } = useEvent();
 
@@ -75,8 +76,10 @@ const LeftMenu = () => {
                   )}
                   {hasAccess("assistencia") && (
                     <div onClick={() => {
-                      if (currentEvent) {
+                      if (currentEvent && hasWritePermission("esdeveniments")) {
                         navigate(`/assistencia?idEsdeveniment=${currentEvent.id}&nomEsdeveniment=${encodeURIComponent(currentEvent.nom)}`);
+                      } else if (currentEvent) {
+                        navigate(`/assistencia_usuari?idEsdeveniment=${currentEvent.id}`)
                       }
                     }}>Assistència</div>
                   )}
