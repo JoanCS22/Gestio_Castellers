@@ -266,11 +266,19 @@ function EsdevenimentsList() {
 
                                                         }}
                                                     />
+                                                    {hasWritePermission("assistencia") && (
+                                                        <>
+                                                        </>
+                                                    )}
                                                     <Button
                                                         text="Assistència"
                                                         icon={<FaClipboardList />}
                                                         action={() => {
-                                                            navigate(`/assistencia?idEsdeveniment=${esdeveniment.id}&nomEsdeveniment=${encodeURIComponent(esdeveniment.nom)}`);
+                                                            if (hasWritePermission("assistencia")) {
+                                                                navigate(`/assistencia?idEsdeveniment=${esdeveniment.id}&nomEsdeveniment=${encodeURIComponent(esdeveniment.nom)}`);
+                                                            } else if (hasAccess("assistencia")) {
+                                                                navigate(`/assistencia_usuari?idEsdeveniment=${esdeveniment.id}`);
+                                                            }
                                                         }}
                                                     />
                                                 </div>

@@ -15,6 +15,9 @@ const LlistatAssistencia = () => {
 
     const location = useLocation();
 
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [lastUpdate, setLastUpdate] = useState(null);
+
     const params = new URLSearchParams(location.search);
     const idEsdeveniment = params.get("idEsdeveniment");
     const nomEsdeveniment = params.get("nomEsdeveniment");
@@ -47,7 +50,6 @@ const LlistatAssistencia = () => {
 
     const estatPrevi = (memberId, currentValue) => {
         const newValue = cicle[currentValue] || "si";
-
         setAssistencia(prev =>
             prev.map(m =>
                 m.id === memberId
@@ -55,7 +57,6 @@ const LlistatAssistencia = () => {
                     : m
             )
         );
-
         return newValue;
     };
 
@@ -98,6 +99,8 @@ const LlistatAssistencia = () => {
 
         const token = localStorage.getItem("token");
 
+        setIsUpdating(true);
+
         const response = await fetch(`http://localhost:5000/assistencia/modifyAssistenciaPreviaTecnica?id=${idAssistencia}`, {
             method: "POST",
             headers: {
@@ -120,16 +123,21 @@ const LlistatAssistencia = () => {
         if (response.ok) {
             setError("");
             showTempMessage("Assistència previa modificada correctament.");
+            getAssistenciaByEsdeveniment();
             console.log("{DEBUG} Modify esdeveniment's assistencia previa OK")
         } else {
             console.log("{DEBUG} Modify esdeveniment's assistencia previa KO")
             setError(data.message);
         }
+
+        setIsUpdating(false);
     }
 
     const confirmAssistenciaTecnica = async (idAssistencia, confirmacio_arribada) => {
 
         const token = localStorage.getItem("token");
+
+        setIsUpdating(true);
 
         const response = await fetch(`http://localhost:5000/assistencia/confirmAssistencia?id=${idAssistencia}`, {
             method: "POST",
@@ -153,14 +161,18 @@ const LlistatAssistencia = () => {
         if (response.ok) {
             setError("");
             showTempMessage("Assistència arribada modificada correctament.");
+            getAssistenciaByEsdeveniment();
             console.log("{DEBUG} Modify esdeveniment's assistencia arribada OK")
         } else {
             console.log("{DEBUG} Modify esdeveniment's assistencia arribada KO")
             setError(data.message);
         }
+        setIsUpdating(false);
     }
 
     const getAssistenciaByEsdeveniment = async () => {
+
+        if (isUpdating) return;
 
         const token = localStorage.getItem("token");
 
@@ -182,6 +194,7 @@ const LlistatAssistencia = () => {
 
         if (response.ok) {
             setAssistencia(data);
+            setLastUpdate(new Date());
             console.log("{DEBUG} Get esdeveniment's assistencia OK")
         } else {
             console.log("{DEBUG} Get esdeveniment's assistencia KO")
@@ -191,13 +204,27 @@ const LlistatAssistencia = () => {
 
     useEffect(() => {
         getAssistenciaByEsdeveniment();
-    }, []);
+
+        const interval = setInterval(() => {
+            if (document.visibilityState === "visible") {
+                getAssistenciaByEsdeveniment();
+            }
+        }, 8000);
+
+        return () => clearInterval(interval);
+    }, [idEsdeveniment]);
 
     return (
         <div>
             <TopMenu
                 title={`Assistència ${nomEsdeveniment}`}
             />
+
+            {lastUpdate && (
+                <div style={{ textAlign: "center", fontSize: "12px", opacity: 0.6 }}>
+                    Actualitzat: {lastUpdate.toLocaleTimeString("es-ES")}
+                </div>
+            )}
 
             {
                 message && (
@@ -271,48 +298,46 @@ const LlistatAssistencia = () => {
                     </thead>
                     <tbody>
                         {assistencia.map((assist) => (
-                            <>
-                                <tr key={assist.id}>
-                                    <td>{assist.mote}</td>
-                                    <td
-                                        className={loadingIds.includes(assist.id) ? "loading-assistencia" : ""}
-                                        onClick={() => {
-                                            if (loadingIds.includes(assist.id)) return;
+                            <tr key={assist.id}>
+                                <td>{assist.mote}</td>
+                                <td
+                                    className={loadingIds.includes(assist.id) ? "loading-assistencia" : ""}
+                                    onClick={() => {
+                                        if (loadingIds.includes(assist.id)) return;
 
-                                            const newValue = estatPrevi(assist.id, assist.confirmacio_previa);
+                                        const newValue = estatPrevi(assist.id, assist.confirmacio_previa);
 
-                                            setLoadingIds(prev => [...prev, assist.id]);
+                                        setLoadingIds(prev => [...prev, assist.id]);
 
-                                            modifyAssistenciaPreviaTecnica(assist.id, newValue)
-                                                .finally(() => {
-                                                    setLoadingIds(prev => prev.filter(id => id !== assist.id));
-                                                });
-                                        }}
-                                    >
-                                        {renderIcon(assist.confirmacio_previa)}
-                                    </td>
-                                    <td
-                                        className={loadingIds.includes(assist.id) ? "loading-assistencia" : ""}
-                                        onClick={() => {
-                                            if (loadingIds.includes(assist.id)) return;
+                                        modifyAssistenciaPreviaTecnica(assist.id, newValue)
+                                            .finally(() => {
+                                                setLoadingIds(prev => prev.filter(id => id !== assist.id));
+                                            });
+                                    }}
+                                >
+                                    {renderIcon(assist.confirmacio_previa)}
+                                </td>
+                                <td
+                                    className={loadingIds.includes(assist.id) ? "loading-assistencia" : ""}
+                                    onClick={() => {
+                                        if (loadingIds.includes(assist.id)) return;
 
-                                            const newValue = estatArribada(assist.id, assist.confirmacio_arribada);
+                                        const newValue = estatArribada(assist.id, assist.confirmacio_arribada);
 
-                                            setLoadingIds(prev => [...prev, assist.id]);
+                                        setLoadingIds(prev => [...prev, assist.id]);
 
-                                            confirmAssistenciaTecnica(assist.id, newValue)
-                                                .finally(() => {
-                                                    setLoadingIds(prev => prev.filter(id => id !== assist.id));
-                                                });
-                                        }}
-                                    >
-                                        {renderIcon(assist.confirmacio_arribada)}
-                                    </td>
-                                    <td>{assist.num_acompanyants}</td>
-                                    <td>{assist.comentari}</td>
-                                    <td>  {new Date(assist.data_actualitzacio).toLocaleString("es-ES")}</td>
-                                </tr >
-                            </>
+                                        confirmAssistenciaTecnica(assist.id, newValue)
+                                            .finally(() => {
+                                                setLoadingIds(prev => prev.filter(id => id !== assist.id));
+                                            });
+                                    }}
+                                >
+                                    {renderIcon(assist.confirmacio_arribada)}
+                                </td>
+                                <td>{assist.num_acompanyants}</td>
+                                <td>{assist.comentari}</td>
+                                <td>  {new Date(assist.data_actualitzacio).toLocaleString("es-ES")}</td>
+                            </tr >
                         ))}
                     </tbody>
                 </table>
