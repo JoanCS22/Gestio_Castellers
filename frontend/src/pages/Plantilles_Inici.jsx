@@ -21,6 +21,8 @@ function PlantillesList() {
     const [error, setError] = useState("");
     const [message, setTempMessage] = useState(null);
 
+    const [plantilles, setPlantilles] = useState([]);
+
     const [estructures, setEstructures] = useState([]);
     const [selectedEstructures, setSelectedEstructures] = useState([]);
     const [openEstructures, setOpenEstructures] = useState(false);
@@ -50,6 +52,71 @@ function PlantillesList() {
                 : [...prev, value]
         );
     };
+
+    const getCollesPlantilles = async () => {
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        const response = await fetch(`http://localhost:5000/plantilles/getPlantillesByColla?id=${idColla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setPlantilles(data);
+            console.log("{DEBUG} Get colla's plantilles OK")
+        } else {
+            console.log("{DEBUG} Get colla's plantilles KO")
+            setError(data.message);
+        }
+    }
+
+    const getCollesStructures = async () => {
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        const response = await fetch(`http://localhost:5000/plantilles/getEstructuresByColla?id=${idColla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setEstructures(data);
+            console.log("{DEBUG} Get colla's structures OK")
+        } else {
+            console.log("{DEBUG} Get colla's structures KO")
+            setError(data.message);
+        }
+    }
+
+    useEffect(() => {
+            getCollesPlantilles();
+            getCollesStructures();
+        }, []);
 
     return (
         <div>
