@@ -277,14 +277,23 @@
 
   CREATE TABLE plantilles (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nom VARCHAR(255) UNIQUE NOT NULL,
+    nom VARCHAR(255) NOT NULL,
     descripcio VARCHAR(255),
 
     favorita BOOLEAN DEFAULT FALSE,
     estructura VARCHAR(255),
 
+    id_colla BIGINT NOT NULL,
+
     data_creacio TIMESTAMPTZ DEFAULT now(),
     data_actualitzacio TIMESTAMPTZ DEFAULT now()
+
+    CONSTRAINT fk_plantilles_colles
+        FOREIGN KEY (id_colla)
+        REFERENCES colles(id)
+        ON DELETE CASCADE
+
+    CONSTRAINT unique_nom_per_colla UNIQUE (nom, id_colla)
   );
 
   CREATE TABLE posicions_plantilla (

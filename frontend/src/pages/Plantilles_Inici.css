@@ -1,0 +1,162 @@
+.button-add-plantilles {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+}
+
+.filtres-plantilles {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    width: 90%;
+    margin: 10px auto;
+    flex-wrap: wrap;
+}
+
+.search-tab-plantilles{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* DROPDOWN SELECTORS */
+
+.dropdown-estructures-plantilles {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dropdown-estructures-plantilles button {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.dropdown-content-estructures-plantilles{
+    position: absolute;
+    top: 35px;
+    left: 0;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    min-width: 160px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-content-estructures-plantilles label {
+    cursor: pointer;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* MODAL PLANTILLA */
+
+.modal-overlay-plantilles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 1000;
+}
+
+.modal-plantilles {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+
+    width: 700px;
+    max-width: 90%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-group-plantilles {
+    width: 100%;
+    display: flex;
+}
+
+.input-group-plantilles>* {
+    width: 100%;
+}
+
+.modal-plantilles h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.modal-plantilles input,
+.modal-plantilles textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+
+    box-sizing: border-box;
+}
+
+.modal-plantilles textarea {
+    min-height: 100px;
+    resize: none;
+}
+
+.modal-buttons-plantilles {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+/* SELECTOR MODAL */
+
+.estructura-selector-plantilles {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.estructura-selector-plantilles label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.estructura-selector-plantilles select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.estructura-selector-plantilles select:hover {
+    border-color: #888;
+}
+
+.estructura-selector-plantilles select:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}

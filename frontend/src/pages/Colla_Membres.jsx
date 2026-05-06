@@ -404,8 +404,7 @@ function MembresColla() {
                         </div>
                     </div>
                 </div>
-            )
-            }
+            )}
         </div >
     )
 }
