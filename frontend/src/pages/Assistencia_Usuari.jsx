@@ -307,33 +307,35 @@ const AssistenciaUsuari = () => {
                         )}
                     </div>
                     <div className='grid-assistencia-usuari-first-row-companions'>
-                        <span>Acompanyants: </span>
-                        <Input
-                            name="num_acompanyants"
-                            type="number"
-                            placeholder="Nombre d'acompanyants"
-                            value={currentAssistance.num_acompanyants}
-                            onChange={handleChange}
-                            inputTitle="Acompanyants"
-                        />
+                        {acompanyat && (
+                            <>
+                                <span>Acompanyants: </span>
+                                <Input
+                                    name="num_acompanyants"
+                                    type="number"
+                                    placeholder="Nombre d'acompanyants"
+                                    value={currentAssistance.num_acompanyants}
+                                    onChange={handleChange}
+                                    inputTitle="Acompanyants"
+                                />
+                            </>
+                        )}
                     </div>
                 </div>
                 <div className='grid-assistencia-usuari-second-row'>
                     <div className='grid-assistencia-usuari-second-row-tard'>
-                        {acompanyat && (
-                            <>
-                                <span>Arribo tard:</span>
-                                <input
-                                    type="checkbox"
-                                    checked={arribaTard}
-                                    onChange={
-                                        (e) => {
-                                            setArribaTard(e.target.checked)
-                                        }
-                                    }
-                                />
-                            </>
-                        )}
+
+                        <span>Arribo tard:</span>
+                        <input
+                            type="checkbox"
+                            checked={arribaTard}
+                            onChange={
+                                (e) => {
+                                    setArribaTard(e.target.checked)
+                                }
+                            }
+                        />
+
                         {arribaTard && (
                             <>
                                 <Input
@@ -402,7 +404,8 @@ const AssistenciaUsuari = () => {
                 </div>
             </div>
 
-            {showModal && (
+            {
+                showModal && (
                     <div className="modal-overlay-assistencia">
                         <div className="modal-assistencia">
                             <h2>
@@ -429,8 +432,8 @@ const AssistenciaUsuari = () => {
                                 <Button
                                     text="Verificar codi"
                                     icon={<FaPaperPlane />}
-                                    action={verifyCode} 
-                                    />
+                                    action={verifyCode}
+                                />
                                 <Button
                                     text="Cancelar"
                                     icon={<FaTimesCircle />}
@@ -441,7 +444,7 @@ const AssistenciaUsuari = () => {
                     </div>
                 )
             }
-        </div>
+        </div >
     )
 }
 

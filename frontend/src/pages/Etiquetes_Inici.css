@@ -41,7 +41,6 @@
 .position-select-tags.active,
 .grups-select-tags.active,
 .rols-select-tags.active {
-    transform: scale(0.97);
     background-color: #e9e9e9;
 }
 
