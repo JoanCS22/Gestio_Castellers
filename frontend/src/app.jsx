@@ -10,6 +10,7 @@ import EsdevenimentsInfo from "./pages/Esdeveniments_Info";
 import LlistatAssistencia from "./pages/Assistencia_Llistat";
 import AssistenciaUsuari from "./pages/Assistencia_Usuari"
 import PlantillesList from "./pages/Plantilles_Inici"
+import Plantilla from "./pages/Plantilles_Crear"
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
       <Route path="/assistencia_usuari" element={<AssistenciaUsuari />} />
 
       <Route path="/plantilles" element={<PlantillesList />} />
+      <Route path="/plantilla_crear" element={<Plantilla />} />
 
     </Routes>
   );

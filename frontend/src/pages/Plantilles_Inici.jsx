@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare, FaTimesCircle } from "react-icons/fa";
+import { FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare, FaTimesCircle, FaRegStar, FaPencilAlt } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
 
@@ -113,10 +113,71 @@ function PlantillesList() {
         }
     }
 
+    const createPlantilla = async () => {
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        const compulsoryInputs = {
+            nom: "Nom",
+            estructura: "Estructura",
+        };
+
+        for (const key in compulsoryInputs) {
+            if (!modalTags[key] || modalTags[key].toString().trim() === "") {
+                setError(`El camp ${compulsoryInputs[key]} és obligatori`);
+                return;
+            }
+        }
+
+        const response = await fetch(`http://localhost:5000/plantilles/createPlantilla?id=${idColla}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                nom: modalTags.nom,
+                descripcio: modalTags.descripcio,
+                estructura: modalTags.estructura,
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Create plantilla OK");
+
+            await getCollesPlantilles();
+            await getCollesStructures();
+
+            setShowModalAddPlantilla(false);
+            setError("");
+            showTempMessage("Plantilla creada correctament.");
+
+            setModalTags({
+                nom: "",
+                estructura: "",
+                descripcio: ""
+            });
+
+            setIsNewStructure(false);
+        } else {
+            console.log("{DEBUG} Create plantilla KO");
+            setError(data.message);
+        }
+    }
+
     useEffect(() => {
-            getCollesPlantilles();
-            getCollesStructures();
-        }, []);
+        getCollesPlantilles();
+        getCollesStructures();
+    }, []);
 
     return (
         <div>
@@ -154,19 +215,34 @@ function PlantillesList() {
                     </button>
                     {openEstructures && (
                         <div className="dropdown-content-estructures-plantilles">
-                            {estructures.map(estructura => (
-                                <label key={estructura}>
+                            {estructures.map((item) => (
+                                <label key={item.estructura}>
                                     <input
                                         type="checkbox"
-                                        checked={selectedEstructures.includes(estructura)}
-                                        onChange={() => handleStructureChange(estructura)}
+                                        checked={selectedEstructures.includes(item.estructura)}
+                                        onChange={() => handleStructureChange(item.estructura)}
                                     />
-                                    {estructura}
+                                    {item.estructura}
                                 </label>
                             ))}
                         </div>
                     )}
                 </div>
+            </div>
+            <div className="grid-plantilla-list">
+                {plantilles.map((plantilla) => (
+                    <div className="container-plantilla" onClick={() =>
+                        navigate(`/plantilla_crear?idPlantilla=${plantilla.id}&nomPlantilla=${plantilla.nom}`)
+                    }>
+                        <div className="container-plantilla-text">
+                            <span>{plantilla.nom}</span>
+                            <span>{plantilla.estructura}</span>
+                        </div>
+                        <div className="container-plantilla-icons">
+                            <FaRegStar className={plantilla.favorita ? "favorit-actiu" : ""} />
+                        </div>
+                    </div>
+                ))}
             </div>
             {showModalAddPlantilla && (
                 <div className="modal-overlay-plantilles">
@@ -204,9 +280,9 @@ function PlantillesList() {
                                 >
                                     <option value="">Selecciona una estructura</option>
 
-                                    {estructures.map((estructura) => (
-                                        <option key={estructura} value={estructura}>
-                                            {estructura}
+                                    {estructures.map((item) => (
+                                        <option key={item.estructura} value={item.estructura}>
+                                            {item.estructura}
                                         </option>
                                     ))}
 
@@ -247,7 +323,7 @@ function PlantillesList() {
                             <Button
                                 text={"Afegir plantilla"}
                                 icon={<FaPlusSquare />}
-                                action={() => { }} />
+                                action={createPlantilla} />
 
                             <Button
                                 text="Cancelar"
