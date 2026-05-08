@@ -70,6 +70,8 @@
   padding: 8px;
   border-radius: 6px;
   border: 1px solid #ff0000;
+
+  z-index: 9999;
 }
 
 .message {

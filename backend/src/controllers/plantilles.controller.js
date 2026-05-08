@@ -96,6 +96,36 @@ const modifyInfoPlantilla = async (req, res) => {
 
 };
 
+const getPositionsByPlantilla = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const id_plantilla = req.query.id;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `SELECT *
+             FROM posicions_plantilla 
+             WHERE id = $1`,
+            [id_plantilla]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(result.rows);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({ message: "Error al rebre dades {getPositionsByPlantilla}" });
+
+    } finally {
+        client.release();
+    }
+};
+
 const addPositionToPlantilla = async (req, res) => {
     const client = await pool.connect();
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Draggable from "react-draggable";
 
@@ -16,6 +16,7 @@ function PlantillesCrear() {
     const navigate = useNavigate();
 
     const boardRef = useRef(null);
+    const nodeRefs = useRef({});
 
     const params = new URLSearchParams(location.search);
     const idPlantilla = params.get("idPlantilla");
@@ -38,7 +39,7 @@ function PlantillesCrear() {
 
     const [currentAddedPosition, setCurrentAddedPosition] = useState({
         color: "#d3d3d3",
-        coord_x: "200",
+        coord_x: "700",
         coord_y: "200",
         rotacio: "0"
     });
@@ -85,6 +86,47 @@ function PlantillesCrear() {
             console.log("{DEBUG} Get colla's positions OK")
         } else {
             console.log("{DEBUG} Get colla's positions KO")
+            setError(data.message);
+        }
+    }
+
+    const addPositionToPlantilla = async () => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/plantilles/addPositionToPlantilla?id=${idPlantilla}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                nom: currentPosition, 
+                color: currentAddedPosition.color,
+                coord_x: currentAddedPosition.coord_x, 
+                coord_y: currentAddedPosition.coord_y, 
+                rotacio: currentAddedPosition.rotacio, 
+                seccio: selectedTag,
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Create posició de plantilla OK");
+
+            await getCollesPositions();
+
+            setError("");
+            showTempMessage("Posició creada.");
+        } else {
+            console.log("{DEBUG} Create posició de plantilla KO");
             setError(data.message);
         }
     }
@@ -210,8 +252,6 @@ function PlantillesCrear() {
                                 ...prev,
                                 newPosition
                             ]);
-
-                            console.log(newPosition);
                         }}
                     />
                 </div>
@@ -222,6 +262,11 @@ function PlantillesCrear() {
 
                     <Draggable
                         key={posicio.id}
+
+                        nodeRef={
+                            nodeRefs.current[posicio.id] ||
+                            (nodeRefs.current[posicio.id] = React.createRef())
+                        }
 
                         position={{
                             x: posicio.coord_x,
@@ -243,15 +288,19 @@ function PlantillesCrear() {
                             );
                         }}
                     >
-                        <div
-                            className="bloc-posicio-plantilla"
+                        <div ref={nodeRefs.current[posicio.id]}>
 
-                            style={{
-                                backgroundColor: posicio.color,
-                                transform: `rotate(${posicio.rotacio}deg)`
-                            }}
-                        >
-                            {posicio.nom}
+                            <div
+                                className="bloc-posicio-plantilla"
+
+                                style={{
+                                    backgroundColor: posicio.color,
+                                    transform: `rotate(${posicio.rotacio}deg)`
+                                }}
+                            >
+                                {posicio.nom}
+                            </div>
+
                         </div>
 
                     </Draggable>
