@@ -107,7 +107,7 @@ const getPositionsByPlantilla = async (req, res) => {
         const result = await client.query(
             `SELECT *
              FROM posicions_plantilla 
-             WHERE id = $1`,
+             WHERE id_plantilla = $1`,
             [id_plantilla]
         );
 
@@ -224,5 +224,5 @@ const modifyPositionsFromPlantilla = async (req, res) => {
 module.exports = {
     getPlantillesByColla, getEstructuresByColla,
     createPlantilla, modifyInfoPlantilla,
-    addPositionToPlantilla, deletePositionsFromPlantilla, modifyPositionsFromPlantilla
+    getPositionsByPlantilla, addPositionToPlantilla, deletePositionsFromPlantilla, modifyPositionsFromPlantilla
 };

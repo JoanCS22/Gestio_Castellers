@@ -30,7 +30,7 @@ function PlantillesCrear() {
     const [error, setError] = useState("");
     const [message, setTempMessage] = useState(null);
 
-    const [posicionsPlantilla, setPosiciosPlantilla] = useState([]);
+    const [posicionsPlantilla, setPosicionsPlantilla] = useState([]);
 
     const [selectedTag, setSelectedTag] = useState("pinya");
 
@@ -43,6 +43,7 @@ function PlantillesCrear() {
         coord_y: "200",
         rotacio: "0"
     });
+    const [newPosition, setNewPosition] = useState(false);
 
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
@@ -90,7 +91,45 @@ function PlantillesCrear() {
         }
     }
 
+    const getPlantillesPositions = async () => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/plantilles/getPositionsByPlantilla?id=${idPlantilla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setPosicionsPlantilla(data);
+            console.log("{DEBUG} Get plantilla's positions OK")
+        } else {
+            console.log("{DEBUG} Get plantilla's positions KO")
+            setError(data.message);
+        }
+    }
+
     const addPositionToPlantilla = async () => {
+
+        const selectedPositionData = positions.find(
+            p => String(p.id) === String(currentPosition)
+        );
+
+        if (!selectedPositionData) {
+            setError("Cal emplenar la posició.");
+            return;
+        }
 
         const token = localStorage.getItem("token");
 
@@ -101,11 +140,11 @@ function PlantillesCrear() {
                 "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify({
-                nom: currentPosition, 
+                nom: selectedPositionData?.nom,
                 color: currentAddedPosition.color,
-                coord_x: currentAddedPosition.coord_x, 
-                coord_y: currentAddedPosition.coord_y, 
-                rotacio: currentAddedPosition.rotacio, 
+                coord_x: currentAddedPosition.coord_x,
+                coord_y: currentAddedPosition.coord_y,
+                rotacio: currentAddedPosition.rotacio,
                 seccio: selectedTag,
             }),
         });
@@ -121,7 +160,7 @@ function PlantillesCrear() {
         if (response.ok) {
             console.log("{DEBUG} Create posició de plantilla OK");
 
-            await getCollesPositions();
+            await getPlantillesPositions();
 
             setError("");
             showTempMessage("Posició creada.");
@@ -133,6 +172,7 @@ function PlantillesCrear() {
 
     useEffect(() => {
         getCollesPositions();
+        getPlantillesPositions();
     }, []);
 
     return (
@@ -162,7 +202,10 @@ function PlantillesCrear() {
                     <div className="select-wrapper-plantilla-position">
                         <select
                             value={currentPosition}
-                            onChange={(e) => setCurrentPosition(e.target.value)}
+                            onChange={(e) => {
+                                setCurrentPosition(e.target.value);
+                                setError("");
+                            }}
                             className="custom-select-plantilla-position"
                         >
                             <option value="">Selecciona posició</option>
@@ -174,6 +217,11 @@ function PlantillesCrear() {
                             ))}
                         </select>
                     </div>
+                    {error && (
+                        <div className="error-message">
+                            {error}
+                        </div>
+                    )}
                     <div className="select-wrapper-plantilla-color">
                         <span>Color</span>
                         <input
@@ -214,16 +262,12 @@ function PlantillesCrear() {
                     <Button
                         text={"Afegir posició"}
                         icon={<FaPlusSquare />}
-                        action={() => {
+                        action={async () => {
 
                             if (!currentPosition) {
                                 setError("Selecciona una posició");
                                 return;
                             }
-
-                            const selectedPositionData = positions.find(
-                                p => String(p.id) === String(currentPosition)
-                            );
 
                             const boardWidth = boardRef.current?.offsetWidth || 1500;
                             const boardHeight = boardRef.current?.offsetHeight || 800;
@@ -234,30 +278,28 @@ function PlantillesCrear() {
                             const centerX = (boardWidth / 2) - (blockWidth / 2);
                             const centerY = (boardHeight / 2) - (blockHeight / 2);
 
-                            const newPosition = {
-                                id: Date.now(),
-                                position_id: currentPosition,
-                                nom: selectedPositionData.nom,
-                                color: currentAddedPosition.color || "#cccccc",
-                                coord_x: currentAddedPosition.coord_x !== ""
-                                    ? Number(currentAddedPosition.coord_x)
-                                    : centerX,
-                                coord_y: currentAddedPosition.coord_y !== ""
-                                    ? Number(currentAddedPosition.coord_y)
-                                    : centerY,
-                                rotacio: Number(currentAddedPosition.rotacio) || 0
+                            const finalPosition = {
+                                ...currentAddedPosition,
+
+                                coord_x:
+                                    currentAddedPosition.coord_x !== ""
+                                        ? Number(currentAddedPosition.coord_x)
+                                        : centerX,
+
+                                coord_y:
+                                    currentAddedPosition.coord_y !== ""
+                                        ? Number(currentAddedPosition.coord_y)
+                                        : centerY,
                             };
 
-                            setPosiciosPlantilla(prev => [
-                                ...prev,
-                                newPosition
-                            ]);
+                            setCurrentAddedPosition(finalPosition);
+
+                            await addPositionToPlantilla();
                         }}
                     />
                 </div>
             </div>
             <div className="modify-plantilla-board" ref={boardRef}>
-
                 {posicionsPlantilla.map((posicio) => (
 
                     <Draggable
@@ -275,7 +317,7 @@ function PlantillesCrear() {
 
                         onStop={(e, data) => {
 
-                            setPosiciosPlantilla(prev =>
+                            setPosicionsPlantilla(prev =>
                                 prev.map(p =>
                                     p.id === posicio.id
                                         ? {
