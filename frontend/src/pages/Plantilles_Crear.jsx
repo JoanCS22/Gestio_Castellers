@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import Draggable from "react-draggable";
 
 import { FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare, FaTimesCircle, FaRegStar, FaPencilAlt } from "react-icons/fa";
 
@@ -14,6 +15,8 @@ function PlantillesCrear() {
 
     const navigate = useNavigate();
 
+    const boardRef = useRef(null);
+
     const params = new URLSearchParams(location.search);
     const idPlantilla = params.get("idPlantilla");
     const nomPlantilla = params.get("nomPlantilla");
@@ -26,14 +29,19 @@ function PlantillesCrear() {
     const [error, setError] = useState("");
     const [message, setTempMessage] = useState(null);
 
-    const [posicions, setPosicios] = useState([]);
+    const [posicionsPlantilla, setPosiciosPlantilla] = useState([]);
 
     const [selectedTag, setSelectedTag] = useState("pinya");
 
     const [positions, setPositions] = useState([]);
-    const [currentPosition, setCurrentPosition] = useState(null);
+    const [currentPosition, setCurrentPosition] = useState("");
 
-    const [currentAddedPosition, setCurrentAddedPosition] = useState(null);
+    const [currentAddedPosition, setCurrentAddedPosition] = useState({
+        color: "#d3d3d3",
+        coord_x: "200",
+        coord_y: "200",
+        rotacio: "0"
+    });
 
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
@@ -41,6 +49,14 @@ function PlantillesCrear() {
         setTimeout(() => {
             setTempMessage(null);
         }, 2000);
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setCurrentAddedPosition((prev) => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
     const getCollesPositions = async () => {
@@ -98,9 +114,6 @@ function PlantillesCrear() {
                 </div>
             )}
             <div className="modify-plantilla-lat-section">
-                <div className="modify-plantilla-icons">
-
-                </div>
                 <div className="modify-plantilla-add-position">
                     <label className="field-plantilla-position">Posició</label>
 
@@ -119,15 +132,130 @@ function PlantillesCrear() {
                             ))}
                         </select>
                     </div>
-                    <input type="color" />
+                    <div className="select-wrapper-plantilla-color">
+                        <span>Color</span>
+                        <input
+                            name="color"
+                            type="color"
+                            value={currentAddedPosition.color}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className="select-wrapper-plantilla-coords">
+                        <span>X</span>
+                        <input
+                            name="coord_x"
+                            type="number"
+                            placeholder="X"
+                            value={currentAddedPosition.coord_x}
+                            onChange={handleChange}
+                        />
+                        <span>Y</span>
+                        <input
+                            name="coord_y"
+                            type="number"
+                            placeholder="Y"
+                            value={currentAddedPosition.coord_y}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className="select-wrapper-plantilla-rotation">
+                        <span>Rotació</span>
+                        <input
+                            name="rotacio"
+                            type="number"
+                            placeholder="Rotació"
+                            value={currentAddedPosition.rotacio}
+                            onChange={handleChange}
+                        />
+                    </div>
                     <Button
                         text={"Afegir posició"}
                         icon={<FaPlusSquare />}
-                        action={() => {}} />
+                        action={() => {
+
+                            if (!currentPosition) {
+                                setError("Selecciona una posició");
+                                return;
+                            }
+
+                            const selectedPositionData = positions.find(
+                                p => String(p.id) === String(currentPosition)
+                            );
+
+                            const boardWidth = boardRef.current?.offsetWidth || 1500;
+                            const boardHeight = boardRef.current?.offsetHeight || 800;
+
+                            const blockWidth = 120;
+                            const blockHeight = 40;
+
+                            const centerX = (boardWidth / 2) - (blockWidth / 2);
+                            const centerY = (boardHeight / 2) - (blockHeight / 2);
+
+                            const newPosition = {
+                                id: Date.now(),
+                                position_id: currentPosition,
+                                nom: selectedPositionData.nom,
+                                color: currentAddedPosition.color || "#cccccc",
+                                coord_x: currentAddedPosition.coord_x !== ""
+                                    ? Number(currentAddedPosition.coord_x)
+                                    : centerX,
+                                coord_y: currentAddedPosition.coord_y !== ""
+                                    ? Number(currentAddedPosition.coord_y)
+                                    : centerY,
+                                rotacio: Number(currentAddedPosition.rotacio) || 0
+                            };
+
+                            setPosiciosPlantilla(prev => [
+                                ...prev,
+                                newPosition
+                            ]);
+
+                            console.log(newPosition);
+                        }}
+                    />
                 </div>
             </div>
-            <div className="modify-plantilla-board">
+            <div className="modify-plantilla-board" ref={boardRef}>
 
+                {posicionsPlantilla.map((posicio) => (
+
+                    <Draggable
+                        key={posicio.id}
+
+                        position={{
+                            x: posicio.coord_x,
+                            y: posicio.coord_y
+                        }}
+
+                        onStop={(e, data) => {
+
+                            setPosiciosPlantilla(prev =>
+                                prev.map(p =>
+                                    p.id === posicio.id
+                                        ? {
+                                            ...p,
+                                            coord_x: data.x,
+                                            coord_y: data.y
+                                        }
+                                        : p
+                                )
+                            );
+                        }}
+                    >
+                        <div
+                            className="bloc-posicio-plantilla"
+
+                            style={{
+                                backgroundColor: posicio.color,
+                                transform: `rotate(${posicio.rotacio}deg)`
+                            }}
+                        >
+                            {posicio.nom}
+                        </div>
+
+                    </Draggable>
+                ))}
             </div>
         </div>
     )
