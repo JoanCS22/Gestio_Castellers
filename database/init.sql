@@ -307,6 +307,8 @@
     coord_y INT,
     rotacio INT,
 
+    seccio VARCHAR(255),
+
     FOREIGN KEY (id_plantilla)
       REFERENCES plantilles(id)
       ON DELETE CASCADE

@@ -9,7 +9,7 @@ const auth = require('../middleware/auth');
 router.get('/getPlantillesByColla', auth, getPlantillesByColla);
 router.get('/getEstructuresByColla', auth, getEstructuresByColla);
 
-router.post('/', auth, createPlantilla);
+router.post('/createPlantilla', auth, createPlantilla);
 router.post('/modifyInfoPlantilla', auth, modifyInfoPlantilla);
 
 router.post('/addPositionToPlantilla', auth, addPositionToPlantilla);

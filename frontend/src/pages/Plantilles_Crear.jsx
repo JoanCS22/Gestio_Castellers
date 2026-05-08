@@ -119,6 +119,7 @@ function PlantillesCrear() {
                             ))}
                         </select>
                     </div>
+                    <input type="color" />
                     <Button
                         text={"Afegir posició"}
                         icon={<FaPlusSquare />}
