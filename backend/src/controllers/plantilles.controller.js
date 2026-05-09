@@ -94,17 +94,18 @@ const createPlantilla = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { nom, descripcio, estructura } = req.body;
+        const { nom, descripcio, estructura, tronc, pinya, folre, manilles, puntals } = req.body;
 
         const collaActiva = req.query.id;
 
         await client.query("BEGIN");
 
         const result = await client.query(
-            `INSERT INTO plantilles (id_colla, nom, descripcio, estructura)
-             VALUES ($1, $2, $3, $4)
+            `INSERT INTO plantilles (id_colla, nom, descripcio, estructura,
+             tronc, pinya, folre, manilles, puntals)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
              RETURNING *`,
-            [collaActiva, nom, descripcio, estructura]
+            [collaActiva, nom, descripcio, estructura, tronc, pinya, folre, manilles, puntals]
         );
 
         await client.query("COMMIT");

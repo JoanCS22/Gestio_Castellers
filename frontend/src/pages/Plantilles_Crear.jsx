@@ -93,6 +93,7 @@ function PlantillesCrear() {
 
         if (response.ok) {
             setInfoPlantilla(data);
+            setSelectedTag(data.pinya ? "pinya" : "tronc")
             console.log(data);
             console.log("{DEBUG} Get plantilla by id OK")
         } else {
@@ -210,8 +211,11 @@ function PlantillesCrear() {
         }
     }
 
-    const modifyPositionToPlantilla = async (idPosicio) => {
-
+    const modifyPositionToPlantilla = async (
+        idPosicio,
+        coordX = currentAddedPosition.coord_x,
+        coordY = currentAddedPosition.coord_y
+    ) => {
         const token = localStorage.getItem("token");
 
         const response = await fetch(`http://localhost:5000/plantilles/modifyPositionsFromPlantilla?id=${idPosicio}`, {
@@ -222,8 +226,8 @@ function PlantillesCrear() {
             },
             body: JSON.stringify({
                 color: currentAddedPosition.color,
-                coord_x: currentAddedPosition.coord_x,
-                coord_y: currentAddedPosition.coord_y,
+                coord_x: coordX,
+                coord_y: coordY,
                 rotacio: currentAddedPosition.rotacio
             }),
         });
@@ -350,13 +354,6 @@ function PlantillesCrear() {
                 }
             />
             <div className="modify-plantilla-sections">
-                {infoPlantilla.tronc && (
-                    <>
-                        <div className={`select-section-plantilla ${selectedTag === "tronc" ? "active" : ""}`} onClick={() => {
-                            setSelectedTag("tronc");
-                        }}>Tronc</div>
-                    </>
-                )}
                 {infoPlantilla.pinya && (
                     <>
                         <div className={`select-section-plantilla ${selectedTag === "pinya" ? "active" : ""}`} onClick={() => {
@@ -383,6 +380,13 @@ function PlantillesCrear() {
                         <div className={`select-section-plantilla ${selectedTag === "puntals" ? "active" : ""}`} onClick={() => {
                             setSelectedTag("puntals");
                         }}>Puntals</div>
+                    </>
+                )}
+                {infoPlantilla.tronc && (
+                    <>
+                        <div className={`select-section-plantilla ${selectedTag === "tronc" ? "active" : ""}`} onClick={() => {
+                            setSelectedTag("tronc");
+                        }}>Tronc</div>
                     </>
                 )}
             </div>
@@ -504,9 +508,7 @@ function PlantillesCrear() {
                                         text={"Modificar posició"}
                                         icon={<FaPencilAlt />}
                                         action={async () => {
-                                            await modifyPositionToPlantilla(
-                                                selectedPositionId
-                                            );
+                                            await modifyPositionToPlantilla(selectedPositionId);
                                         }}
                                     />
                                     <FaTrashAlt
@@ -554,7 +556,7 @@ function PlantillesCrear() {
                             }
                         }}
 
-                        onStop={(e, data) => {
+                        onStop={async (e, data) => {
                             if (isShown) return false;
                             setPosicionsPlantilla(prev =>
                                 prev.map(p =>
@@ -569,11 +571,21 @@ function PlantillesCrear() {
                             );
 
                             if (selectedPositionId === posicio.id) {
+
+                                const newX = data.x;
+                                const newY = data.y;
+
                                 setCurrentAddedPosition(prev => ({
                                     ...prev,
-                                    coord_x: data.x,
-                                    coord_y: data.y
+                                    coord_x: newX,
+                                    coord_y: newY
                                 }));
+
+                                await modifyPositionToPlantilla(
+                                    selectedPositionId,
+                                    newX,
+                                    newY
+                                );
                             }
                         }}
                     >

@@ -35,7 +35,8 @@ function Etiquetes() {
 
     const [newPositionTag, setNewPositionTag] = useState({
         nom: "",
-        descripcio: ""
+        descripcio: "",
+        color: "#FFFFFF"
     });
     const [newRoleTag, setNewRoleTag] = useState({
         nom: "",
@@ -129,7 +130,8 @@ function Etiquetes() {
             },
             body: JSON.stringify({
                 nom: newPositionTag.nom,
-                descripcio: newPositionTag.descripcio || ""
+                descripcio: newPositionTag.descripcio || "",
+                color: newPositionTag.color,
             }),
         });
 
@@ -167,7 +169,8 @@ function Etiquetes() {
                 "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify({
-                descripcio: newPositionTag.descripcio || ""
+                descripcio: newPositionTag.descripcio || "",
+                color: newPositionTag.color,
             }),
         });
 
@@ -183,7 +186,7 @@ function Etiquetes() {
             console.log("{DEBUG} Update posicio OK");
             setError("");
             setShowModalPosicions(false);
-            setNewPositionTag({ nom: "", descripcio: "" });
+            setNewPositionTag({ nom: "", descripcio: "", color: "#FFFFFF" });
             showTempMessage("Posició modificada correctament.");
             getCollesPositions();
         } else {
@@ -402,7 +405,7 @@ function Etiquetes() {
                     </>
                 )}
             </div>
-            
+
             {
                 message && (
                     <div className={`message ${message.type}`}>
@@ -442,7 +445,8 @@ function Etiquetes() {
                     <table>
                         <colgroup>
                             <col style={{ width: "20%" }} />
-                            <col style={{ width: "60%" }} />
+                            <col style={{ width: "50%" }} />
+                            <col style={{ width: "10%" }} />
                             <col style={{ width: "10%" }} />
                             <col style={{ width: "10%" }} />
                         </colgroup>
@@ -451,6 +455,7 @@ function Etiquetes() {
                             <tr>
                                 <th>Posició</th>
                                 <th>Descripció</th>
+                                <th>Color</th>
                                 <th>Modificar</th>
                                 <th>Eliminar</th>
                             </tr>
@@ -462,11 +467,20 @@ function Etiquetes() {
                                         <td>{position.nom}</td>
                                         <td>{position.descripcio}</td>
                                         <td>
+                                            <div
+                                                className="color-box-tags"
+                                                style={{ backgroundColor: position.color }}
+                                            />
+                                        </td>
+                                        <td>
                                             <button onClick={() => {
                                                 if (hasWritePermission("colla")) {
                                                     setCurrentPosition(position.id);
                                                     setCreate(false);
-                                                    setNewPositionTag({ nom: position.nom, descripcio: position.descripcio });
+                                                    setNewPositionTag({
+                                                        nom: position.nom,
+                                                        descripcio: position.descripcio, color: position.color
+                                                    });
                                                     setShowModalPosicions(true);
                                                 }
                                             }}>
@@ -564,6 +578,24 @@ function Etiquetes() {
                                     inputTitle="Nom"
                                     readOnly={!isCreate}
                                 />
+
+                                <div className="color-group-add-tag">
+                                    <span>Color</span>
+
+                                    <div className="color-elements-add-tag">
+                                        <input
+                                            name="color"
+                                            type="color"
+                                            value={newPositionTag.color}
+                                            onChange={(e) =>
+                                                setNewPositionTag({
+                                                    ...newPositionTag,
+                                                    color: e.target.value
+                                                })
+                                            }
+                                        />
+                                    </div>
+                                </div>
                             </div>
                             {error && (
                                 <div className="error-message">

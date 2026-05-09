@@ -125,6 +125,50 @@
     margin-top: 10px;
 }
 
+.modal-checkboxes-plantilles {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 20px;
+
+    margin-top: 10px;
+    padding: 10px 0;
+
+    flex-wrap: wrap;
+}
+
+.checkbox-item-plantilles {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 8px;
+
+    min-width: 80px;
+}
+
+.checkbox-item-plantilles span {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.checkbox-item-plantilles input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+
+    cursor: pointer;
+
+    accent-color: #0d6efd;
+
+    transition: transform 0.15s ease;
+}
+
+.checkbox-item-plantilles input[type="checkbox"]:hover {
+    transform: scale(1.1);
+}
+
 /* SELECTOR MODAL */
 
 .estructura-selector-plantilles {
@@ -292,4 +336,4 @@
 
 .container-plantilla-icons svg:last-child:hover {
     color: #0d6efd;
-}       
+}

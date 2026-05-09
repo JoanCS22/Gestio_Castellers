@@ -139,7 +139,10 @@ const getCollaPositions = async (req, res) => {
         const collaActiva = req.query.id;
 
         const result = await pool.query(
-            `SELECT * FROM posicions WHERE id_colla = $1`,
+            `SELECT * 
+             FROM posicions 
+             WHERE id_colla = $1
+             ORDER BY nom`,
             [collaActiva]
         );
 
@@ -160,7 +163,7 @@ const createCollaPosition = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { nom, descripcio } = req.body;
+        const { nom, descripcio, color } = req.body;
 
         const collaActiva = req.query.id;
 
@@ -177,10 +180,10 @@ const createCollaPosition = async (req, res) => {
         }
 
         const resultPosicio = await client.query(
-            `INSERT INTO posicions (nom, descripcio, id_colla)
-             VALUES ($1, $2, $3)
+            `INSERT INTO posicions (nom, descripcio, id_colla, color)
+             VALUES ($1, $2, $3, $4)
              RETURNING *`,
-            [nom, descripcio, collaActiva]
+            [nom, descripcio, collaActiva, color]
         );
 
         await client.query("COMMIT");
@@ -208,16 +211,16 @@ const updateCollaPositions = async (req, res) => {
     try {
         const id_posicio = req.query.id;
 
-        const { descripcio } = req.body;
+        const { descripcio, color } = req.body;
 
         await client.query("BEGIN");
 
         const result = await client.query(
             `UPDATE posicions 
-            SET descripcio = $2
+            SET descripcio = $2, color = $3
             WHERE id = $1
             RETURNING *`,
-            [id_posicio, descripcio]
+            [id_posicio, descripcio, color]
         );
 
         await client.query("COMMIT");
