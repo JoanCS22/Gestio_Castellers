@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Draggable from "react-draggable";
 
-import { FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare, FaTimesCircle, FaRegStar, FaPencilAlt } from "react-icons/fa";
+import {
+    FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare, FaTimesCircle,
+    FaRegStar, FaPencilAlt, FaTrashAlt
+} from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
 
@@ -43,7 +46,9 @@ function PlantillesCrear() {
         coord_y: "200",
         rotacio: "0"
     });
-    const [newPosition, setNewPosition] = useState(false);
+
+    const [newPosition, setNewPosition] = useState(true);
+    const [selectedPosition, setSelectedPosition] = useState(null);
 
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
@@ -130,6 +135,47 @@ function PlantillesCrear() {
             setError("Cal emplenar la posició.");
             return;
         }
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/plantilles/addPositionToPlantilla?id=${idPlantilla}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                nom: selectedPositionData?.nom,
+                color: currentAddedPosition.color,
+                coord_x: currentAddedPosition.coord_x,
+                coord_y: currentAddedPosition.coord_y,
+                rotacio: currentAddedPosition.rotacio,
+                seccio: selectedTag,
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Create posició de plantilla OK");
+
+            await getPlantillesPositions();
+
+            setError("");
+            showTempMessage("Posició creada.");
+        } else {
+            console.log("{DEBUG} Create posició de plantilla KO");
+            setError(data.message);
+        }
+    }
+
+    const modifyPositionToPlantilla = async () => {
 
         const token = localStorage.getItem("token");
 
@@ -259,49 +305,56 @@ function PlantillesCrear() {
                             onChange={handleChange}
                         />
                     </div>
-                    <Button
-                        text={"Afegir posició"}
-                        icon={<FaPlusSquare />}
-                        action={async () => {
+                    <div className="select-wrapper-plantilla-buttons">
+                        {newPosition ? (<>
+                            <Button
+                                text={"Afegir posició"}
+                                icon={<FaPlusSquare />}
+                                action={async () => {
 
-                            if (!currentPosition) {
-                                setError("Selecciona una posició");
-                                return;
-                            }
+                                    if (!currentPosition) {
+                                        setError("Selecciona una posició");
+                                        return;
+                                    }
 
-                            const boardWidth = boardRef.current?.offsetWidth || 1500;
-                            const boardHeight = boardRef.current?.offsetHeight || 800;
+                                    const boardWidth = boardRef.current?.offsetWidth || 1500;
+                                    const boardHeight = boardRef.current?.offsetHeight || 800;
 
-                            const blockWidth = 120;
-                            const blockHeight = 40;
+                                    const blockWidth = 120;
+                                    const blockHeight = 40;
 
-                            const centerX = (boardWidth / 2) - (blockWidth / 2);
-                            const centerY = (boardHeight / 2) - (blockHeight / 2);
+                                    const centerX = (boardWidth / 2) - (blockWidth / 2);
+                                    const centerY = (boardHeight / 2) - (blockHeight / 2);
 
-                            const finalPosition = {
-                                ...currentAddedPosition,
+                                    const finalPosition = {
+                                        ...currentAddedPosition,
 
-                                coord_x:
-                                    currentAddedPosition.coord_x !== ""
-                                        ? Number(currentAddedPosition.coord_x)
-                                        : centerX,
+                                        coord_x:
+                                            currentAddedPosition.coord_x !== ""
+                                                ? Number(currentAddedPosition.coord_x)
+                                                : centerX,
 
-                                coord_y:
-                                    currentAddedPosition.coord_y !== ""
-                                        ? Number(currentAddedPosition.coord_y)
-                                        : centerY,
-                            };
+                                        coord_y:
+                                            currentAddedPosition.coord_y !== ""
+                                                ? Number(currentAddedPosition.coord_y)
+                                                : centerY,
+                                    };
 
-                            setCurrentAddedPosition(finalPosition);
+                                    setCurrentAddedPosition(finalPosition);
 
-                            await addPositionToPlantilla();
-                        }}
-                    />
+                                    await addPositionToPlantilla();
+                                }}
+                            />
+                        </>) : (<>
+                            <FaTrashAlt className="select-wrapper-plantilla-buttons-delete" />
+                        </>)}
+
+                    </div>
                 </div>
             </div>
             <div className="modify-plantilla-board" ref={boardRef}>
-                {posicionsPlantilla.map((posicio) => (
-
+                {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => (
+                    
                     <Draggable
                         key={posicio.id}
 

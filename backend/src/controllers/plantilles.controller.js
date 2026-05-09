@@ -143,15 +143,40 @@ const addPositionToPlantilla = async (req, res) => {
             [idPlantilla, nom, color, coord_x, coord_y, rotacio, seccio]
         );
 
+        const createdPosition = result.rows[0];
+
+        if (nom === "Baix") {
+            const oppositeSection = seccio === "pinya" ? "tronc" : "pinya";
+
+            const relatedResult = await client.query(
+                `INSERT INTO posicions_plantilla
+                 (id_plantilla, nom, color, coord_x, coord_y, rotacio, seccio, posicio_relacio)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                 RETURNING *`,
+                [idPlantilla, nom, color, coord_x, coord_y, rotacio, oppositeSection, createdPosition.id]
+            );
+
+            const relatedPosition = relatedResult.rows[0];
+
+            await client.query(
+                `UPDATE posicions_plantilla
+                 SET posicio_relacio = $2
+                 WHERE id = $1`,
+                [createdPosition.id, relatedPosition.id]
+            );
+
+            createdPosition.posicio_relacio = relatedPosition.id;
+        }
+
         await client.query("COMMIT");
 
-        res.status(200).json(result.rows[0]);
+        res.status(200).json(createdPosition);
 
     } catch (error) {
         await client.query("ROLLBACK");
         console.error(error);
 
-        res.status(500).json({ message: "Error al crear plantilla" });
+        res.status(500).json({ message: "Error al crear posicions de plantilla" });
 
     } finally {
         client.release();
@@ -195,15 +220,16 @@ const modifyPositionsFromPlantilla = async (req, res) => {
         const { nom, color, coord_x, coord_y, rotacio, seccio } = req.body;
 
         const idPlantilla = req.query.id;
+        const idRelacioPosicio = req.query.id_relacio;
 
         await client.query("BEGIN");
 
         const result = await client.query(
             `UPDATE posicions_plantilla 
-             SET color = $2, coord_x = $3, coord_y = $4, rotacio = $5
-             WHERE id_plantilla = $1
+             SET color = $2, coord_x = $3, coord_y = $4, rotacio = $5, posicio_relacio = $6
+             WHERE id = $1
              RETURNING *`,
-            [idPlantilla, color, coord_x, coord_y, rotacio]
+            [idPlantilla, color, coord_x, coord_y, rotacio, idRelacioPosicio]
         );
 
         await client.query("COMMIT");

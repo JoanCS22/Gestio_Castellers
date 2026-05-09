@@ -309,6 +309,8 @@
 
     seccio VARCHAR(255),
 
+    posicio_relacio BIGINT,
+
     FOREIGN KEY (id_plantilla)
       REFERENCES plantilles(id)
       ON DELETE CASCADE
