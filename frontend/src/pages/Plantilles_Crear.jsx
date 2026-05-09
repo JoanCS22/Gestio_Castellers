@@ -307,19 +307,11 @@ function PlantillesCrear() {
                                 <FaVideo />
                             )}
                         </div>
-
-                        <div className="icon-btn" onClick={() => {/* MODIFICAR INFO PLANTILLA */ }}>
-                            <FaPencilAlt />
-                        </div>
                     </>
                 }
 
                 rightIcons={
                     <>
-                        <div className="icon-btn" onClick={() => {/* FER FAVORITA */ }}>
-                            <FaRegStar />
-                        </div>
-
                         <div className="icon-btn" onClick={deletePlantilla}>
                             <FaTrashAlt />
                         </div>

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare, FaTimesCircle,
-    FaRegStar, FaPencilAlt, FaTrashAlt } from "react-icons/fa";
+import {
+    FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare, FaTimesCircle,
+    FaRegStar, FaPencilAlt, FaTrashAlt
+} from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
 
@@ -38,6 +40,10 @@ function PlantillesList() {
 
     const [isNewStructure, setIsNewStructure] = useState(false);
 
+    const [isModify, setIsModify] = useState(false);
+
+    const [currentPlantillaId, setCurrentPlantillaId] = useState(false);
+
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
 
@@ -52,6 +58,21 @@ function PlantillesList() {
                 ? prev.filter(v => v !== value)
                 : [...prev, value]
         );
+    };
+
+    const resetModal = () => {
+        setShowModalAddPlantilla(false);
+        setIsModify(false);
+        setIsNewStructure(false);
+        setCurrentPlantillaId(null);
+
+        setModalTags({
+            nom: "",
+            descripcio: "",
+            estructura: ""
+        });
+
+        setError("");
     };
 
     const getCollesPlantilles = async () => {
@@ -158,19 +179,48 @@ function PlantillesList() {
             await getCollesPlantilles();
             await getCollesStructures();
 
-            setShowModalAddPlantilla(false);
-            setError("");
+            resetModal();
             showTempMessage("Plantilla creada correctament.");
-
-            setModalTags({
-                nom: "",
-                estructura: "",
-                descripcio: ""
-            });
-
-            setIsNewStructure(false);
         } else {
             console.log("{DEBUG} Create plantilla KO");
+            setError(data.message);
+        }
+    }
+
+    const modifyInfoPlantilla = async (idPlantilla, action, favoriteValue = false) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/plantilles/modifyInfoPlantilla?id=${idPlantilla}&action=${action}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                descripcio: modalTags.descripcio,
+                estructura: modalTags.estructura,
+                favorita: favoriteValue
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Modify plantilla OK");
+
+            await getCollesPlantilles();
+
+            resetModal();
+            showTempMessage("Plantilla modificada.");
+        } else {
+            console.log("{DEBUG} Modify plantilla KO");
             setError(data.message);
         }
     }
@@ -232,15 +282,27 @@ function PlantillesList() {
             </div>
             <div className="grid-plantilla-list">
                 {plantilles.map((plantilla) => (
-                    <div className="container-plantilla" onClick={() =>
-                        navigate(`/plantilla_crear?idPlantilla=${plantilla.id}&nomPlantilla=${plantilla.nom}`)
-                    }>
-                        <div className="container-plantilla-text">
+                    <div className="container-plantilla">
+                        <div className="container-plantilla-text" onClick={() =>
+                            navigate(`/plantilla_crear?idPlantilla=${plantilla.id}&nomPlantilla=${plantilla.nom}`)
+                        }>
                             <span>{plantilla.nom}</span>
                             <span>{plantilla.estructura}</span>
                         </div>
                         <div className="container-plantilla-icons">
-                            <FaRegStar className={plantilla.favorita ? "favorit-actiu" : ""} />
+                            <FaRegStar title="Afegir a favorits" className={plantilla.favorita ? "favorit-actiu" : ""} onClick={() => {
+                                modifyInfoPlantilla(plantilla.id, "favorite", !plantilla.favorita)
+                            }} />
+                            <FaPencilAlt title="Modificar informació" onClick={() => {
+                                setIsModify(true);
+                                setCurrentPlantillaId(plantilla.id);
+                                setModalTags({
+                                    nom: plantilla.nom,
+                                    descripcio: plantilla.descripcio,
+                                    estructura: plantilla.estructura
+                                });
+                                setShowModalAddPlantilla(true);
+                            }} />
                         </div>
                     </div>
                 ))}
@@ -261,6 +323,7 @@ function PlantillesList() {
                                     setModalTags({ ...modalTags, nom: e.target.value })
                                 }
                                 inputTitle="Nom"
+                                readOnly={isModify}
                             />
                             <div className="estructura-selector-plantilles">
 
@@ -321,15 +384,29 @@ function PlantillesList() {
                         </div>
                         <div className="modal-buttons-plantilles">
 
-                            <Button
-                                text={"Afegir plantilla"}
-                                icon={<FaPlusSquare />}
-                                action={createPlantilla} />
+                            {!isModify ? (
+                                <>
+                                    <Button
+                                        text={"Afegir plantilla"}
+                                        icon={<FaPlusSquare />}
+                                        action={createPlantilla}
+                                    />
+                                </>
+                            ) : (
+                                <>
+                                    <Button
+                                        text={"Modificar informació"}
+                                        icon={<FaPencilAlt />}
+                                        action={() => { modifyInfoPlantilla(currentPlantillaId, false) }}
+                                    />
+                                </>
+                            )}
+
 
                             <Button
                                 text="Cancelar"
                                 icon={<FaTimesCircle />}
-                                action={() => { setShowModalAddPlantilla(false); setError(""); }}
+                                action={() => { resetModal(); }}
                             />
                         </div>
                     </div>

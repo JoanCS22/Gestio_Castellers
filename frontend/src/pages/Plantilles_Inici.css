@@ -181,23 +181,30 @@
     justify-content: space-between;
     align-items: center;
 
-    padding: 16px 20px;
-
-    background-color: #ffffff;
-    border: 1px solid #000000;
-    border-radius: 12px;
-
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-
     width: 100%;
-    max-width: 350px;
+    max-width: 380px;
+
+    padding: 18px 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #dcdcdc;
+    border-radius: 16px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
 }
 
 .container-plantilla:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    transform: translateY(-3px);
+
+    border-color: #b8b8b8;
+
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 /* TEXT */
@@ -205,36 +212,84 @@
 .container-plantilla-text {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
+
+    flex: 1;
+
+    cursor: pointer;
+
+    padding-right: 16px;
 }
 
 .container-plantilla-text span:first-child {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #000000;
+    font-size: 1.25rem;
+    font-weight: 700;
+
+    color: #111111;
+
+    transition: color 0.2s ease;
 }
 
 .container-plantilla-text span:last-child {
-    font-size: 1.1rem;
-    color: #4d4d4d;
+    font-size: 1rem;
+    font-weight: 500;
+
+    color: #666666;
+
+    transition: color 0.2s ease;
 }
 
-/* ICON */
+.container-plantilla-text:hover span:first-child {
+    color: #0d6efd;
+}
+
+.container-plantilla-text:hover span:last-child {
+    color: #444444;
+}
+
+/* ICONS */
 
 .container-plantilla-icons {
     display: flex;
     align-items: center;
-
-    font-size: 2.0rem;
-    color: #000000;
-
-    cursor: pointer;
+    gap: 10px;
 }
 
 .container-plantilla-icons svg {
-    transition: transform 0.2s ease;
+    font-size: 1.4rem;
+
+    padding: 8px;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background-color 0.2s ease,
+        color 0.2s ease;
 }
 
-.favorit-actiu {
-    color: goldenrod
+/* HOVER GENERAL ICONOS */
+
+.container-plantilla-icons svg:hover {
+    transform: scale(1.12);
+
+    background-color: rgba(0, 0, 0, 0.06);
 }
+
+/* FAVORITO */
+
+.favorit-actiu {
+    color: goldenrod;
+}
+
+.container-plantilla-icons svg:first-child:hover {
+    color: goldenrod;
+}
+
+/* EDITAR */
+
+.container-plantilla-icons svg:last-child:hover {
+    color: #0d6efd;
+}       

@@ -93,7 +93,49 @@ const createPlantilla = async (req, res) => {
 };
 
 const modifyInfoPlantilla = async (req, res) => {
+    const client = await pool.connect();
 
+    try {
+        const { descripcio, estructura, favorita } = req.body;
+
+        const idPlantilla = req.query.id;
+        const action = req.query.action;
+
+        await client.query("BEGIN");
+
+        let result;
+
+        if (action === "favorite") {
+            result = await client.query(
+                `UPDATE plantilles 
+                 SET favorita = $2
+                 WHERE id = $1
+                 RETURNING *`,
+                [idPlantilla, favorita]
+            );
+        } else {
+            result = await client.query(
+                `UPDATE plantilles 
+                 SET descripcio = $2, estructura = $3
+                 WHERE id = $1
+                 RETURNING *`,
+                [idPlantilla, descripcio, estructura]
+            );
+        }
+
+        await client.query("COMMIT");
+
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({ message: "Error al modificar plantilla" });
+
+    } finally {
+        client.release();
+    }
 };
 
 const deletePlantilla = async (req, res) => {
