@@ -225,10 +225,10 @@ function PlantillesCrear() {
                 "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify({
-                color: currentAddedPosition.color,
-                coord_x: coordX,
-                coord_y: coordY,
-                rotacio: currentAddedPosition.rotacio
+                color: currentAddedPosition.color || "#FFFFFFF",
+                coord_x: coordX || 200,
+                coord_y: coordY || 700,
+                rotacio: currentAddedPosition.rotacio || 0,
             }),
         });
 
@@ -403,13 +403,26 @@ function PlantillesCrear() {
 
                             <div className="select-wrapper-plantilla-position">
                                 <select
+                                    className="custom-select-plantilla-position"
                                     value={currentPosition}
                                     disabled={!newPosition}
                                     onChange={(e) => {
-                                        setCurrentPosition(e.target.value);
+                                        const selectedId = e.target.value;
+
+                                        setCurrentPosition(selectedId);
                                         setError("");
+
+                                        const selected = positions.find(
+                                            (p) => String(p.id) === String(selectedId)
+                                        );
+
+                                        if (selected) {
+                                            setCurrentAddedPosition((prev) => ({
+                                                ...prev,
+                                                color: selected.color || "#d3d3d3"
+                                            }));
+                                        }
                                     }}
-                                    className="custom-select-plantilla-position"
                                 >
                                     <option value="">Selecciona posició</option>
 
