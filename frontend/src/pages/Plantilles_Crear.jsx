@@ -4,7 +4,7 @@ import Draggable from "react-draggable";
 
 import {
     FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare, FaTimesCircle,
-    FaRegStar, FaPencilAlt, FaTrashAlt
+    FaRegStar, FaPencilAlt, FaTrashAlt, FaTrash, FaVideo, FaVideoSlash
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -52,6 +52,8 @@ function PlantillesCrear() {
 
     const dragStart = useRef({ x: 0, y: 0 });
     const isDragging = useRef(false);
+
+    const [isShown, setIsShown] = useState(false);
 
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
@@ -249,6 +251,43 @@ function PlantillesCrear() {
         }
     }
 
+    const deletePlantilla = async () => {
+
+        if (!window.confirm("Segur que vols eliminar aquesta plantilla?")) return;
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/plantilles/deletePlantilla?id=${idPlantilla}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Delete plantilla OK");
+            setError("");
+            showTempMessage("Plantilla eliminada correctament.");
+            await getPlantillesPositions();
+            setSelectedPositionId(null);
+            setTimeout(() => {
+                navigate("/plantilles");
+            }, 1500);
+        } else {
+            console.log("{DEBUG} Delete plantilla KO");
+            setError(data.message);
+        }
+    }
+
     useEffect(() => {
         getCollesPositions();
         getPlantillesPositions();
@@ -259,6 +298,33 @@ function PlantillesCrear() {
             <TopMenu
                 title={nomPlantilla}
                 tornar
+                leftIcons={
+                    <>
+                        <div className="icon-btn" onClick={() => { setIsShown(!isShown) }}>
+                            {isShown ? (
+                                <FaVideoSlash />
+                            ) : (
+                                <FaVideo />
+                            )}
+                        </div>
+
+                        <div className="icon-btn" onClick={() => {/* MODIFICAR INFO PLANTILLA */ }}>
+                            <FaPencilAlt />
+                        </div>
+                    </>
+                }
+
+                rightIcons={
+                    <>
+                        <div className="icon-btn" onClick={() => {/* FER FAVORITA */ }}>
+                            <FaRegStar />
+                        </div>
+
+                        <div className="icon-btn" onClick={deletePlantilla}>
+                            <FaTrashAlt />
+                        </div>
+                    </>
+                }
             />
             <div className="modify-plantilla-sections">
                 <div className={`pinya-select-plantilla ${selectedTag === "pinya" ? "active" : ""}`} onClick={() => {
@@ -274,133 +340,137 @@ function PlantillesCrear() {
                     {message.message}
                 </div>
             )}
-            <div className="modify-plantilla-lat-section">
-                <div className="modify-plantilla-add-position">
-                    <label className="field-plantilla-position">Posició</label>
+            {!isShown && (
+                <>
+                    <div className="modify-plantilla-lat-section">
+                        <div className="modify-plantilla-add-position">
+                            <label className="field-plantilla-position">Posició</label>
 
-                    <div className="select-wrapper-plantilla-position">
-                        <select
-                            value={currentPosition}
-                            disabled={!newPosition}
-                            onChange={(e) => {
-                                setCurrentPosition(e.target.value);
-                                setError("");
-                            }}
-                            className="custom-select-plantilla-position"
-                        >
-                            <option value="">Selecciona posició</option>
+                            <div className="select-wrapper-plantilla-position">
+                                <select
+                                    value={currentPosition}
+                                    disabled={!newPosition}
+                                    onChange={(e) => {
+                                        setCurrentPosition(e.target.value);
+                                        setError("");
+                                    }}
+                                    className="custom-select-plantilla-position"
+                                >
+                                    <option value="">Selecciona posició</option>
 
-                            {positions.map(p => (
-                                <option key={p.id} value={String(p.id)}>
-                                    {p.nom}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    {error && (
-                        <div className="error-message">
-                            {error}
+                                    {positions.map(p => (
+                                        <option key={p.id} value={String(p.id)}>
+                                            {p.nom}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            {error && (
+                                <div className="error-message">
+                                    {error}
+                                </div>
+                            )}
+                            <div className="select-wrapper-plantilla-color">
+                                <span>Color</span>
+                                <input
+                                    name="color"
+                                    type="color"
+                                    value={currentAddedPosition.color}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div className="select-wrapper-plantilla-coords">
+                                <span>X</span>
+                                <input
+                                    name="coord_x"
+                                    type="number"
+                                    placeholder="X"
+                                    value={currentAddedPosition.coord_x}
+                                    onChange={handleChange}
+                                />
+                                <span>Y</span>
+                                <input
+                                    name="coord_y"
+                                    type="number"
+                                    placeholder="Y"
+                                    value={currentAddedPosition.coord_y}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div className="select-wrapper-plantilla-rotation">
+                                <span>Rotació</span>
+                                <input
+                                    name="rotacio"
+                                    type="number"
+                                    placeholder="Rotació"
+                                    value={currentAddedPosition.rotacio}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div className="select-wrapper-plantilla-buttons">
+                                {newPosition ? (<>
+                                    <Button
+                                        text={"Afegir posició"}
+                                        icon={<FaPlusSquare />}
+                                        action={async () => {
+
+                                            if (!currentPosition) {
+                                                setError("Selecciona una posició");
+                                                return;
+                                            }
+
+                                            const boardWidth = boardRef.current?.offsetWidth || 1500;
+                                            const boardHeight = boardRef.current?.offsetHeight || 800;
+
+                                            const blockWidth = 120;
+                                            const blockHeight = 40;
+
+                                            const centerX = (boardWidth / 2) - (blockWidth / 2);
+                                            const centerY = (boardHeight / 2) - (blockHeight / 2);
+
+                                            const finalPosition = {
+                                                ...currentAddedPosition,
+
+                                                coord_x:
+                                                    currentAddedPosition.coord_x !== ""
+                                                        ? Number(currentAddedPosition.coord_x)
+                                                        : centerX,
+
+                                                coord_y:
+                                                    currentAddedPosition.coord_y !== ""
+                                                        ? Number(currentAddedPosition.coord_y)
+                                                        : centerY,
+                                            };
+
+                                            setCurrentAddedPosition(finalPosition);
+
+                                            await addPositionToPlantilla();
+                                        }}
+                                    />
+                                </>) : (<>
+
+                                    <Button
+                                        text={"Modificar posició"}
+                                        icon={<FaPencilAlt />}
+                                        action={async () => {
+                                            await modifyPositionToPlantilla(
+                                                selectedPositionId
+                                            );
+                                        }}
+                                    />
+                                    <FaTrashAlt
+                                        className="select-wrapper-plantilla-buttons-delete"
+                                        onClick={async () => {
+                                            await deletePosicioPlantilla(selectedPositionId);
+                                        }}
+                                    />
+                                </>)}
+
+                            </div>
                         </div>
-                    )}
-                    <div className="select-wrapper-plantilla-color">
-                        <span>Color</span>
-                        <input
-                            name="color"
-                            type="color"
-                            value={currentAddedPosition.color}
-                            onChange={handleChange}
-                        />
                     </div>
-                    <div className="select-wrapper-plantilla-coords">
-                        <span>X</span>
-                        <input
-                            name="coord_x"
-                            type="number"
-                            placeholder="X"
-                            value={currentAddedPosition.coord_x}
-                            onChange={handleChange}
-                        />
-                        <span>Y</span>
-                        <input
-                            name="coord_y"
-                            type="number"
-                            placeholder="Y"
-                            value={currentAddedPosition.coord_y}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className="select-wrapper-plantilla-rotation">
-                        <span>Rotació</span>
-                        <input
-                            name="rotacio"
-                            type="number"
-                            placeholder="Rotació"
-                            value={currentAddedPosition.rotacio}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className="select-wrapper-plantilla-buttons">
-                        {newPosition ? (<>
-                            <Button
-                                text={"Afegir posició"}
-                                icon={<FaPlusSquare />}
-                                action={async () => {
-
-                                    if (!currentPosition) {
-                                        setError("Selecciona una posició");
-                                        return;
-                                    }
-
-                                    const boardWidth = boardRef.current?.offsetWidth || 1500;
-                                    const boardHeight = boardRef.current?.offsetHeight || 800;
-
-                                    const blockWidth = 120;
-                                    const blockHeight = 40;
-
-                                    const centerX = (boardWidth / 2) - (blockWidth / 2);
-                                    const centerY = (boardHeight / 2) - (blockHeight / 2);
-
-                                    const finalPosition = {
-                                        ...currentAddedPosition,
-
-                                        coord_x:
-                                            currentAddedPosition.coord_x !== ""
-                                                ? Number(currentAddedPosition.coord_x)
-                                                : centerX,
-
-                                        coord_y:
-                                            currentAddedPosition.coord_y !== ""
-                                                ? Number(currentAddedPosition.coord_y)
-                                                : centerY,
-                                    };
-
-                                    setCurrentAddedPosition(finalPosition);
-
-                                    await addPositionToPlantilla();
-                                }}
-                            />
-                        </>) : (<>
-
-                            <Button
-                                text={"Modificar posició"}
-                                icon={<FaPencilAlt />}
-                                action={async () => {
-                                    await modifyPositionToPlantilla(
-                                        selectedPositionId
-                                    );
-                                }}
-                            />
-                            <FaTrashAlt
-                                className="select-wrapper-plantilla-buttons-delete"
-                                onClick={async () => {
-                                    await deletePosicioPlantilla(selectedPositionId);
-                                }}
-                            />
-                        </>)}
-
-                    </div>
-                </div>
-            </div>
+                </>
+            )}
             <div className="modify-plantilla-board" ref={boardRef}>
                 {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => (
 
@@ -418,11 +488,13 @@ function PlantillesCrear() {
                         }}
 
                         onStart={(e) => {
+                            if (isShown) return false;
                             dragStart.current = { x: e.clientX, y: e.clientY };
                             isDragging.current = false;
                         }}
 
                         onDrag={(e) => {
+                            if (isShown) return false;
                             const dx = Math.abs(e.clientX - dragStart.current.x);
                             const dy = Math.abs(e.clientY - dragStart.current.y);
 
@@ -432,7 +504,7 @@ function PlantillesCrear() {
                         }}
 
                         onStop={(e, data) => {
-
+                            if (isShown) return false;
                             setPosicionsPlantilla(prev =>
                                 prev.map(p =>
                                     p.id === posicio.id
@@ -460,6 +532,13 @@ function PlantillesCrear() {
                                 className={`bloc-posicio-plantilla ${selectedPositionId === posicio.id ? "selected-bloc" : ""}`}
 
                                 onClick={() => {
+
+                                    if (isShown) {
+                                        setSelectedPositionId(null);
+                                        setNewPosition(true);
+                                        setCurrentPosition("");
+                                        return;
+                                    }
 
                                     if (isDragging.current) {
                                         return;

@@ -120,7 +120,7 @@ body {
     justify-content: center;
 }
 
-.selector-title{
+.selector-title {
     border-radius: 20%;
     width: 100%
 }
@@ -182,4 +182,56 @@ body {
 
 .dropdown-item-colla.altre {
     color: #555;
+}
+
+/*SIDE TITLE BUTTONS*/
+
+.left-title-content,
+.right-title-content {
+    display: flex;
+    align-items: center;
+
+    height: 40px;
+
+    backdrop-filter: blur(6px);
+
+    border-radius: 14px;
+
+    padding: 0 6px;
+
+    gap: 6px;
+
+    transition: all 0.2s ease;
+}
+
+.left-title-content,
+.right-title-content {
+    width: auto;
+}
+
+.icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+
+    background: rgba(214, 214, 214, 0.55);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.icon-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
+    transform: scale(1.05);
+}
+
+.icon-btn svg {
+    font-size: 17px;
 }

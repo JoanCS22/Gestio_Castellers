@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare, FaTimesCircle, FaRegStar, FaPencilAlt } from "react-icons/fa";
+import { FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare, FaTimesCircle,
+    FaRegStar, FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
 

@@ -226,7 +226,7 @@
     align-items: center;
 
     font-size: 2.0rem;
-    color: #f5b301;
+    color: #000000;
 
     cursor: pointer;
 }
@@ -235,10 +235,6 @@
     transition: transform 0.2s ease;
 }
 
-.container-plantilla-icons svg:hover {
-    transform: scale(1.15);
-}
-
 .favorit-actiu {
-    background-color: gold;
+    color: goldenrod
 }

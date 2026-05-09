@@ -96,6 +96,36 @@ const modifyInfoPlantilla = async (req, res) => {
 
 };
 
+const deletePlantilla = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const idPlantilla = req.query.id;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `DELETE FROM plantilles 
+             WHERE id = $1
+             RETURNING *`,
+            [idPlantilla]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({ message: "Error a l'eliminar plantilla" });
+
+    } finally {
+        client.release();
+    }
+};
+
 const getPositionsByPlantilla = async (req, res) => {
     const client = await pool.connect();
 
@@ -253,6 +283,6 @@ const modifyPositionsFromPlantilla = async (req, res) => {
 
 module.exports = {
     getPlantillesByColla, getEstructuresByColla,
-    createPlantilla, modifyInfoPlantilla,
+    createPlantilla, modifyInfoPlantilla, deletePlantilla,
     getPositionsByPlantilla, addPositionToPlantilla, deletePositionsFromPlantilla, modifyPositionsFromPlantilla
 };

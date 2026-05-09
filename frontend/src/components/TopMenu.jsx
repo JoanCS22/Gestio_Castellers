@@ -8,7 +8,7 @@ import LeftMenu from "./LeftMenu";
 
 import "./TopMenu.css";
 
-function TopMenu({ title = "text", tornar = false, canvi_colla = false, onReady }) {
+function TopMenu({ title = "text", tornar = false, canvi_colla = false, onReady, leftIcons, rightIcons }) {
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false)
@@ -124,9 +124,18 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false, onReady 
 
   return (
     <div className='topmenu-container'>
+
       <div className='left-content'>
         <LeftMenu />
       </div>
+
+      {(leftIcons !== null) && (
+        <>
+          <div className="left-title-content">
+            {leftIcons}
+          </div>
+        </>
+      )}
 
       <div className='center-content'>
         {canvi_colla ? (
@@ -169,6 +178,14 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false, onReady 
           <h1>{title}</h1>
         )}
       </div >
+
+      {(rightIcons !== null) && (
+        <>
+          <div className="right-title-content">
+            {rightIcons}
+          </div>
+        </>
+      )}
 
 
       <div className="right-content">
