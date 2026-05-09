@@ -314,6 +314,10 @@
     FOREIGN KEY (id_plantilla)
       REFERENCES plantilles(id)
       ON DELETE CASCADE
+
+    FOREIGN KEY (posicio_relacio)
+      REFERENCES posicions_plantilla(id)
+      ON DELETE CASCADE
   );
 
   CREATE TABLE assignacions_prova (

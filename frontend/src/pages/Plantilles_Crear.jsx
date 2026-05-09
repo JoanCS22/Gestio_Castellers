@@ -42,13 +42,16 @@ function PlantillesCrear() {
 
     const [currentAddedPosition, setCurrentAddedPosition] = useState({
         color: "#d3d3d3",
-        coord_x: "700",
-        coord_y: "200",
+        coord_x: Number(700),
+        coord_y: Number(200),
         rotacio: "0"
     });
 
     const [newPosition, setNewPosition] = useState(true);
-    const [selectedPosition, setSelectedPosition] = useState(null);
+    const [selectedPositionId, setSelectedPositionId] = useState(null);
+
+    const dragStart = useRef({ x: 0, y: 0 });
+    const isDragging = useRef(false);
 
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
@@ -175,23 +178,21 @@ function PlantillesCrear() {
         }
     }
 
-    const modifyPositionToPlantilla = async () => {
+    const modifyPositionToPlantilla = async (idPosicio) => {
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch(`http://localhost:5000/plantilles/addPositionToPlantilla?id=${idPlantilla}`, {
+        const response = await fetch(`http://localhost:5000/plantilles/modifyPositionsFromPlantilla?id=${idPosicio}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify({
-                nom: selectedPositionData?.nom,
                 color: currentAddedPosition.color,
                 coord_x: currentAddedPosition.coord_x,
                 coord_y: currentAddedPosition.coord_y,
-                rotacio: currentAddedPosition.rotacio,
-                seccio: selectedTag,
+                rotacio: currentAddedPosition.rotacio
             }),
         });
 
@@ -204,14 +205,46 @@ function PlantillesCrear() {
         const data = await response.json();
 
         if (response.ok) {
-            console.log("{DEBUG} Create posició de plantilla OK");
+            console.log("{DEBUG} Modify posició de plantilla OK");
 
             await getPlantillesPositions();
 
             setError("");
-            showTempMessage("Posició creada.");
+            showTempMessage("Posició modificada.");
         } else {
-            console.log("{DEBUG} Create posició de plantilla KO");
+            console.log("{DEBUG} Modify posició de plantilla KO");
+            setError(data.message);
+        }
+    }
+
+    const deletePosicioPlantilla = async (idPosicio) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/plantilles/deletePositionsFromPlantilla?id=${idPosicio}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Delete posició OK");
+            setError("");
+            showTempMessage("Posició eliminada correctament.");
+            await getPlantillesPositions();
+            setSelectedPositionId(null);
+        } else {
+            console.log("{DEBUG} Delete posició KO");
             setError(data.message);
         }
     }
@@ -248,6 +281,7 @@ function PlantillesCrear() {
                     <div className="select-wrapper-plantilla-position">
                         <select
                             value={currentPosition}
+                            disabled={!newPosition}
                             onChange={(e) => {
                                 setCurrentPosition(e.target.value);
                                 setError("");
@@ -346,7 +380,22 @@ function PlantillesCrear() {
                                 }}
                             />
                         </>) : (<>
-                            <FaTrashAlt className="select-wrapper-plantilla-buttons-delete" />
+
+                            <Button
+                                text={"Modificar posició"}
+                                icon={<FaPencilAlt />}
+                                action={async () => {
+                                    await modifyPositionToPlantilla(
+                                        selectedPositionId
+                                    );
+                                }}
+                            />
+                            <FaTrashAlt
+                                className="select-wrapper-plantilla-buttons-delete"
+                                onClick={async () => {
+                                    await deletePosicioPlantilla(selectedPositionId);
+                                }}
+                            />
                         </>)}
 
                     </div>
@@ -354,7 +403,7 @@ function PlantillesCrear() {
             </div>
             <div className="modify-plantilla-board" ref={boardRef}>
                 {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => (
-                    
+
                     <Draggable
                         key={posicio.id}
 
@@ -366,6 +415,20 @@ function PlantillesCrear() {
                         position={{
                             x: posicio.coord_x,
                             y: posicio.coord_y
+                        }}
+
+                        onStart={(e) => {
+                            dragStart.current = { x: e.clientX, y: e.clientY };
+                            isDragging.current = false;
+                        }}
+
+                        onDrag={(e) => {
+                            const dx = Math.abs(e.clientX - dragStart.current.x);
+                            const dy = Math.abs(e.clientY - dragStart.current.y);
+
+                            if (dx > 5 || dy > 5) {
+                                isDragging.current = true;
+                            }
                         }}
 
                         onStop={(e, data) => {
@@ -381,12 +444,46 @@ function PlantillesCrear() {
                                         : p
                                 )
                             );
+
+                            if (selectedPositionId === posicio.id) {
+                                setCurrentAddedPosition(prev => ({
+                                    ...prev,
+                                    coord_x: data.x,
+                                    coord_y: data.y
+                                }));
+                            }
                         }}
                     >
                         <div ref={nodeRefs.current[posicio.id]}>
 
                             <div
-                                className="bloc-posicio-plantilla"
+                                className={`bloc-posicio-plantilla ${selectedPositionId === posicio.id ? "selected-bloc" : ""}`}
+
+                                onClick={() => {
+
+                                    if (isDragging.current) {
+                                        return;
+                                    }
+
+                                    if (selectedPositionId === posicio.id) {
+                                        setSelectedPositionId(null);
+                                        setNewPosition(true);
+                                        setCurrentPosition("");
+                                        return;
+                                    }
+
+                                    setCurrentPosition(String(posicio.position_id || posicio.id));
+                                    setSelectedPositionId(posicio.id);
+
+                                    setCurrentAddedPosition({
+                                        color: posicio.color,
+                                        coord_x: Number(posicio.coord_x),
+                                        coord_y: Number(posicio.coord_y),
+                                        rotacio: posicio.rotacio
+                                    });
+
+                                    setNewPosition(false);
+                                }}
 
                                 style={{
                                     backgroundColor: posicio.color,

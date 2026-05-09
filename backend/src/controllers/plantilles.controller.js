@@ -198,6 +198,11 @@ const deletePositionsFromPlantilla = async (req, res) => {
             [idPosicioPlantilla]
         );
 
+        if (result.rowCount === 0) {
+            await client.query("ROLLBACK");
+            return res.status(404).json({ message: "No existeix la posició" });
+        }
+
         await client.query("COMMIT");
 
         res.status(200).json(result.rows[0]);
@@ -206,7 +211,7 @@ const deletePositionsFromPlantilla = async (req, res) => {
         await client.query("ROLLBACK");
         console.error(error);
 
-        res.status(500).json({ message: "Error al crear plantilla" });
+        res.status(500).json({ message: "Error a l'eliminar posició plantilla" });
 
     } finally {
         client.release();
@@ -217,19 +222,18 @@ const modifyPositionsFromPlantilla = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { nom, color, coord_x, coord_y, rotacio, seccio } = req.body;
+        const { color, coord_x, coord_y, rotacio } = req.body;
 
-        const idPlantilla = req.query.id;
-        const idRelacioPosicio = req.query.id_relacio;
+        const idPosicio = req.query.id;
 
         await client.query("BEGIN");
 
         const result = await client.query(
             `UPDATE posicions_plantilla 
-             SET color = $2, coord_x = $3, coord_y = $4, rotacio = $5, posicio_relacio = $6
+             SET color = $2, coord_x = $3, coord_y = $4, rotacio = $5
              WHERE id = $1
              RETURNING *`,
-            [idPlantilla, color, coord_x, coord_y, rotacio, idRelacioPosicio]
+            [idPosicio, color, coord_x, coord_y, rotacio]
         );
 
         await client.query("COMMIT");
