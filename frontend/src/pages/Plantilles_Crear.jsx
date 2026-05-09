@@ -22,8 +22,7 @@ function PlantillesCrear() {
     const nodeRefs = useRef({});
 
     const params = new URLSearchParams(location.search);
-    const idPlantilla = params.get("idPlantilla");
-    const nomPlantilla = params.get("nomPlantilla");
+    const idPlantilla = params.get("id");
     const idColla = localStorage.getItem("id_colla");
 
     //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
@@ -33,6 +32,7 @@ function PlantillesCrear() {
     const [error, setError] = useState("");
     const [message, setTempMessage] = useState(null);
 
+    const [infoPlantilla, setInfoPlantilla] = useState([]);
     const [posicionsPlantilla, setPosicionsPlantilla] = useState([]);
 
     const [selectedTag, setSelectedTag] = useState("pinya");
@@ -70,6 +70,36 @@ function PlantillesCrear() {
             [name]: value
         }));
     };
+
+    const getPlantillaById = async () => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/plantilles/getPlantillaById?id=${idPlantilla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setInfoPlantilla(data);
+            console.log(data);
+            console.log("{DEBUG} Get plantilla by id OK")
+        } else {
+            console.log("{DEBUG} Get plantilla by id KO")
+            setError(data.message);
+        }
+    }
 
     const getCollesPositions = async () => {
 
@@ -289,6 +319,7 @@ function PlantillesCrear() {
     }
 
     useEffect(() => {
+        getPlantillaById();
         getCollesPositions();
         getPlantillesPositions();
     }, []);
@@ -296,7 +327,7 @@ function PlantillesCrear() {
     return (
         <div>
             <TopMenu
-                title={nomPlantilla}
+                title={infoPlantilla.nom}
                 tornar
                 leftIcons={
                     <>
@@ -319,13 +350,41 @@ function PlantillesCrear() {
                 }
             />
             <div className="modify-plantilla-sections">
-                <div className={`pinya-select-plantilla ${selectedTag === "pinya" ? "active" : ""}`} onClick={() => {
-                    setSelectedTag("pinya");
-                }}>Pinya</div>
-                <div className={`tronc-select-plantilla ${selectedTag === "tronc" ? "active" : ""}`} onClick={() => {
-                    setSelectedTag("tronc");
-                }}>Tronc</div>
-                <div className='other-select-plantilla'>+ Afegir secció</div>
+                {infoPlantilla.tronc && (
+                    <>
+                        <div className={`select-section-plantilla ${selectedTag === "tronc" ? "active" : ""}`} onClick={() => {
+                            setSelectedTag("tronc");
+                        }}>Tronc</div>
+                    </>
+                )}
+                {infoPlantilla.pinya && (
+                    <>
+                        <div className={`select-section-plantilla ${selectedTag === "pinya" ? "active" : ""}`} onClick={() => {
+                            setSelectedTag("pinya");
+                        }}>Pinya</div>
+                    </>
+                )}
+                {infoPlantilla.folre && (
+                    <>
+                        <div className={`select-section-plantilla ${selectedTag === "folre" ? "active" : ""}`} onClick={() => {
+                            setSelectedTag("folre");
+                        }}>Folre</div>
+                    </>
+                )}
+                {infoPlantilla.manilles && (
+                    <>
+                        <div className={`select-section-plantilla ${selectedTag === "manilles" ? "active" : ""}`} onClick={() => {
+                            setSelectedTag("manilles");
+                        }}>Manilles</div>
+                    </>
+                )}
+                {infoPlantilla.puntals && (
+                    <>
+                        <div className={`select-section-plantilla ${selectedTag === "puntals" ? "active" : ""}`} onClick={() => {
+                            setSelectedTag("puntals");
+                        }}>Puntals</div>
+                    </>
+                )}
             </div>
             {message && (
                 <div className={`message ${message.type}`}>

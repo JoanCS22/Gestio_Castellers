@@ -35,7 +35,8 @@ const LeftMenu = () => {
   return (
     <div className={`left-menu ${openLeft ? "open" : "closed"}`}>
 
-      <div className={`left-menu-button ${openLeft ? "open" : "closed"}`} onClick={() => setOpenLeft(!openLeft)}>
+      <div title={openLeft ? "Amagar menú" : "Desplegar menú"} className={`left-menu-button ${openLeft ? "open" : "closed"}`}
+        onClick={() => setOpenLeft(!openLeft)}>
         {openLeft ? (
           <FaOutdent />
         ) : (
@@ -47,7 +48,7 @@ const LeftMenu = () => {
         <div className="menu-content">
 
           <div className='menu-foto'>
-            <img src="LogoPlaca.png" alt="Logo" onClick={() => {
+            <img src="LogoPlaca.png" title='Menú principal' alt="Logo" onClick={() => {
               setOpenLeft(false);
               setOpenAgenda(false);
               setOpenColla(false);

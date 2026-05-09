@@ -283,9 +283,9 @@ function PlantillesList() {
             <div className="grid-plantilla-list">
                 {plantilles.map((plantilla) => (
                     <div className="container-plantilla">
-                        <div className="container-plantilla-text" onClick={() =>
-                            navigate(`/plantilla_crear?idPlantilla=${plantilla.id}&nomPlantilla=${plantilla.nom}`)
-                        }>
+                        <div className="container-plantilla-text" onClick={() => {
+                            navigate(`/plantilla_crear?id=${plantilla.id}`)
+                        }}>
                             <span>{plantilla.nom}</span>
                             <span>{plantilla.estructura}</span>
                         </div>
@@ -307,112 +307,114 @@ function PlantillesList() {
                     </div>
                 ))}
             </div>
-            {showModalAddPlantilla && (
-                <div className="modal-overlay-plantilles">
-                    <div className="modal-plantilles">
-                        <h2>
-                            {"Nova plantilla"}
-                        </h2>
-                        <div className="input-group-plantilles">
-                            <Input
-                                name="name"
-                                type="text"
-                                placeholder="Nom"
-                                value={modalTags.nom}
-                                onChange={(e) =>
-                                    setModalTags({ ...modalTags, nom: e.target.value })
-                                }
-                                inputTitle="Nom"
-                                readOnly={isModify}
-                            />
-                            <div className="estructura-selector-plantilles">
+            {
+                showModalAddPlantilla && (
+                    <div className="modal-overlay-plantilles">
+                        <div className="modal-plantilles">
+                            <h2>
+                                {"Nova plantilla"}
+                            </h2>
+                            <div className="input-group-plantilles">
+                                <Input
+                                    name="name"
+                                    type="text"
+                                    placeholder="Nom"
+                                    value={modalTags.nom}
+                                    onChange={(e) =>
+                                        setModalTags({ ...modalTags, nom: e.target.value })
+                                    }
+                                    inputTitle="Nom"
+                                    readOnly={isModify}
+                                />
+                                <div className="estructura-selector-plantilles">
 
-                                <label>Estructura</label>
-                                <select
-                                    value={isNewStructure ? "nova" : modalTags.estructura}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
+                                    <label>Estructura</label>
+                                    <select
+                                        value={isNewStructure ? "nova" : modalTags.estructura}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
 
-                                        if (value === "nova") {
-                                            setIsNewStructure(true);
-                                            setModalTags({ ...modalTags, estructura: "" });
-                                        } else {
-                                            setIsNewStructure(false);
-                                            setModalTags({ ...modalTags, estructura: value });
-                                        }
-                                    }}
-                                >
-                                    <option value="">Selecciona una estructura</option>
+                                            if (value === "nova") {
+                                                setIsNewStructure(true);
+                                                setModalTags({ ...modalTags, estructura: "" });
+                                            } else {
+                                                setIsNewStructure(false);
+                                                setModalTags({ ...modalTags, estructura: value });
+                                            }
+                                        }}
+                                    >
+                                        <option value="">Selecciona una estructura</option>
 
-                                    {estructures.map((item) => (
-                                        <option key={item.estructura} value={item.estructura}>
-                                            {item.estructura}
-                                        </option>
-                                    ))}
+                                        {estructures.map((item) => (
+                                            <option key={item.estructura} value={item.estructura}>
+                                                {item.estructura}
+                                            </option>
+                                        ))}
 
-                                    <option value="nova">+ Nova estructura</option>
-                                </select>
+                                        <option value="nova">+ Nova estructura</option>
+                                    </select>
 
-                                {isNewStructure && (
-                                    <Input
-                                        name="nova_estructura"
-                                        type="text"
-                                        placeholder="Nom nova estructura"
-                                        value={modalTags.estructura}
-                                        onChange={(e) =>
-                                            setModalTags({ ...modalTags, estructura: e.target.value })
-                                        }
-                                        inputTitle="Nova estructura"
-                                    />
-                                )}
+                                    {isNewStructure && (
+                                        <Input
+                                            name="nova_estructura"
+                                            type="text"
+                                            placeholder="Nom nova estructura"
+                                            value={modalTags.estructura}
+                                            onChange={(e) =>
+                                                setModalTags({ ...modalTags, estructura: e.target.value })
+                                            }
+                                            inputTitle="Nova estructura"
+                                        />
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                        {error && (
-                            <div className="error-message">
-                                {error}
-                            </div>
-                        )}
-                        <div>Descripció</div>
-                        <div className="input-group-plantilles">
-                            <textarea
-                                placeholder="Descripció"
-                                value={modalTags.descripcio}
-                                onChange={(e) =>
-                                    setModalTags({ ...modalTags, descripcio: e.target.value })
-                                }
-                            />
-                        </div>
-                        <div className="modal-buttons-plantilles">
-
-                            {!isModify ? (
-                                <>
-                                    <Button
-                                        text={"Afegir plantilla"}
-                                        icon={<FaPlusSquare />}
-                                        action={createPlantilla}
-                                    />
-                                </>
-                            ) : (
-                                <>
-                                    <Button
-                                        text={"Modificar informació"}
-                                        icon={<FaPencilAlt />}
-                                        action={() => { modifyInfoPlantilla(currentPlantillaId, false) }}
-                                    />
-                                </>
+                            {error && (
+                                <div className="error-message">
+                                    {error}
+                                </div>
                             )}
+                            <div>Descripció</div>
+                            <div className="input-group-plantilles">
+                                <textarea
+                                    placeholder="Descripció"
+                                    value={modalTags.descripcio}
+                                    onChange={(e) =>
+                                        setModalTags({ ...modalTags, descripcio: e.target.value })
+                                    }
+                                />
+                            </div>
+                            <div className="modal-buttons-plantilles">
+
+                                {!isModify ? (
+                                    <>
+                                        <Button
+                                            text={"Afegir plantilla"}
+                                            icon={<FaPlusSquare />}
+                                            action={createPlantilla}
+                                        />
+                                    </>
+                                ) : (
+                                    <>
+                                        <Button
+                                            text={"Modificar informació"}
+                                            icon={<FaPencilAlt />}
+                                            action={() => { modifyInfoPlantilla(currentPlantillaId, false) }}
+                                        />
+                                    </>
+                                )}
 
 
-                            <Button
-                                text="Cancelar"
-                                icon={<FaTimesCircle />}
-                                action={() => { resetModal(); }}
-                            />
+                                <Button
+                                    text="Cancelar"
+                                    icon={<FaTimesCircle />}
+                                    action={() => { resetModal(); }}
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     )
 }
 

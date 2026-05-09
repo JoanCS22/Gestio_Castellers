@@ -285,6 +285,12 @@
 
     id_colla BIGINT NOT NULL,
 
+    pinya BOOLEAN NOT NULL DEFAULT TRUE,
+    tronc BOOLEAN NOT NULL DEFAULT TRUE,
+    folre BOOLEAN NOT NULL DEFAULT FALSE,
+    manilles BOOLEAN NOT NULL DEFAULT FALSE,
+    puntals BOOLEAN NOT NULL DEFAULT FALSE;
+
     data_creacio TIMESTAMPTZ DEFAULT now(),
     data_actualitzacio TIMESTAMPTZ DEFAULT now()
 
