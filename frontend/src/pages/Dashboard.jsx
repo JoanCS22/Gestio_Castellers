@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 
 import { getPermissions } from "../utils/utils.jsx"
 
-import { FaPencilAlt, FaUsers, FaRegEye, FaCalendarAlt, FaCheck, FaTimes, FaQuestion } from "react-icons/fa";
+import {
+    FaPencilAlt, FaUsers, FaRegEye, FaCalendarAlt, FaCheck, FaTimes,
+    FaQuestion, FaBandAid, FaClipboardList
+} from "react-icons/fa";
 
 import TopMenu from "../components/TopMenu";
 import Button from "../components/Button";
@@ -218,7 +221,13 @@ function Dashboard() {
                         </div>
                     </div>
                     <div className="dashboard-grid-proves">
-
+                        <div className="dashboard-grid-propers-esdeveniments-title" onClick={() => {
+                            navigate("/proves");
+                        }}>
+                            <span>{`Proves ${futurs[0].nom}`}</span>
+                            <FaClipboardList />
+                        </div>
+                        <hr />
                     </div>
                 </div>
 

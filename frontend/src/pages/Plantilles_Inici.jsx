@@ -217,6 +217,7 @@ function PlantillesList() {
                 "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify({
+                nom: modalTags.nom,
                 descripcio: modalTags.descripcio,
                 estructura: modalTags.estructura,
                 favorita: favoriteValue
@@ -360,7 +361,6 @@ function PlantillesList() {
                                     setModalTags({ ...modalTags, nom: e.target.value })
                                 }
                                 inputTitle="Nom"
-                                readOnly={isModify}
                             />
                             <div className="estructura-selector-plantilles">
 

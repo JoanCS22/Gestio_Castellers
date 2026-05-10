@@ -11,7 +11,8 @@ const getPlantillesByColla = async (req, res) => {
         const result = await client.query(
             `SELECT *
              FROM plantilles 
-             WHERE id_colla = $1`,
+             WHERE id_colla = $1
+             ORDER BY favorita DESC`,
             [id_colla]
         );
 
@@ -127,7 +128,7 @@ const modifyInfoPlantilla = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { descripcio, estructura, favorita } = req.body;
+        const { nom, descripcio, estructura, favorita } = req.body;
 
         const idPlantilla = req.query.id;
         const action = req.query.action;
@@ -147,10 +148,10 @@ const modifyInfoPlantilla = async (req, res) => {
         } else {
             result = await client.query(
                 `UPDATE plantilles 
-                 SET descripcio = $2, estructura = $3
+                 SET descripcio = $2, estructura = $3, nom = $4
                  WHERE id = $1
                  RETURNING *`,
-                [idPlantilla, descripcio, estructura]
+                [idPlantilla, descripcio, estructura, nom]
             );
         }
 

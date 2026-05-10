@@ -8,9 +8,10 @@ import MembresColla from "./pages/Colla_Membres";
 import EsdevenimentsList from "./pages/Esdeveniments_Inici";
 import EsdevenimentsInfo from "./pages/Esdeveniments_Info";
 import LlistatAssistencia from "./pages/Assistencia_Llistat";
-import AssistenciaUsuari from "./pages/Assistencia_Usuari"
-import PlantillesList from "./pages/Plantilles_Inici"
-import Plantilla from "./pages/Plantilles_Crear"
+import AssistenciaUsuari from "./pages/Assistencia_Usuari";
+import PlantillesList from "./pages/Plantilles_Inici";
+import Plantilla from "./pages/Plantilles_Crear";
+import ProvesInici from "./pages/Proves_Inici";
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
       <Route path="/plantilles" element={<PlantillesList />} />
       <Route path="/plantilla_crear" element={<Plantilla />} />
 
+      <Route path="/proves" element={<ProvesInici />} />
     </Routes>
   );
 }
