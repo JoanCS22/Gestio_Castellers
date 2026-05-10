@@ -1,0 +1,8 @@
+.button-section-proves {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+    gap: 70px;  
+}

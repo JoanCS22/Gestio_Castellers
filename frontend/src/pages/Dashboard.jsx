@@ -222,9 +222,9 @@ function Dashboard() {
                     </div>
                     <div className="dashboard-grid-proves">
                         <div className="dashboard-grid-propers-esdeveniments-title" onClick={() => {
-                            navigate("/proves");
+                            navigate(`/proves?idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`);
                         }}>
-                            <span>{`Proves ${futurs[0].nom}`}</span>
+                            <span>{futurs.length > 0 ? futurs[0].nom : "No hi ha esdeveniments"}</span>
                             <FaClipboardList />
                         </div>
                         <hr />
