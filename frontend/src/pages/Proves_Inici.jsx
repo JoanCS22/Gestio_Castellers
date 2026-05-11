@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Draggable from "react-draggable";
 
 import {
-    FaPlusSquare, FaClipboardList, FaSearch, FaTimesCircle, FaCheckCircle, FaHashtag
+    FaPlusSquare, FaClipboardList, FaSearch, FaTimesCircle, FaCheckCircle, FaHashtag,
+    FaRegStar 
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -46,7 +47,7 @@ function ProvesInici() {
         xarxa: false,
         public: false
     });
-    const [selectedPlantilla, setSelectedPlantilla] = useState(null);
+    const [selectedPlantilla, setSelectedPlantilla] = useState("");
 
     const [searchResults, setSearchResults] = useState([]);
 
@@ -71,7 +72,7 @@ function ProvesInici() {
 
     const resetModal = () => {
         setShowModalAddProva(false);
-        setSelectedPlantilla(null);
+        setSelectedPlantilla("");
 
         setModalTags({
             nom: "",
@@ -177,8 +178,7 @@ function ProvesInici() {
 
         const compulsoryInputs = {
             nom: "Nom",
-            estructura: "Estructura",
-            plantilla: "Plantilla"
+            estructura: "Estructura"
         };
 
         for (const key in compulsoryInputs) {
@@ -186,6 +186,11 @@ function ProvesInici() {
                 setError(`El camp ${compulsoryInputs[key]} és obligatori`);
                 return;
             }
+        }
+
+        if (!selectedPlantilla) {
+            setError("El camp Plantilla és obligatori");
+            return;
         }
 
         const response = await fetch(`http://localhost:5000/proves/createProva?id=${idEsdeveniment}`, {
@@ -405,7 +410,7 @@ function ProvesInici() {
                         <div className="modal-checkboxes-proves">
 
                             <div className="input-item-proves">
-                                <label className="field-prova-plantilla">Rol</label>
+                                <label className="field-prova-plantilla">Plantilla</label>
                                 <div className="select-wrapper-plantilla">
                                     <select
                                         value={selectedPlantilla}
