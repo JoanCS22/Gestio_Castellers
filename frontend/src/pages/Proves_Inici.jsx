@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Draggable from "react-draggable";
 
 import {
-    FaPlusSquare, FaClipboardList, FaSearch
+    FaPlusSquare, FaClipboardList, FaSearch, FaTimesCircle, FaCheckCircle, FaHashtag
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -41,9 +41,14 @@ function ProvesInici() {
         nom: "",
         comentari: "",
         estructura: "",
-        plantilla: ""
+        plantilla: "",
+        xarxa: false,
+        public: false
     });
-    const [visible, setVisible] = useState(false);
+    const [idSelectedPlantilla, setIdSelectedPlantilla] = useState(null);
+    const [selectedPlantilla, setSelectedPlantilla] = useState(null);
+    const [selectedModalStructure, setSelectedModalStructure] = useState(null);
+
     const [searchResults, setSearchResults] = useState([]);
 
     const [plantilles, setPlantilles] = useState([]);
@@ -154,6 +159,97 @@ function ProvesInici() {
         }
     }
 
+    const createProva = async () => {
+
+        const token = localStorage.getItem("token");
+
+        const compulsoryInputs = {
+            nom: "Nom",
+            estructura: "Estructura",
+            plantilla: "Plantilla"
+        };
+
+        for (const key in compulsoryInputs) {
+            if (!modalTags[key] || modalTags[key].toString().trim() === "") {
+                setError(`El camp ${compulsoryInputs[key]} és obligatori`);
+                return;
+            }
+        }
+
+        const response = await fetch(`http://localhost:5000/proves/createProva?id=${idEsdeveniment}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                nom: modalTags.nom,
+                comentari: modalTags.comentari,
+                estructura: modalTags.estructura,
+                public: modalTags.public,
+                xarxa: modalTags.xarxa,
+                estructura: modalTags.estructura,
+                id_plantilla: idSelectedPlantilla
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Create prova OK");
+
+            await getProvesByEsdeveniment();
+
+            resetModal();
+            showTempMessage("Prova creada correctament.");
+        } else {
+            console.log("{DEBUG} Create prova KO");
+            setError(data.message);
+        }
+    }
+
+    const modifyInfoProva = async (idPlantilla, action, favoriteValue = false, fetaValue = false) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/proves/modifyInfoProva?id=${idPlantilla}&action=${action}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                favorita: favoriteValue,
+                feta: fetaValue
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Modify prova OK");
+
+            await getProvesByEsdeveniment();
+
+            showTempMessage("Prova modificada.");
+        } else {
+            console.log("{DEBUG} Modify prova KO");
+            setError(data.message);
+        }
+    }
+
     useEffect(() => {
         getCollesStructures();
         getProvesByEsdeveniment();
@@ -219,21 +315,39 @@ function ProvesInici() {
                     )}
                 </div>
             </div>
-            <div className="grid-plantilla-list">
+            <div className="grid-proves-list">
                 {proves.map((prova) => (
-                    <div className="container-plantilla">
-                        <div className="container-plantilla-text" onClick={() => {
+                    <div className="container-proves">
+                        <div className="container-proves-text" onClick={() => {
                             //navigate(`/plantilla_crear?id=${prova.id}`)
                         }}>
                             <span>{prova.nom}</span>
                             <span>{prova.estructura}</span>
                         </div>
-                        <div className="container-plantilla-icons">
-                            <FaRegStar title="Afegir a favorits" className={prova.favorita ? "favorit-actiu" : ""} onClick={() => {
-                                //modifyInfoPlantilla(prova.id, "favorite", !prova.favorita);
-                            }} />
-                            <FaPencilAlt title="Modificar realitzada" onClick={() => {
-                                //modifyInfoPlantilla(prova.id, "favorite", !prova.favorita);
+                        <div className="container-proves-icons">
+                            {prova.xarxa && (
+                                <>
+                                    <FaHashtag className="icon-xarxa" title="Xarxa"/>
+                                </>
+                            )}
+                            {prova.feta ? (
+                                <>
+                                    <FaCheckCircle title="Indicar que no s'ha fet" className="icon-feta" 
+                                    onClick={() => {
+                                        //modifyInfoProva(prova.id, "fet", true);
+                                    }} />
+                                </>
+                            ) : (
+                                <>
+                                    <FaTimesCircle title="Indicar que s'ha fet" className="icon-no-feta" 
+                                    onClick={() => {
+                                        //modifyInfoProva(prova.id, "fet", false);
+                                    }} />
+                                </>
+                            )}
+                            <FaRegStar title="Afegir a favorits" className={`icon-favorit ${prova.favorita ? "favorit-actiu" : ""}`} 
+                            onClick={() => {
+                                //modifyInfoProva(prova.id, "favorite", !prova.favorita);
                             }} />
                         </div>
                     </div>
