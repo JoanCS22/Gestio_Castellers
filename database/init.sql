@@ -265,6 +265,8 @@
     estructura VARCHAR(255),
     indicacions JSONB NOT NULL DEFAULT '{}',
 
+    ordre INT NOT NULL;
+    
     data_creacio TIMESTAMPTZ DEFAULT now(),
     data_actualitzacio TIMESTAMPTZ DEFAULT now(),
 
