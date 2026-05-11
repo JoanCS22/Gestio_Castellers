@@ -95,8 +95,69 @@ function ProvesInici() {
         }
     }
 
+    const getCollesPlantilles = async () => {
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        const response = await fetch(`http://localhost:5000/plantilles/getPlantillesByColla?id=${idColla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setPlantilles(data);
+            console.log("{DEBUG} Get colla's plantilles OK")
+        } else {
+            console.log("{DEBUG} Get colla's plantilles KO")
+            setError(data.message);
+        }
+    }
+
+    const getProvesByEsdeveniment = async () => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/proves/getProvesByEsdeveniment?id=${idEsdeveniment}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setProves(data);
+            console.log("{DEBUG} Get esdeveniments's proves OK")
+        } else {
+            console.log("{DEBUG} Get esdeveniments's proves KO")
+            setError(data.message);
+        }
+    }
+
     useEffect(() => {
         getCollesStructures();
+        getProvesByEsdeveniment();
+        getCollesPlantilles();
     }, []);
 
     return (
@@ -157,6 +218,26 @@ function ProvesInici() {
                         </div>
                     )}
                 </div>
+            </div>
+            <div className="grid-plantilla-list">
+                {proves.map((prova) => (
+                    <div className="container-plantilla">
+                        <div className="container-plantilla-text" onClick={() => {
+                            //navigate(`/plantilla_crear?id=${prova.id}`)
+                        }}>
+                            <span>{prova.nom}</span>
+                            <span>{prova.estructura}</span>
+                        </div>
+                        <div className="container-plantilla-icons">
+                            <FaRegStar title="Afegir a favorits" className={prova.favorita ? "favorit-actiu" : ""} onClick={() => {
+                                //modifyInfoPlantilla(prova.id, "favorite", !prova.favorita);
+                            }} />
+                            <FaPencilAlt title="Modificar realitzada" onClick={() => {
+                                //modifyInfoPlantilla(prova.id, "favorite", !prova.favorita);
+                            }} />
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     )

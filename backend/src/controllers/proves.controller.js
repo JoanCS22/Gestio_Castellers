@@ -106,7 +106,7 @@ const modifyInfoProva = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { nom, comentari, public, xarxa, estructura, id_plantilla, ordre, indicacions, favorita } = req.body;
+        const { nom, comentari, public, xarxa, estructura, id_plantilla, ordre, indicacions, favorita, feta } = req.body;
 
         const idProva = req.query.id;
         const action = req.query.action;
@@ -115,30 +115,43 @@ const modifyInfoProva = async (req, res) => {
 
         let result;
 
-        if (action === "favorite") {
-            result = await client.query(
-                `UPDATE proves 
-                 SET favorita = $2
-                 WHERE id = $1
-                 RETURNING *`,
-                [idProva, favorita]
-            );
-        } else if (action === "ordre") {
-            result = await client.query(
-                `UPDATE proves 
-                 SET ordre = $2
-                 WHERE id = $1
-                 RETURNING *`,
-                [idProva, ordre]
-            );
-        } else {
-            result = await client.query(
-                `UPDATE proves 
-                 SET nom, comentari, public, xarxa, estructura, id_plantilla, indicacions, data_actualització = NOW()
-                 WHERE id = $1
-                 RETURNING *`,
-                [idProva, nom, comentari, public, xarxa, estructura, id_plantilla, indicacions]
-            );
+        switch (action) {
+            case "favorite":
+                result = await client.query(
+                    `UPDATE proves 
+                    SET favorita = $2
+                    WHERE id = $1
+                    RETURNING *`,
+                    [idProva, favorita]
+                );
+                break;
+            case "ordre":
+                result = await client.query(
+                    `UPDATE proves 
+                    SET ordre = $2
+                    WHERE id = $1
+                    RETURNING *`,
+                    [idProva, ordre]
+                );
+                break;
+            case "fet":
+                result = await client.query(
+                    `UPDATE proves 
+                    SET feta = $2
+                    WHERE id = $1
+                    RETURNING *`,
+                    [idProva, feta]
+                );
+                break;
+            default:
+                result = await client.query(
+                    `UPDATE proves 
+                    SET nom, comentari, public, xarxa, estructura, id_plantilla, indicacions, data_actualització = NOW()
+                    WHERE id = $1
+                    RETURNING *`,
+                    [idProva, nom, comentari, public, xarxa, estructura, id_plantilla, indicacions]
+                );
+                break;
         }
 
         await client.query("COMMIT");
