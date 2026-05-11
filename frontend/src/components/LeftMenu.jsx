@@ -72,7 +72,7 @@ const LeftMenu = () => {
                   )}
                   {hasAccess("proves") && (
                     <div onClick={() => {
-
+                      navigate(`/proves?idEsdeveniment=${currentEvent.id}&nomEsdeveniment=${encodeURIComponent(currentEvent.nom)}`);
                     }}>Proves</div>
                   )}
                   {hasAccess("assistencia") && (

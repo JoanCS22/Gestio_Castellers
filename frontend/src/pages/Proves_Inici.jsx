@@ -4,7 +4,7 @@ import Draggable from "react-draggable";
 
 import {
     FaPlusSquare, FaClipboardList, FaSearch, FaTimesCircle, FaCheckCircle, FaHashtag,
-    FaRegStar 
+    FaRegStar
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -333,40 +333,44 @@ function ProvesInici() {
             </div>
             <div className="grid-proves-list">
                 {proves.map((prova) => (
-                    <div className="container-proves">
-                        <div className="container-proves-text" onClick={() => {
-                            //navigate(`/plantilla_crear?id=${prova.id}`)
-                        }}>
-                            <span>{prova.nom}</span>
-                            <span>{prova.estructura}</span>
-                        </div>
-                        <div className="container-proves-icons">
-                            {prova.xarxa && (
-                                <>
-                                    <FaHashtag className="icon-xarxa" title="Xarxa" />
-                                </>
-                            )}
-                            {prova.feta ? (
-                                <>
-                                    <FaCheckCircle title="Indicar que no s'ha fet" className="icon-feta"
+                    (hasWritePermission("proves") || prova.public) && (
+                        <>
+                            <div className="container-proves">
+                                <div className="container-proves-text" onClick={() => {
+                                    //navigate(`/plantilla_crear?id=${prova.id}`)
+                                }}>
+                                    <span>{prova.nom}</span>
+                                    <span>{prova.estructura}</span>
+                                </div>
+                                <div className="container-proves-icons">
+                                    {prova.xarxa && (
+                                        <>
+                                            <FaHashtag className="icon-xarxa" title="Xarxa" />
+                                        </>
+                                    )}
+                                    {prova.feta ? (
+                                        <>
+                                            <FaCheckCircle title="No realitzada?" className="icon-feta"
+                                                onClick={() => {
+                                                    modifyInfoProva(prova.id, "fet", false, false);
+                                                }} />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FaTimesCircle title="Realitzada?" className="icon-no-feta"
+                                                onClick={() => {
+                                                    modifyInfoProva(prova.id, "fet", false, true);
+                                                }} />
+                                        </>
+                                    )}
+                                    <FaRegStar title={prova.favorita ? "Treure de favorits" : "Afegir a favorits"} className={`icon-favorit ${prova.favorita ? "favorit-actiu" : ""}`}
                                         onClick={() => {
-                                            //modifyInfoProva(prova.id, "fet", true);
+                                            modifyInfoProva(prova.id, "favorite", !prova.favorita);
                                         }} />
-                                </>
-                            ) : (
-                                <>
-                                    <FaTimesCircle title="Indicar que s'ha fet" className="icon-no-feta"
-                                        onClick={() => {
-                                            //modifyInfoProva(prova.id, "fet", false);
-                                        }} />
-                                </>
-                            )}
-                            <FaRegStar title="Afegir a favorits" className={`icon-favorit ${prova.favorita ? "favorit-actiu" : ""}`}
-                                onClick={() => {
-                                    //modifyInfoProva(prova.id, "favorite", !prova.favorita);
-                                }} />
-                        </div>
-                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )
                 ))}
             </div>
             {showModalAddProva && (
