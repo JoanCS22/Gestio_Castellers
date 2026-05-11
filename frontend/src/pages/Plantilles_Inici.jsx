@@ -349,7 +349,7 @@ function PlantillesList() {
                 <div className="modal-overlay-plantilles">
                     <div className="modal-plantilles">
                         <h2>
-                            {"Nova plantilla"}
+                            {!isModify ? "Nova plantilla": "Editar informació plantilla"}
                         </h2>
                         <div className="input-group-plantilles">
                             <Input

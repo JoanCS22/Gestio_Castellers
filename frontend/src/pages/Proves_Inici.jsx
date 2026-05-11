@@ -12,6 +12,8 @@ import "./Proves_Inici.css"
 
 import TopMenu from "../components/TopMenu.jsx";
 import Button from "../components/Button.jsx";
+import Input from "../components/Input.jsx";
+
 import { useSyncExternalStore } from "react";
 
 function ProvesInici() {
@@ -41,13 +43,10 @@ function ProvesInici() {
         nom: "",
         comentari: "",
         estructura: "",
-        plantilla: "",
         xarxa: false,
         public: false
     });
-    const [idSelectedPlantilla, setIdSelectedPlantilla] = useState(null);
     const [selectedPlantilla, setSelectedPlantilla] = useState(null);
-    const [selectedModalStructure, setSelectedModalStructure] = useState(null);
 
     const [searchResults, setSearchResults] = useState([]);
 
@@ -68,6 +67,19 @@ function ProvesInici() {
                 ? prev.filter(v => v !== value)
                 : [...prev, value]
         );
+    };
+
+    const resetModal = () => {
+        setShowModalAddProva(false);
+        setSelectedPlantilla(null);
+
+        setModalTags({
+            nom: "",
+            descripcio: "",
+            estructura: "",
+        });
+
+        setError("");
     };
 
     const getCollesStructures = async () => {
@@ -185,11 +197,10 @@ function ProvesInici() {
             body: JSON.stringify({
                 nom: modalTags.nom,
                 comentari: modalTags.comentari,
-                estructura: modalTags.estructura,
                 public: modalTags.public,
                 xarxa: modalTags.xarxa,
                 estructura: modalTags.estructura,
-                id_plantilla: idSelectedPlantilla
+                id_plantilla: selectedPlantilla
             }),
         });
 
@@ -327,32 +338,130 @@ function ProvesInici() {
                         <div className="container-proves-icons">
                             {prova.xarxa && (
                                 <>
-                                    <FaHashtag className="icon-xarxa" title="Xarxa"/>
+                                    <FaHashtag className="icon-xarxa" title="Xarxa" />
                                 </>
                             )}
                             {prova.feta ? (
                                 <>
-                                    <FaCheckCircle title="Indicar que no s'ha fet" className="icon-feta" 
-                                    onClick={() => {
-                                        //modifyInfoProva(prova.id, "fet", true);
-                                    }} />
+                                    <FaCheckCircle title="Indicar que no s'ha fet" className="icon-feta"
+                                        onClick={() => {
+                                            //modifyInfoProva(prova.id, "fet", true);
+                                        }} />
                                 </>
                             ) : (
                                 <>
-                                    <FaTimesCircle title="Indicar que s'ha fet" className="icon-no-feta" 
-                                    onClick={() => {
-                                        //modifyInfoProva(prova.id, "fet", false);
-                                    }} />
+                                    <FaTimesCircle title="Indicar que s'ha fet" className="icon-no-feta"
+                                        onClick={() => {
+                                            //modifyInfoProva(prova.id, "fet", false);
+                                        }} />
                                 </>
                             )}
-                            <FaRegStar title="Afegir a favorits" className={`icon-favorit ${prova.favorita ? "favorit-actiu" : ""}`} 
-                            onClick={() => {
-                                //modifyInfoProva(prova.id, "favorite", !prova.favorita);
-                            }} />
+                            <FaRegStar title="Afegir a favorits" className={`icon-favorit ${prova.favorita ? "favorit-actiu" : ""}`}
+                                onClick={() => {
+                                    //modifyInfoProva(prova.id, "favorite", !prova.favorita);
+                                }} />
                         </div>
                     </div>
                 ))}
             </div>
+            {showModalAddProva && (
+                <div className="modal-overlay-proves">
+                    <div className="modal-proves">
+                        <h2>
+                            {"Nova prova"}
+                        </h2>
+                        <div className="input-group-proves">
+                            <Input
+                                name="name"
+                                type="text"
+                                placeholder="Nom"
+                                value={modalTags.nom}
+                                onChange={(e) =>
+                                    setModalTags({ ...modalTags, nom: e.target.value })
+                                }
+                                inputTitle="Nom"
+                            />
+                            <Input
+                                name="estructura"
+                                type="text"
+                                placeholder="Estructura"
+                                value={modalTags.estructura}
+                                onChange={(e) =>
+                                    setModalTags({ ...modalTags, estructura: e.target.value })
+                                }
+                                inputTitle="Estructura"
+                            />
+                        </div>
+                        <div>Comentari</div>
+                        <div className="input-group-proves">
+                            <textarea
+                                placeholder="Comentari"
+                                value={modalTags.comentari}
+                                onChange={(e) =>
+                                    setModalTags({ ...modalTags, comentari: e.target.value })
+                                }
+                            />
+                        </div>
+                        <div className="modal-checkboxes-proves">
+
+                            <div className="input-item-proves">
+                                <label className="field-prova-plantilla">Rol</label>
+                                <div className="select-wrapper-plantilla">
+                                    <select
+                                        value={selectedPlantilla}
+                                        onChange={(e) => setSelectedPlantilla(e.target.value)}
+                                        className="custom-select-prova-plantilla"
+                                    >
+                                        <option value="">Selecciona plantilla</option>
+
+                                        {plantilles.map(r => (
+                                            <option key={r.id} value={String(r.id)}>
+                                                {r.nom}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="checkbox-item-proves">
+                                <span>Xarxa</span>
+                                <input
+                                    type="checkbox"
+                                    checked={modalTags.xarxa}
+                                    onChange={(e) => setModalTags({ ...modalTags, xarxa: e.target.checked })}
+                                />
+                            </div>
+
+                            <div className="checkbox-item-proves">
+                                <span>Públic?</span>
+                                <input
+                                    type="checkbox"
+                                    checked={modalTags.public}
+                                    onChange={(e) => setModalTags({ ...modalTags, public: e.target.checked })}
+                                />
+                            </div>
+                        </div>
+                        {error && (
+                            <div className="error-message">
+                                {error}
+                            </div>
+                        )}
+                        <div className="modal-buttons-proves">
+
+                            <Button
+                                text={"Crear prova"}
+                                icon={<FaPlusSquare />}
+                                action={createProva}
+                            />
+
+                            <Button
+                                text="Cancelar"
+                                icon={<FaTimesCircle />}
+                                action={() => { resetModal(); }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
