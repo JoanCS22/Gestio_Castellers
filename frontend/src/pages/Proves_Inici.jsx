@@ -299,6 +299,7 @@ function ProvesInici() {
                             icon={<FaClipboardList />}
                             action={() => {
                                 setShowModalAddProva(false);
+                                navigate(`/proves_llistat?idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`);
                             }}
                         />
                     )}

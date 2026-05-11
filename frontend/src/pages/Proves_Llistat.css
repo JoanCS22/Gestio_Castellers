@@ -1,0 +1,21 @@
+/* TAULA ESDEVENIMENTS */
+
+.table-llistat-proves {
+    border-collapse: collapse;
+    width: 80%;
+    margin: 20px auto;
+    table-layout: fixed;
+}
+
+.table-llistat-proves table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.table-llistat-proves th,
+.table-llistat-proves td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}

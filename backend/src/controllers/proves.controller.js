@@ -12,7 +12,7 @@ const getProvesByEsdeveniment = async (req, res) => {
             `SELECT *
              FROM proves 
              WHERE id_esdeveniment = $1
-             ORDER BY favorita DESC`,
+             ORDER BY ordre ASC`,
             [id_esdeveniment]
         );
 
@@ -78,7 +78,7 @@ const createProva = async (req, res) => {
             [id_esdeveniment]
         );
 
-        const ordreFinal = ordre.rows[0]?.ordre || 1;
+        const ordreFinal = ordre.rows[0]?.ordre + 1 || 1;
 
         const result = await client.query(
             `INSERT INTO proves (id_esdeveniment, nom, comentari, public, xarxa, estructura, id_plantilla, ordre)
