@@ -13,6 +13,7 @@ import PlantillesList from "./pages/Plantilles_Inici";
 import Plantilla from "./pages/Plantilles_Crear";
 import ProvesInici from "./pages/Proves_Inici";
 import ProvesLlistat from "./pages/Proves_Llistat";
+import ProvesBoard from "./pages/Proves_Board";
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
 
       <Route path="/proves" element={<ProvesInici />} />
       <Route path="/proves_llistat" element={<ProvesLlistat />} />
+      <Route path="/proves_board" element={<ProvesBoard />} />
     </Routes>
   );
 }

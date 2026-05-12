@@ -5,7 +5,7 @@ import { getPermissions } from "../utils/utils.jsx"
 
 import {
     FaPencilAlt, FaUsers, FaRegEye, FaCalendarAlt, FaCheck, FaTimes,
-    FaQuestion, FaBandAid, FaClipboardList
+    FaQuestion, FaBandAid, FaClipboardList, FaHashtag, FaCheckCircle, FaTimesCircle
 } from "react-icons/fa";
 
 import TopMenu from "../components/TopMenu";
@@ -25,6 +25,7 @@ function Dashboard() {
     const hasReadPermission = (key) => permissions[key] === "R";
 
     const [futurs, setFuturs] = useState([]);
+    const [futurProves, setFuturProves] = useState([]);
 
     const [topMenuReady, setTopMenuReady] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
@@ -124,6 +125,35 @@ function Dashboard() {
         }
     }
 
+    const getProvesByEsdeveniment = async (idEsdeveniment) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/proves/getProvesByEsdeveniment?id=${idEsdeveniment}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setFuturProves(data);
+            console.log("{DEBUG} Get esdeveniments's proves OK")
+        } else {
+            console.log("{DEBUG} Get esdeveniments's proves KO")
+            setError(data.message);
+        }
+    }
+
     useEffect(() => {
         if (!refreshKey) return;
         getCollesFutureEsdeveniments();
@@ -134,6 +164,7 @@ function Dashboard() {
             futurs.forEach(e => {
                 getAssistenciaByEsdeveniment(e.id);
             });
+            getProvesByEsdeveniment(futurs[0].id);
         }
     }, [futurs]);
 
@@ -221,13 +252,53 @@ function Dashboard() {
                         </div>
                     </div>
                     <div className="dashboard-grid-proves">
-                        <div className="dashboard-grid-propers-esdeveniments-title" onClick={() => {
+                        <div className="upper-proves-part" onClick={() => {
                             navigate(`/proves?idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`);
                         }}>
-                            <span>{futurs.length > 0 ? futurs[0].nom : "No hi ha esdeveniments"}</span>
-                            <FaClipboardList />
+                            {futurs.length > 0 ? (
+                                <>
+                                    <div className="dashboard-grid-propers-esdeveniments-title">
+                                        <span>{futurs.length > 0 ? `Proves ${futurs[0].nom}` : "No hi ha proves"}</span>
+                                        <FaClipboardList />
+                                    </div>
+                                </>) : (<>
+                                    <span>Crea un esdeveniment per crear proves</span>
+                                </>)}
                         </div>
                         <hr />
+                        <div className="lower-proves-part">
+                            <div className="grid-proves-list-dashboard">
+                                {futurProves.map((prova) => (
+                                    (hasWritePermission("proves") || prova.public) && (
+                                        <>
+                                            <div className="container-proves-dashboard" onClick={() => {
+                                                    //navigate(`/plantilla_crear?id=${prova.id}`)
+                                                }}>
+                                                <div className="container-proves-text-dashboard">
+                                                    <span>{prova.nom}</span>
+                                                </div>
+                                                <div className="container-proves-icons-dashboard">
+                                                    {prova.xarxa && (
+                                                        <>
+                                                            <FaHashtag title="Amb xarxa" />
+                                                        </>
+                                                    )}
+                                                    {prova.feta ? (
+                                                        <>
+                                                            <FaCheckCircle title="Realitzada" className="icon-feta-dashboard" />
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <FaTimesCircle title="No realitzada" className="icon-no-feta-dashboard" />
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </>
+                                    )
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
