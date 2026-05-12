@@ -48,7 +48,7 @@ const getProvaById = async (req, res) => {
 
         await client.query("COMMIT");
 
-        res.status(200).json(result.rows);
+        res.status(200).json(result.rows[0]);
 
     } catch (error) {
         await client.query("ROLLBACK");

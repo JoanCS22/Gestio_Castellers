@@ -272,7 +272,7 @@ function Dashboard() {
                                     (hasWritePermission("proves") || prova.public) && (
                                         <>
                                             <div className="container-proves-dashboard" onClick={() => {
-                                                    //navigate(`/plantilla_crear?id=${prova.id}`)
+                                                    navigate(`/proves_board?id=${prova.id}`)
                                                 }}>
                                                 <div className="container-proves-text-dashboard">
                                                     <span>{prova.nom}</span>

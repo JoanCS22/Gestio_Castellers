@@ -338,7 +338,7 @@ function ProvesInici() {
                         <>
                             <div className="container-proves">
                                 <div className="container-proves-text" onClick={() => {
-                                    //navigate(`/plantilla_crear?id=${prova.id}`)
+                                    navigate(`/proves_board?id=${prova.id}`)
                                 }}>
                                     <span>{prova.nom}</span>
                                     <span>{prova.estructura}</span>
