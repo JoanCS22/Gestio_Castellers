@@ -106,7 +106,7 @@ const modifyInfoProva = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { nom, comentari, public, xarxa, estructura, id_plantilla, ordre, indicacions, favorita, feta } = req.body;
+        const { nom, comentari, public, xarxa, estructura, id_plantilla, indicacions, favorita, feta } = req.body;
 
         const idProva = req.query.id;
         const action = req.query.action;
@@ -123,15 +123,6 @@ const modifyInfoProva = async (req, res) => {
                     WHERE id = $1
                     RETURNING *`,
                     [idProva, favorita]
-                );
-                break;
-            case "ordre":
-                result = await client.query(
-                    `UPDATE proves 
-                    SET ordre = $2
-                    WHERE id = $1
-                    RETURNING *`,
-                    [idProva, ordre]
                 );
                 break;
             case "fet":
@@ -169,6 +160,47 @@ const modifyInfoProva = async (req, res) => {
     }
 }
 
+const updateOrder = async (req, res) => {
+
+    const client = await pool.connect();
+
+    try {
+
+        const { proves } = req.body;
+
+        await client.query("BEGIN");
+
+        for (const prova of proves) {
+
+            await client.query(
+                `UPDATE proves
+                 SET ordre = $1
+                 WHERE id = $2`,
+                [prova.ordre, prova.id]
+            );
+        }
+
+        await client.query("COMMIT");
+
+        res.status(200).json({
+            message: "Ordre actualitzat"
+        });
+
+    } catch (error) {
+
+        await client.query("ROLLBACK");
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Error actualitzant ordre"
+        });
+
+    } finally {
+        client.release();
+    }
+};
+
 const deleteProva = async (req, res) => {
     const client = await pool.connect();
 
@@ -201,5 +233,5 @@ const deleteProva = async (req, res) => {
 
 module.exports = {
     getProvesByEsdeveniment, getProvaById,
-    createProva, modifyInfoProva, deleteProva
+    createProva, modifyInfoProva, updateOrder, deleteProva
 };

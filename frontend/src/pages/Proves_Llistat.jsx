@@ -4,8 +4,7 @@ import Draggable from "react-draggable";
 
 import {
     FaPlusSquare, FaClipboardList, FaSearch, FaTimesCircle, FaCheckCircle, FaHashtag,
-    FaRegStar, FaPencilAlt,
-    FaTimes
+    FaRegStar, FaPencilAlt, FaTimes, FaChevronUp, FaChevronDown
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -38,8 +37,7 @@ function ProvesLlistat() {
 
     const [editMode, setEditMode] = useState(false);
 
-    const [newOrder, setNewOrder] = useState({});
-    const [maxNumber, setMaxNumber] = useState(1);
+    const [originalProves, setOriginalProves] = useState([]);
 
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
@@ -47,6 +45,29 @@ function ProvesLlistat() {
         setTimeout(() => {
             setTempMessage(null);
         }, 2000);
+    };
+
+    const moveProva = (id, direction) => {
+        const updated = [...proves];
+
+        const index = updated.findIndex(p => p.id === id);
+
+        if (direction === "up" && index > 0) {
+            [updated[index - 1], updated[index]] =
+                [updated[index], updated[index - 1]];
+        }
+
+        if (direction === "down" && index < updated.length - 1) {
+            [updated[index + 1], updated[index]] =
+                [updated[index], updated[index + 1]];
+        }
+
+        const reordered = updated.map((p, i) => ({
+            ...p,
+            ordre: i + 1
+        }));
+
+        setProves(reordered);
     };
 
     const getProvesByEsdeveniment = async () => {
@@ -71,7 +92,6 @@ function ProvesLlistat() {
 
         if (response.ok) {
             setProves(data);
-            setMaxNumber(Math.max(...data.map(prova => prova.ordre), 0));
             console.log("{DEBUG} Get esdeveniments's proves OK")
         } else {
             console.log("{DEBUG} Get esdeveniments's proves KO")
@@ -79,40 +99,36 @@ function ProvesLlistat() {
         }
     }
 
-    const modifyInfoProva = async (idPlantilla, action, newIndividualOrder) => {
+    const saveOrder = async () => {
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch(`http://localhost:5000/proves/modifyInfoProva?id=${idPlantilla}&action=${action}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                ordre: newIndividualOrder
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
+        const response = await fetch(
+            "http://localhost:5000/proves/updateOrder",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    proves: proves.map(p => ({
+                        id: p.id,
+                        ordre: p.ordre
+                    }))
+                })
+            }
+        );
 
         const data = await response.json();
 
         if (response.ok) {
-            console.log("{DEBUG} Modify order OK");
-
-            await getProvesByEsdeveniment();
-
-            showTempMessage("Ordre de proves modificat.");
+            showTempMessage("Ordre guardat");
+            setEditMode(false);
         } else {
-            console.log("{DEBUG} Modify order KO");
             setError(data.message);
         }
-    }
+    };
 
     useEffect(() => {
         getProvesByEsdeveniment();
@@ -136,6 +152,7 @@ function ProvesLlistat() {
                             text='Canviar ordre proves'
                             icon={<FaPencilAlt />}
                             action={() => {
+                                setOriginalProves([...proves]);
                                 setEditMode(true);
                             }}
                         />
@@ -146,7 +163,7 @@ function ProvesLlistat() {
                                 text='Guardar ordre'
                                 icon={<FaPencilAlt />}
                                 action={() => {
-                                    modifyInfoProva(prova.id, "ordre", false, false);
+                                    saveOrder();
                                     setEditMode(false);
                                 }}
                             />
@@ -154,6 +171,7 @@ function ProvesLlistat() {
                                 text='Cancelar'
                                 icon={<FaTimesCircle />}
                                 action={() => {
+                                    setProves(originalProves);
                                     setEditMode(false);
                                 }}
                             />
@@ -169,10 +187,10 @@ function ProvesLlistat() {
             <div className="table-llistat-proves">
                 <table>
                     <colgroup>
-                        <col style={{ width: "5%" }} />
-                        <col style={{ width: "20%" }} />
                         <col style={{ width: "10%" }} />
-                        <col style={{ width: "35%" }} />
+                        <col style={{ width: "15%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "45%" }} />
                         <col style={{ width: "10%" }} />
                         <col style={{ width: "10%" }} />
                     </colgroup>
@@ -188,12 +206,31 @@ function ProvesLlistat() {
                         </tr>
                     </thead>
                     <tbody>
-                        {proves.map((prova) => (
+                        {proves.map((prova, index) => (
                             <>
                                 {(prova.public || hasWritePermission("proves")) && (
                                     <>
                                         <tr key={prova.id}>
-                                            <td>{prova.ordre}</td>
+                                            <td>
+                                                {editMode ? (
+                                                    <div className="ordre-controls">
+                                                        <button
+                                                            onClick={() => moveProva(prova.id, "up")}
+                                                            disabled={index === 0}
+                                                        >
+                                                            <FaChevronUp />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => moveProva(prova.id, "down")}
+                                                            disabled={index === proves.length - 1}
+                                                        >
+                                                            <FaChevronDown />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    prova.ordre
+                                                )}
+                                            </td>
                                             <td>{prova.nom}</td>
                                             <td>{prova.estructura}</td>
                                             <td>{prova.comentari}</td>

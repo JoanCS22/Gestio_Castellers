@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { FaSave, FaTimesCircle, FaPencilAlt, FaPlusSquare, FaSearch, FaRegEye, FaUsers, FaClipboardList } from "react-icons/fa";
+import { FaSave, FaTimesCircle, FaPencilAlt, FaPlusSquare, FaSearch, FaRegEye, FaUsers, 
+    FaClipboardList, FaUserEdit } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
 
@@ -261,9 +262,9 @@ function EsdevenimentsList() {
                                                     )}
                                                     <Button
                                                         text="Proves"
-                                                        icon={<FaPencilAlt />}
+                                                        icon={<FaClipboardList />}
                                                         action={() => {
-
+                                                            navigate(`/proves?idEsdeveniment=${esdeveniment.id}&nomEsdeveniment=${encodeURIComponent(esdeveniment.nom)}`);
                                                         }}
                                                     />
                                                     {hasWritePermission("assistencia") && (
@@ -272,7 +273,7 @@ function EsdevenimentsList() {
                                                     )}
                                                     <Button
                                                         text="Assistència"
-                                                        icon={<FaClipboardList />}
+                                                        icon={<FaUserEdit />}
                                                         action={() => {
                                                             if (hasWritePermission("assistencia")) {
                                                                 navigate(`/assistencia?idEsdeveniment=${esdeveniment.id}&nomEsdeveniment=${encodeURIComponent(esdeveniment.nom)}`);
