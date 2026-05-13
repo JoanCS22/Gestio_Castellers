@@ -4,7 +4,8 @@ import Draggable from "react-draggable";
 
 import {
     FaCheck, FaCheckDouble, FaVideoSlash, FaVideo, FaTrashAlt, FaTimesCircle, FaCheckCircle,
-    FaRegStar, FaHashtag, FaEye, FaEyeSlash, FaPencilAlt, FaPlusSquare
+    FaRegStar, FaHashtag, FaEye, FaEyeSlash, FaPencilAlt, FaPlusSquare, FaSearch,
+    FaTimes, FaQuestionCircle 
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -48,6 +49,18 @@ function ProvesBoard() {
     const [members, setMembers] = useState([]);
 
     const [searchResults, setSearchResults] = useState([]);
+
+    const [firstCheck, setFirstCheck] = useState({
+        si: true,
+        no: true,
+        no_sap: true,
+    });
+
+    const [secondCheck, setSecondCheck] = useState({
+        si: true,
+        no: true,
+        no_sap: true,
+    });
 
     const [showCastell, setShowCastell] = useState(false);
     const [editMode, setEditMode] = useState(false);
@@ -526,23 +539,77 @@ function ProvesBoard() {
                     {message.message}
                 </div>
             )}
-            <div className="top-bar-prova-board">
-                <div className="top-bar-prova-board-filters">
-                    <div className="top-bar-prova-board-filters-search">
-
+            <div className="left-part-prova-board">
+                <div className="left-part-prova-board-filters">
+                    <div className="left-part-prova-board-filters-search">
+                        <h4>Membres</h4>
+                        <div className="search-tab-plantilles">
+                            <span>Cercar:</span>
+                            <FaSearch />
+                            <input type='search' placeholder='Cercar...'></input>
+                        </div>
                     </div>
-                    <div className="top-bar-prova-board-filters-checkboxrow-1">
-
+                    <div className="left-part-prova-board-filters-checkboxrow-icons">
+                        <div></div>
+                        <FaCheckCircle className="icon-feta"/>
+                        <FaTimesCircle className="icon-no-feta"/>
+                        <FaQuestionCircle  className="icon-unknown"/>
                     </div>
-                    <div className="top-bar-prova-board-filters-checkboxrow-2">
-
+                    <div className="left-part-prova-board-filters-checkboxrow-1">
+                        <FaCheck />
+                        <div left-part-prova-board-filters-checkboxrow-element>
+                            <input
+                                type="checkbox"
+                                checked={firstCheck.si}
+                                onChange={(e) => setFirstCheck({ ...firstCheck, si: e.target.checked })}
+                            />
+                        </div>
+                        <div left-part-prova-board-filters-checkboxrow-element>
+                            <input
+                                type="checkbox"
+                                checked={firstCheck.no}
+                                onChange={(e) => setFirstCheck({ ...firstCheck, no: e.target.checked })}
+                            />
+                        </div>
+                        <div left-part-prova-board-filters-checkboxrow-element>
+                            <input
+                                type="checkbox"
+                                checked={firstCheck.no_sap}
+                                onChange={(e) => setFirstCheck({ ...firstCheck, no_sap: e.target.checked })}
+                            />
+                        </div>
+                    </div>
+                    <div className="left-part-prova-board-filters-checkboxrow-2">
+                        <FaCheckDouble />
+                        <div left-part-prova-board-filters-checkboxrow-element>
+                            <input
+                                type="checkbox"
+                                checked={firstCheck.si}
+                                onChange={(e) => setSecondCheck({ ...secondCheck, si: e.target.checked })}
+                            />
+                        </div>
+                        <div left-part-prova-board-filters-checkboxrow-element>
+                            <input
+                                type="checkbox"
+                                checked={firstCheck.no}
+                                onChange={(e) => setSecondCheck({ ...secondCheck, no: e.target.checked })}
+                            />
+                        </div>
+                        <div left-part-prova-board-filters-checkboxrow-element>
+                            <input
+                                type="checkbox"
+                                checked={firstCheck.no_sap}
+                                onChange={(e) => setSecondCheck({ ...secondCheck, no_sap: e.target.checked })}
+                            />
+                        </div>
                     </div>
                 </div>
-                <div className="top-bar-prova-board-members">
+                <hr />
+                <div className="left-part-prova-board-members">
 
                 </div>
             </div>
-            <div className="left-part-prova-board">
+            <div className="top-part-prova-board">
 
             </div>
             <div className="whole-board-prova">
