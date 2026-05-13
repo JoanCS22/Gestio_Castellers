@@ -5,7 +5,7 @@ import Draggable from "react-draggable";
 import {
     FaCheck, FaCheckDouble, FaVideoSlash, FaVideo, FaTrashAlt, FaTimesCircle, FaCheckCircle,
     FaRegStar, FaHashtag, FaEye, FaEyeSlash, FaPencilAlt, FaPlusSquare, FaSearch,
-    FaTimes, FaQuestionCircle 
+    FaTimes, FaQuestionCircle
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -47,6 +47,7 @@ function ProvesBoard() {
     const [plantilles, setPlantilles] = useState([]);
     const [proves, setProves] = useState([]);
     const [members, setMembers] = useState([]);
+    const [assistencia, setAssistencia] = useState([]);
 
     const [searchResults, setSearchResults] = useState([]);
 
@@ -61,6 +62,36 @@ function ProvesBoard() {
         no: true,
         no_sap: true,
     });
+
+    const getAssistenciaIcon = (memberId) => {
+
+        const registre = assistencia.find(
+            (a) => a.id_usuari === memberId
+        );
+
+        if (!registre) {
+            return <FaQuestionCircle className="icon-pendent" />;
+        }
+
+        if (registre.confirmacio_arribada === "si") {
+            return <FaCheckDouble className="icon-feta" />;
+        }
+
+        switch (registre.confirmacio_previa) {
+            case "si":
+                return <FaCheckCircle className="icon-feta" />;
+
+            case "no":
+                return <FaTimesCircle className="icon-no-feta" />;
+
+            case "no_sap":
+                return <FaQuestionCircle className="icon-unknown" />;
+
+            case "pendent":
+            default:
+                return <FaQuestionCircle className="icon-pendent" />;
+        }
+    };
 
     const [showCastell, setShowCastell] = useState(false);
     const [editMode, setEditMode] = useState(false);
@@ -174,6 +205,35 @@ function ProvesBoard() {
             console.log("{DEBUG} Get colla's plantilles OK")
         } else {
             console.log("{DEBUG} Get colla's plantilles KO")
+            setError(data.message);
+        }
+    }
+
+    const getAssistenciaByEsdeveniment = async () => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/assistencia/getAssistenciaList?id=${provaInfo.id_esdeveniment}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setAssistencia(data);
+            console.log("{DEBUG} Get esdeveniment's assistencia OK")
+        } else {
+            console.log("{DEBUG} Get esdeveniment's assistencia KO")
             setError(data.message);
         }
     }
@@ -464,10 +524,11 @@ function ProvesBoard() {
     }, []);
 
     useEffect(() => {
-        if (provaInfo?.id) {
+        if (provaInfo?.id_esdeveniment) {
             getProvesByEsdeveniment();
+            getAssistenciaByEsdeveniment();
         }
-    }, [provaInfo?.id]);
+    }, [provaInfo?.id_esdeveniment]);
 
     return (
         <div>
@@ -551,9 +612,9 @@ function ProvesBoard() {
                     </div>
                     <div className="left-part-prova-board-filters-checkboxrow-icons">
                         <div></div>
-                        <FaCheckCircle className="icon-feta"/>
-                        <FaTimesCircle className="icon-no-feta"/>
-                        <FaQuestionCircle  className="icon-unknown"/>
+                        <FaCheckCircle className="icon-feta" />
+                        <FaTimesCircle className="icon-no-feta" />
+                        <FaQuestionCircle className="icon-unknown" />
                     </div>
                     <div className="left-part-prova-board-filters-checkboxrow-1">
                         <FaCheck />
@@ -606,7 +667,17 @@ function ProvesBoard() {
                 </div>
                 <hr />
                 <div className="left-part-prova-board-members">
+                    {members.map((member) => (
+                        <div key={member.id_usuari} className="container-member-prova-board">
+                            <span className="member-name">
+                                {member.mote}
+                            </span>
 
+                            <div className="member-status">
+                                {getAssistenciaIcon(member.id_usuari)}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
             <div className="top-part-prova-board">

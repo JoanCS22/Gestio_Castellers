@@ -6,13 +6,17 @@
     color: rgb(185, 185, 2);
 }
 
+.icon-pendent {
+    color: #9e9e9e;
+}
+
 /* LEFT PART (MEMBRES) */
 
 .left-part-prova-board {
     position: fixed;
-    top: 70px; /* ajusta según altura del TopMenu */
+    top: 70px;
     left: 0;
-    width: 20vw;
+    width: 375px;
     height: calc(100vh - 70px);
     border-right: 1px solid #000000;
     background-color: #fff;
@@ -91,4 +95,73 @@
     width: 16px;
     height: 16px;
     cursor: pointer;
+}
+
+/* CONTENIDOR MEMBRES */
+
+.left-part-prova-board-members {
+    flex: 1;
+
+    overflow-y: auto;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 5px;
+
+    margin-top: 5px;
+
+    align-content: start;
+}
+
+.container-member-prova-board {
+    background-color: #f8f8f8;
+
+    border: 1px solid #000000;
+    border-radius: 10px;    
+
+    height: 30px;
+
+    width: 100%;
+    box-sizing: border-box;
+
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 0 10px;
+
+    transition: 0.15s ease;
+}
+
+.container-member-prova-board:hover {
+    background-color: #dfdfdf;
+    cursor: pointer;
+}
+
+.member-name {
+    font-size: 15px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    max-width: none;
+    flex: 1;
+}
+
+.member-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1rem;
+}
+
+.left-part-prova-board-members::-webkit-scrollbar {
+    width: 6px;
+}
+
+.left-part-prova-board-members::-webkit-scrollbar-thumb {
+    background: #cfcfcf;
+    border-radius: 10px;
 }
