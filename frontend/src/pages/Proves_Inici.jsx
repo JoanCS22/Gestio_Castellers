@@ -230,11 +230,11 @@ function ProvesInici() {
         }
     }
 
-    const modifyInfoProva = async (idPlantilla, action, favoriteValue = false, fetaValue = false) => {
+    const updateFavorite = async (idPlantilla, favoriteValue) => {
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch(`http://localhost:5000/proves/modifyInfoProva?id=${idPlantilla}&action=${action}`, {
+        const response = await fetch(`http://localhost:5000/proves/updateFavorite?id=${idPlantilla}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -242,7 +242,7 @@ function ProvesInici() {
             },
             body: JSON.stringify({
                 favorita: favoriteValue,
-                feta: fetaValue
+                id: idPlantilla,
             }),
         });
 
@@ -255,13 +255,49 @@ function ProvesInici() {
         const data = await response.json();
 
         if (response.ok) {
-            console.log("{DEBUG} Modify prova OK");
+            console.log("{DEBUG} Modify prova's favorite OK");
 
             await getProvesByEsdeveniment();
 
             showTempMessage("Prova modificada.");
         } else {
-            console.log("{DEBUG} Modify prova KO");
+            console.log("{DEBUG} Modify prova's favorite KO");
+            setError(data.message);
+        }
+    }
+
+    const updateFeta = async (idPlantilla, fetaValue) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/proves/updateFeta`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                feta: fetaValue,
+                id: idPlantilla,
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Modify prova's feta OK");
+
+            await getProvesByEsdeveniment();
+
+            showTempMessage("Prova modificada.");
+        } else {
+            console.log("{DEBUG} Modify prova's feta KO");
             setError(data.message);
         }
     }
@@ -353,20 +389,20 @@ function ProvesInici() {
                                         <>
                                             <FaCheckCircle title="No realitzada?" className="icon-feta"
                                                 onClick={() => {
-                                                    modifyInfoProva(prova.id, "fet", false, false);
+                                                    updateFeta(prova.id, false);
                                                 }} />
                                         </>
                                     ) : (
                                         <>
                                             <FaTimesCircle title="Realitzada?" className="icon-no-feta"
                                                 onClick={() => {
-                                                    modifyInfoProva(prova.id, "fet", false, true);
+                                                    updateFeta(prova.id, true);
                                                 }} />
                                         </>
                                     )}
                                     <FaRegStar title={prova.favorita ? "Treure de favorits" : "Afegir a favorits"} className={`icon-favorit ${prova.favorita ? "favorit-actiu" : ""}`}
                                         onClick={() => {
-                                            modifyInfoProva(prova.id, "favorite", !prova.favorita);
+                                            updateFavorite(prova.id, !prova.favorita);
                                         }} />
                                 </div>
                             </div>

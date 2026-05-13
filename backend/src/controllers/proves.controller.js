@@ -106,44 +106,19 @@ const modifyInfoProva = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { nom, comentari, public, xarxa, estructura, id_plantilla, indicacions, favorita, feta } = req.body;
+        const { nom, comentari, public, xarxa, estructura, id_plantilla, indicacions } = req.body;
 
         const idProva = req.query.id;
-        const action = req.query.action;
 
         await client.query("BEGIN");
 
-        let result;
-
-        switch (action) {
-            case "favorite":
-                result = await client.query(
-                    `UPDATE proves 
-                    SET favorita = $2
-                    WHERE id = $1
-                    RETURNING *`,
-                    [idProva, favorita]
-                );
-                break;
-            case "fet":
-                result = await client.query(
-                    `UPDATE proves 
-                    SET feta = $2
-                    WHERE id = $1
-                    RETURNING *`,
-                    [idProva, feta]
-                );
-                break;
-            default:
-                result = await client.query(
-                    `UPDATE proves 
-                    SET nom, comentari, public, xarxa, estructura, id_plantilla, indicacions, data_actualització = NOW()
-                    WHERE id = $1
-                    RETURNING *`,
-                    [idProva, nom, comentari, public, xarxa, estructura, id_plantilla, indicacions]
-                );
-                break;
-        }
+        const result = await client.query(
+            `UPDATE proves 
+             SET nom, comentari, public, xarxa, estructura, id_plantilla, indicacions, data_actualització = NOW()
+             WHERE id = $1
+             RETURNING *`,
+            [idProva, nom, comentari, public, xarxa, estructura, id_plantilla, indicacions]
+        );
 
         await client.query("COMMIT");
 
@@ -159,6 +134,114 @@ const modifyInfoProva = async (req, res) => {
         client.release();
     }
 }
+
+const publishProva = async (req, res) => {
+
+    const client = await pool.connect();
+
+    try {
+
+        const { public, id } = req.body;
+
+        await client.query("BEGIN");
+
+        await client.query(
+            `UPDATE proves
+             SET public = $1
+             WHERE id = $2`,
+            [public, id]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json({
+            message: "Visibilitat de prova canviada"
+        });
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({
+            message: "Error actualitzant visibilitat"
+        });
+
+    } finally {
+        client.release();
+    }
+};
+
+const updateFavorite = async (req, res) => {
+
+    const client = await pool.connect();
+
+    try {
+
+        const { favorita, id } = req.body;
+
+        await client.query("BEGIN");
+
+        await client.query(
+            `UPDATE proves
+             SET favorita = $1
+             WHERE id = $2`,
+            [favorita, id]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json({
+            message: "Visibilitat de prova canviada"
+        });
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({
+            message: "Error actualitzant visibilitat"
+        });
+
+    } finally {
+        client.release();
+    }
+};
+
+const updateFeta = async (req, res) => {
+
+    const client = await pool.connect();
+
+    try {
+
+        const { feta, id } = req.body;
+
+        await client.query("BEGIN");
+
+        await client.query(
+            `UPDATE proves
+             SET feta = $1
+             WHERE id = $2`,
+            [feta, id]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json({
+            message: "Visibilitat de prova canviada"
+        });
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({
+            message: "Error actualitzant visibilitat"
+        });
+
+    } finally {
+        client.release();
+    }
+};
 
 const updateOrder = async (req, res) => {
 
@@ -233,5 +316,6 @@ const deleteProva = async (req, res) => {
 
 module.exports = {
     getProvesByEsdeveniment, getProvaById,
-    createProva, modifyInfoProva, updateOrder, deleteProva
+    createProva, deleteProva,
+    modifyInfoProva, updateOrder, publishProva, updateFavorite, updateFeta
 };

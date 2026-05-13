@@ -4,7 +4,7 @@ import Draggable from "react-draggable";
 
 import {
     FaCheck, FaCheckDouble, FaVideoSlash, FaVideo, FaTrashAlt, FaTimesCircle, FaCheckCircle,
-    FaRegStar, FaHashtag, FaEye, FaEyeSlash
+    FaRegStar, FaHashtag, FaEye, FaEyeSlash, FaPencilAlt
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -37,6 +37,14 @@ function ProvesBoard() {
     const [searchResults, setSearchResults] = useState([]);
 
     const [showCastell, setShowCastell] = useState(false);
+
+    const showTempMessage = (message, type = "success") => {
+        setTempMessage({ message, type });
+
+        setTimeout(() => {
+            setTempMessage(null);
+        }, 2000);
+    };
 
     const getCollaMembers = async () => {
 
@@ -88,8 +96,6 @@ function ProvesBoard() {
 
         const data = await response.json();
 
-        console.log(data);
-
         if (response.ok) {
             setProvaInfo(data);
             console.log("{DEBUG} Get prova by id OK")
@@ -99,11 +105,119 @@ function ProvesBoard() {
         }
     }
 
-    const modifyInfoProva = async (idPlantilla, action, favoriteValue = false, fetaValue = false) => {
+    const updateFavorite = async (idPlantilla, favoriteValue) => {
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch(`http://localhost:5000/proves/modifyInfoProva?id=${idPlantilla}&action=${action}`, {
+        const response = await fetch(`http://localhost:5000/proves/updateFavorite?id=${idPlantilla}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                favorita: favoriteValue,
+                id: idPlantilla,
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Modify prova's favorite OK");
+
+            await getProvaById();
+
+            showTempMessage("Prova modificada.");
+        } else {
+            console.log("{DEBUG} Modify prova's favorite KO");
+            setError(data.message);
+        }
+    }
+
+    const updateFeta = async (idPlantilla, fetaValue) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/proves/updateFeta`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                feta: fetaValue,
+                id: idPlantilla,
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Modify prova's feta OK");
+
+            await getProvaById();
+
+            showTempMessage("Prova modificada.");
+        } else {
+            console.log("{DEBUG} Modify prova's feta KO");
+            setError(data.message);
+        }
+    }
+
+    const publishProva = async (idPlantilla, publicValue) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/proves/publishProva`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                public: publicValue,
+                id: idPlantilla,
+            }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Modify prova's public OK");
+
+            await getProvaById();
+
+            showTempMessage("Prova modificada.");
+        } else {
+            console.log("{DEBUG} Modify prova's public KO");
+            setError(data.message);
+        }
+    }
+
+    const modifyInfoProva = async () => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/proves/modifyInfoProva?id=${provaInfo.id}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -135,6 +249,39 @@ function ProvesBoard() {
         }
     }
 
+    const deleteProva = async (id_prova) => {
+
+        if (!window.confirm("Segur que vols eliminar aquesta prova?")) return;
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/proves/deleteProva?id=${id_prova}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log("{DEBUG} Delete prova OK");
+            setError("");
+            showTempMessage("Prova eliminada correctament.");
+            getCollesPositions();
+        } else {
+            console.log("{DEBUG} Delete prova KO");
+            setError(data.message);
+        }
+    }
+
     useEffect(() => {
         getCollaMembers();
         getProvaById();
@@ -153,7 +300,7 @@ function ProvesBoard() {
                             </div>
                         )}
                         <div className="icon-btn" onClick={() => {
-                            modifyInfoProva(provaInfo.id, "fet", false, !provaInfo?.feta);
+                            updateFeta(provaInfo.id, !provaInfo?.feta);
                         }}>
                             {provaInfo?.feta ? (
                                 <FaCheckCircle title="No realitzada?" className="icon-feta" />
@@ -162,9 +309,9 @@ function ProvesBoard() {
                             )}
                         </div>
                         <div className="icon-btn" onClick={() => {
-                            modifyInfoProva(provaInfo.id, "favorite", !provaInfo.favorita);
+                            updateFavorite(provaInfo.id, !provaInfo.favorita);
                         }}>
-                            <FaRegStar />
+                            <FaRegStar title={provaInfo?.favorita ? "Treure de favorits" : "Afegir a favorits"} className={`icon-favorit ${provaInfo?.favorita ? "favorit-actiu" : ""}`} />
                         </div>
                     </>
                 }
@@ -179,7 +326,7 @@ function ProvesBoard() {
                             )}
                         </div>
                         <div className="icon-btn" onClick={() => {
-                            /* FER PÚBLICA PROVA */
+                            publishProva(provaInfo.id, !provaInfo.public);
                         }}>
                             {provaInfo?.public ? (
                                 <FaEye />
@@ -189,12 +336,17 @@ function ProvesBoard() {
                         </div>
                         <div className="icon-btn" onClick={() => {
                             /* DELETE PROVA */
-                         }}>
-                            <FaTrashAlt />
+                        }}>
+                            <FaPencilAlt />
                         </div>
                     </>
                 }
             />
+            {message && (
+                <div className={`message ${message.type}`}>
+                    {message.message}
+                </div>
+            )}
             <div className="top-bar-prova-board">
                 <div className="top-bar-prova-board-filters">
                     <div className="top-bar-prova-board-filters-search">
