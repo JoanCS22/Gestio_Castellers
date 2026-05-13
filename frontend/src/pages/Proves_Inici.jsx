@@ -78,6 +78,8 @@ function ProvesInici() {
             nom: "",
             descripcio: "",
             estructura: "",
+            xarxa: false,
+            public: false,
         });
 
         setError("");

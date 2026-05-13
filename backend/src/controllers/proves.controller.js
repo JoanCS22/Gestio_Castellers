@@ -106,7 +106,7 @@ const modifyInfoProva = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { nom, comentari, public, xarxa, estructura, id_plantilla, indicacions } = req.body;
+        const { nom, comentari, public, xarxa, estructura, id_plantilla } = req.body;
 
         const idProva = req.query.id;
 
@@ -114,10 +114,11 @@ const modifyInfoProva = async (req, res) => {
 
         const result = await client.query(
             `UPDATE proves 
-             SET nom, comentari, public, xarxa, estructura, id_plantilla, indicacions, data_actualització = NOW()
+             SET nom = $2, comentari = $3, public = $4, xarxa = $5, estructura = $6, 
+             id_plantilla = $7, data_actualitzacio = NOW()
              WHERE id = $1
              RETURNING *`,
-            [idProva, nom, comentari, public, xarxa, estructura, id_plantilla, indicacions]
+            [idProva, nom, comentari, public, xarxa, estructura, id_plantilla]
         );
 
         await client.query("COMMIT");
