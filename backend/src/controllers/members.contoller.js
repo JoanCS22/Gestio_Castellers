@@ -93,10 +93,17 @@ const addMember = async (req, res) => {
             [userId, collaActiva]
         );
 
+        await pool.query(
+            `INSERT INTO assistencia (id_esdeveniment, id_usuari, confirmacio_previa, confirmacio_arribada, comentari)
+            SELECT id, $1, 'pendent', 'pendent', ''
+            FROM esdeveniments
+            WHERE id_colla = $2 AND data_esdeveniment >= NOW()`,
+            [userId, collaActiva]
+        );
+
         res.status(200).json(result.rows);
 
     } catch (error) {
-
         console.error(error);
         res.status(500).json({ message: 'Error al rebre les dades {addMember}' });
     }
@@ -200,6 +207,15 @@ const deleteMember = async (req, res) => {
             `DELETE FROM membres_colla 
              WHERE id_usuari = $1 AND id_colla = $2
              RETURNING *`,
+            [userId, collaActiva]
+        );
+
+        await pool.query(
+            `DELETE FROM assistencia
+             WHERE id_usuari = $1 AND id_esdeveniment IN (
+             SELECT id
+             FROM esdeveniments WHERE id_colla = $2
+             AND data_esdeveniment >= NOW())`,
             [userId, collaActiva]
         );
 

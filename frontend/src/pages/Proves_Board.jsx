@@ -46,9 +46,12 @@ function ProvesBoard() {
 
     const [plantilles, setPlantilles] = useState([]);
     const [proves, setProves] = useState([]);
-    const [members, setMembers] = useState([]);
     const [assistencia, setAssistencia] = useState([]);
-    const [posicions, setPosicions] = useState([]);
+    const [members, setMembers] = useState([]);
+    const [membersByPosition, setMembersByPosition] = useState([]);
+
+    const [positions, setPositions] = useState([]);
+    const [selectedPositions, setSelectedPositions] = useState([0]);
 
     const [memberSearch, setMemberSearch] = useState("");
 
@@ -81,8 +84,15 @@ function ProvesBoard() {
             return <FaQuestionCircle className="icon-pendent" />;
         }
 
-        if (registre.confirmacio_arribada === "si") {
-            return <FaCheckDouble className="icon-feta" />;
+        switch (registre.confirmacio_arribada) {
+            case "si":
+                return <FaCheckCircle className="icon-feta" />;
+
+            case "no":
+                return <FaTimesCircle className="icon-no-feta" />;
+
+            case "no_sap":
+                return <FaQuestionCircle className="icon-unknown" />;
         }
 
         switch (registre.confirmacio_previa) {
@@ -136,7 +146,34 @@ function ProvesBoard() {
         setError("");
     };
 
-    const filteredMembers = members.filter((member) => {
+    const modifySelectedPositions = (id) => {
+
+        if (id === 0) {
+            if (selectedPositions.includes(0)) {
+                setSelectedPositions([]);
+            } else {
+                setSelectedPositions([0]);
+            }
+
+            return;
+        }
+
+        let updated = selectedPositions.filter(p => p !== 0);
+
+        if (updated.includes(id)) {
+            updated = updated.filter(p => p !== id);
+        } else {
+            updated.push(id);
+        }
+
+        if (updated.length === 0) {
+            updated = [0];
+        }
+
+        setSelectedPositions(updated);
+    };
+
+    const filteredMembers = membersByPosition.filter((member) => {
 
         const searchOk = member.mote?.toLowerCase().includes(memberSearch.toLowerCase());
 
@@ -384,6 +421,36 @@ function ProvesBoard() {
         }
     }
 
+    const getCollesPositions = async () => {
+
+        const token = localStorage.getItem("token");
+        const idColla = localStorage.getItem("id_colla");
+
+        const response = await fetch(`http://localhost:5000/colla/getCollaPositions?id=${idColla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setPositions(data);
+            console.log("{DEBUG} Get colla's positions OK")
+        } else {
+            console.log("{DEBUG} Get colla's positions KO")
+            setError(data.message);
+        }
+    }
+
     const publishProva = async (idPlantilla, publicValue) => {
 
         const token = localStorage.getItem("token");
@@ -564,6 +631,7 @@ function ProvesBoard() {
 
     useEffect(() => {
         getCollaMembers();
+        getCollesPositions();
         getCollesPlantilles();
         getProvaById();
     }, []);
@@ -574,6 +642,22 @@ function ProvesBoard() {
             getAssistenciaByEsdeveniment();
         }
     }, [provaInfo?.id_esdeveniment]);
+
+    useEffect(() => {
+        if (selectedPositions.length === 0 || selectedPositions.includes(0)) {
+            setMembersByPosition(members);
+            return;
+        }
+
+        const filtered = members.filter(member =>
+            member.posicions?.some(posicio =>
+                selectedPositions.includes(posicio)
+            )
+        );
+
+        setMembersByPosition(filtered);
+
+    }, [selectedPositions, members]);
 
     return (
         <div>
@@ -759,7 +843,40 @@ function ProvesBoard() {
                     </div>
                 </div>
                 <div className="top-part-prova-board-posicions">
+                    <label
+                        key={0}
+                        className={`container-position-prova-board ${selectedPositions.includes(0) ? "position-selected" : ""}`}
+                        title="Filtrar per totes les posicions"
+                    >
+                        <span className="position-name-board">
+                            Totes
+                        </span>
 
+                        <input
+                            type="checkbox"
+                            checked={selectedPositions.includes(0)}
+                            onChange={() => modifySelectedPositions(0)}
+                            hidden
+                        />
+                    </label>
+                    {positions.map((position) => (
+                        <label
+                            key={position.id}
+                            className={`container-position-prova-board ${selectedPositions.includes(position.nom) ? "position-selected" : ""}`}
+                            title={`Filtrar per ${position.nom}`}
+                        >
+                            <span className="position-name-board">
+                                {position.nom}
+                            </span>
+
+                            <input
+                                type="checkbox"
+                                checked={selectedPositions.includes(position.nom)}
+                                onChange={() => modifySelectedPositions(position.nom)}
+                                hidden
+                            />
+                        </label>
+                    ))}
                 </div>
             </div>
             <div className="whole-board-prova">

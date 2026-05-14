@@ -341,6 +341,7 @@ function MembresColla() {
                                 icon={<FaArrowLeft />}
                                 action={() => {
                                     setShowModalAddMember(false);
+                                    setSearchResults([]);
                                     setModalTags({ nom: "", cognoms: "", correu: "" });
                                 }} />
 
@@ -368,37 +369,35 @@ function MembresColla() {
                                     </tr>
                                 </thead>
                                 {searchResults.length > 0 && (
-                                    <>
-                                        <tbody>
-                                            {searchResults.map((user) => (
-                                                <>
-                                                    <tr key={user.id}>
-                                                        <td>{user.nom}</td>
-                                                        <td>{user.cognoms}</td>
-                                                        <td>{user.email}</td>
-                                                        <td>
-                                                            {members.some(m => m.id_usuari === user.id) ? (
-                                                                <>
-                                                                    <FaRegCheckSquare />
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <button onClick={() => {
-                                                                        setShowModalAddMember(false);
-                                                                        setSearchResults([]);
-                                                                        setModalTags({ nom: "", cognoms: "", correu: "" });
-                                                                        addUserToColla(user.id);
-                                                                    }}>
-                                                                        <FaPlusSquare />
-                                                                    </button>
-                                                                </>
-                                                            )}
-                                                        </td>
-                                                    </tr >
-                                                </>
-                                            ))}
-                                        </tbody>
-                                    </>
+                                    <tbody>
+                                        {searchResults.map((user) => (
+                                            <>
+                                                <tr key={user.id}>
+                                                    <td>{user.nom}</td>
+                                                    <td>{user.cognoms}</td>
+                                                    <td>{user.email}</td>
+                                                    <td>
+                                                        {members.some(m => m.id_usuari === user.id) ? (
+                                                            <>
+                                                                <FaRegCheckSquare />
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <button onClick={() => {
+                                                                    setShowModalAddMember(false);
+                                                                    setSearchResults([]);
+                                                                    setModalTags({ nom: "", cognoms: "", correu: "" });
+                                                                    addUserToColla(user.id);
+                                                                }}>
+                                                                    <FaPlusSquare />
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </td>
+                                                </tr >
+                                            </>
+                                        ))}
+                                    </tbody>
                                 )}
                             </table>
                         </div>
