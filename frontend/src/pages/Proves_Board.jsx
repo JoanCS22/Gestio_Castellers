@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Draggable from "react-draggable";
 
 import {
     FaCheck, FaCheckDouble, FaVideoSlash, FaVideo, FaTrashAlt, FaTimesCircle, FaCheckCircle,
     FaRegStar, FaHashtag, FaEye, FaEyeSlash, FaPencilAlt, FaPlusSquare, FaSearch,
-    FaTimes, FaQuestionCircle
+    FaTimes, FaQuestionCircle, FaUserTimes, FaUserAltSlash, FaUsersSlash
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -48,8 +48,9 @@ function ProvesBoard() {
     const [proves, setProves] = useState([]);
     const [members, setMembers] = useState([]);
     const [assistencia, setAssistencia] = useState([]);
+    const [posicions, setPosicions] = useState([]);
 
-    const [searchResults, setSearchResults] = useState([]);
+    const [memberSearch, setMemberSearch] = useState("");
 
     const [firstCheck, setFirstCheck] = useState({
         si: true,
@@ -62,6 +63,13 @@ function ProvesBoard() {
         no: true,
         no_sap: true,
     });
+
+    const [mesures, setMesures] = useState({
+        1: "Alçada",
+        2: "Alçada Espatlles",
+        3: "Envergadura"
+    });
+    const [selectedMesura, setSelectedMesura] = useState(1);
 
     const getAssistenciaIcon = (memberId) => {
 
@@ -93,6 +101,14 @@ function ProvesBoard() {
         }
     };
 
+    const assistenciaMap = useMemo(() => {
+        const map = {};
+        assistencia.forEach(a => {
+            map[a.id_usuari] = a;
+        });
+        return map;
+    }, [assistencia]);
+
     const [showCastell, setShowCastell] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [showModalProva, setShowModalProva] = useState(false);
@@ -119,6 +135,35 @@ function ProvesBoard() {
 
         setError("");
     };
+
+    const filteredMembers = members.filter((member) => {
+
+        const searchOk = member.mote?.toLowerCase().includes(memberSearch.toLowerCase());
+
+        if (!searchOk) return false;
+
+        const registre = assistenciaMap[member.id_usuari];
+
+        if (!registre) {
+            return firstCheck.no_sap || firstCheck.no;
+        }
+
+        if (registre.confirmacio_arribada === "si") {
+            return secondCheck.si;
+        }
+
+        switch (registre.confirmacio_previa) {
+            case "si":
+                return firstCheck.si;
+            case "no":
+                return firstCheck.no;
+            case "no_sap":
+                return firstCheck.no_sap;
+            case "pendent":
+            default:
+                return firstCheck.no_sap;
+        }
+    });
 
     const getCollaMembers = async () => {
 
@@ -607,7 +652,12 @@ function ProvesBoard() {
                         <div className="search-tab-plantilles">
                             <span>Cercar:</span>
                             <FaSearch />
-                            <input type='search' placeholder='Cercar...'></input>
+                            <input
+                                type='search'
+                                placeholder='Cercar...'
+                                value={memberSearch}
+                                onChange={(e) => setMemberSearch(e.target.value)}
+                            />
                         </div>
                     </div>
                     <div className="left-part-prova-board-filters-checkboxrow-icons">
@@ -645,21 +695,21 @@ function ProvesBoard() {
                         <div left-part-prova-board-filters-checkboxrow-element>
                             <input
                                 type="checkbox"
-                                checked={firstCheck.si}
+                                checked={secondCheck.si}
                                 onChange={(e) => setSecondCheck({ ...secondCheck, si: e.target.checked })}
                             />
                         </div>
                         <div left-part-prova-board-filters-checkboxrow-element>
                             <input
                                 type="checkbox"
-                                checked={firstCheck.no}
+                                checked={secondCheck.no}
                                 onChange={(e) => setSecondCheck({ ...secondCheck, no: e.target.checked })}
                             />
                         </div>
                         <div left-part-prova-board-filters-checkboxrow-element>
                             <input
                                 type="checkbox"
-                                checked={firstCheck.no_sap}
+                                checked={secondCheck.no_sap}
                                 onChange={(e) => setSecondCheck({ ...secondCheck, no_sap: e.target.checked })}
                             />
                         </div>
@@ -667,8 +717,10 @@ function ProvesBoard() {
                 </div>
                 <hr />
                 <div className="left-part-prova-board-members">
-                    {members.map((member) => (
-                        <div key={member.id_usuari} className="container-member-prova-board">
+                    {filteredMembers.map((member) => (
+                        <div key={member.id_usuari} className="container-member-prova-board" onClick={() => {
+                            //AFEGIR LÒGICA
+                        }}>
                             <span className="member-name">
                                 {member.mote}
                             </span>
@@ -681,7 +733,34 @@ function ProvesBoard() {
                 </div>
             </div>
             <div className="top-part-prova-board">
+                <div className="top-part-prova-board-actions">
+                    <div className="top-part-prova-board-icons-mesura">
+                        <label className="field-label-prova-mesura">Mesura</label>
 
+                        <div className="select-wrapper-prova-mesura">
+                            <select
+                                value={selectedMesura}
+                                onChange={(e) => setSelectedMesura(Number(e.target.value))}
+                                className="custom-select-prova-mesura"
+                            >
+
+                                {Object.entries(mesures).map(([key, value]) => (
+                                    <option key={key} value={key}>
+                                        {value}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                    <div className="top-part-prova-board-icons">
+                        <FaUserTimes title="Eliminar persones absents" onClick={() => { }} />
+                        <FaUserAltSlash title="Buidar casella seleccionada" onClick={() => { }} />
+                        <FaUsersSlash title="Buidar plantilla" onClick={() => { }} />
+                    </div>
+                </div>
+                <div className="top-part-prova-board-posicions">
+
+                </div>
             </div>
             <div className="whole-board-prova">
 
