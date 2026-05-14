@@ -5,7 +5,8 @@ import Draggable from "react-draggable";
 import {
     FaCheck, FaCheckDouble, FaVideoSlash, FaVideo, FaTrashAlt, FaTimesCircle, FaCheckCircle,
     FaRegStar, FaHashtag, FaEye, FaEyeSlash, FaPencilAlt, FaPlusSquare, FaSearch,
-    FaTimes, FaQuestionCircle, FaUserTimes, FaUserAltSlash, FaUsersSlash
+    FaTimes, FaQuestionCircle, FaUserTimes, FaUserAltSlash, FaUsersSlash,
+    FaAngleRight, FaAngleLeft
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -129,6 +130,8 @@ function ProvesBoard() {
     const [editMode, setEditMode] = useState(false);
     const [showModalProva, setShowModalProva] = useState(false);
 
+    const [showRightProves, setShowRightProves] = useState(false);
+
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
 
@@ -240,6 +243,14 @@ function ProvesBoard() {
 
     const getProvaById = async () => {
 
+        setProvaInfo(null);
+
+        setInfoPlantilla([]);
+
+        setAssistencia([]);
+
+        setSelectedTag("pinya");
+
         const token = localStorage.getItem("token");
 
         const response = await fetch(`http://localhost:5000/proves/getProvaById?id=${idProva}`, {
@@ -267,11 +278,11 @@ function ProvesBoard() {
         }
     }
 
-    const getPlantillaById = async () => {
+    const getPlantillaById = async (idPlantilla) => {
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch(`http://localhost:5000/plantilles/getPlantillaById?id=${provaInfo.id_plantilla}`, {
+        const response = await fetch(`http://localhost:5000/plantilles/getPlantillaById?id=${idPlantilla}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -288,7 +299,7 @@ function ProvesBoard() {
         const data = await response.json();
 
         if (response.ok) {
-            setInfoPlantilla(data);
+            setInfoPlantilla({ ...data });
             setSelectedTag(data.pinya ? "pinya" : "tronc")
             console.log(data);
             console.log("{DEBUG} Get plantilla by id OK")
@@ -328,11 +339,11 @@ function ProvesBoard() {
         }
     }
 
-    const getAssistenciaByEsdeveniment = async () => {
+    const getAssistenciaByEsdeveniment = async (idEsdeveniment) => {
 
         const token = localStorage.getItem("token");
 
-        const response = await fetch(`http://localhost:5000/assistencia/getAssistenciaList?id=${provaInfo.id_esdeveniment}`, {
+        const response = await fetch(`http://localhost:5000/assistencia/getAssistenciaList?id=${idEsdeveniment}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -349,7 +360,7 @@ function ProvesBoard() {
         const data = await response.json();
 
         if (response.ok) {
-            setAssistencia(data);
+            setAssistencia([...data]);
             console.log("{DEBUG} Get esdeveniment's assistencia OK")
         } else {
             console.log("{DEBUG} Get esdeveniment's assistencia KO")
@@ -670,16 +681,28 @@ function ProvesBoard() {
         getCollaMembers();
         getCollesPositions();
         getCollesPlantilles();
-        getProvaById();
     }, []);
 
     useEffect(() => {
-        if (provaInfo?.id_esdeveniment) {
-            getProvesByEsdeveniment();
-            getAssistenciaByEsdeveniment();
-            getPlantillaById();
+        if (idProva) {
+            getProvaById();
         }
-    }, [provaInfo?.id_esdeveniment]);
+    }, [idProva]);
+
+    useEffect(() => {
+
+        if (!provaInfo) return;
+
+        if (provaInfo.id_esdeveniment) {
+            getProvesByEsdeveniment();
+            getAssistenciaByEsdeveniment(provaInfo.id_esdeveniment);
+        }
+
+        if (provaInfo.id_plantilla) {
+            getPlantillaById(provaInfo.id_plantilla);
+        }
+
+    }, [provaInfo]);
 
     useEffect(() => {
         if (selectedPositions.length === 0 || selectedPositions.includes(0)) {
@@ -954,10 +977,56 @@ function ProvesBoard() {
                     </>
                 )}
             </div>
-            <div className="whole-board-prova">
+            <div className={`right-part-menu-desplegable ${showRightProves ? "open" : "closed"}`}>
 
+                <div
+                    className="right-part-menu-toggle"
+                    onClick={() => setShowRightProves(!showRightProves)}
+                >
+                    {showRightProves ? <FaAngleRight /> : <FaAngleLeft />}
+                </div>
+
+                {showRightProves && (
+                    <div className="right-part-menu-content">
+
+                        <div className="right-part-menu-top">
+                            <Button
+                                text={"Crear nova prova"}
+                                icon={<FaPlusSquare />}
+                                action={() => {
+                                    setShowModalProva(true);
+                                }}
+                            />
+                        </div>
+
+                        <div className="right-part-menu-list">
+                            {proves.map((prova) => (
+                                <div
+                                    key={prova.id}
+                                    className="container-right-prova-menu"
+                                    onClick={() => {
+                                        navigate(`/proves_board?id=${prova.id}`);
+                                    }}
+                                >
+                                    <span className="container-right-prova-menu-name">
+                                        {prova.nom}
+                                    </span>
+
+                                    <FaTrashAlt
+                                        className="delete-prova-icon"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            deleteProva(prova.id);
+                                        }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
-            <div className="right-part-menu-desplegable">
+
+            <div className="whole-board-prova">
 
             </div>
 
