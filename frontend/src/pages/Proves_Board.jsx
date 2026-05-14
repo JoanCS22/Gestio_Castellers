@@ -45,8 +45,14 @@ function ProvesBoard() {
     const [selectedPlantilla, setSelectedPlantilla] = useState("");
 
     const [plantilles, setPlantilles] = useState([]);
+
     const [proves, setProves] = useState([]);
+
     const [assistencia, setAssistencia] = useState([]);
+
+    const [infoPlantilla, setInfoPlantilla] = useState([]);
+    const [selectedTag, setSelectedTag] = useState("pinya");
+
     const [members, setMembers] = useState([]);
     const [membersByPosition, setMembersByPosition] = useState([]);
 
@@ -257,6 +263,37 @@ function ProvesBoard() {
             console.log("{DEBUG} Get prova by id OK")
         } else {
             console.log("{DEBUG} Get prova by id KO")
+            setError(data.message);
+        }
+    }
+
+    const getPlantillaById = async () => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/plantilles/getPlantillaById?id=${provaInfo.id_plantilla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setInfoPlantilla(data);
+            setSelectedTag(data.pinya ? "pinya" : "tronc")
+            console.log(data);
+            console.log("{DEBUG} Get plantilla by id OK")
+        } else {
+            console.log("{DEBUG} Get plantilla by id KO")
             setError(data.message);
         }
     }
@@ -640,6 +677,7 @@ function ProvesBoard() {
         if (provaInfo?.id_esdeveniment) {
             getProvesByEsdeveniment();
             getAssistenciaByEsdeveniment();
+            getPlantillaById();
         }
     }, [provaInfo?.id_esdeveniment]);
 
@@ -879,7 +917,47 @@ function ProvesBoard() {
                     ))}
                 </div>
             </div>
+            <div className="create-prova-sections">
+                {infoPlantilla.pinya && (
+                    <>
+                        <div className={`select-section-prova ${selectedTag === "pinya" ? "active" : ""}`} onClick={() => {
+                            setSelectedTag("pinya");
+                        }}>Pinya</div>
+                    </>
+                )}
+                {infoPlantilla.folre && (
+                    <>
+                        <div className={`select-section-prova ${selectedTag === "folre" ? "active" : ""}`} onClick={() => {
+                            setSelectedTag("folre");
+                        }}>Folre</div>
+                    </>
+                )}
+                {infoPlantilla.manilles && (
+                    <>
+                        <div className={`select-section-prova ${selectedTag === "manilles" ? "active" : ""}`} onClick={() => {
+                            setSelectedTag("manilles");
+                        }}>Manilles</div>
+                    </>
+                )}
+                {infoPlantilla.puntals && (
+                    <>
+                        <div className={`select-section-prova ${selectedTag === "puntals" ? "active" : ""}`} onClick={() => {
+                            setSelectedTag("puntals");
+                        }}>Puntals</div>
+                    </>
+                )}
+                {infoPlantilla.tronc && (
+                    <>
+                        <div className={`select-section-prova ${selectedTag === "tronc" ? "active" : ""}`} onClick={() => {
+                            setSelectedTag("tronc");
+                        }}>Tronc</div>
+                    </>
+                )}
+            </div>
             <div className="whole-board-prova">
+
+            </div>
+            <div className="right-part-menu-desplegable">
 
             </div>
 
