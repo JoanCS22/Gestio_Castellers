@@ -510,3 +510,36 @@
 
     transform: scale(1.15);
 }
+
+/* BOARD PLANTILLA-ASSIGNACIONS */
+
+.bloc-posicio-prova {
+    position: absolute;
+
+    width: 70px;
+    height: 25px;
+
+    border-radius: 8px;
+    border: 1px solid #777;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    user-select: none;
+
+    transition: box-shadow 0.2s ease;
+}
+
+.bloc-posicio-prova:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.selected-bloc-prova {
+    outline: 2px solid #000;   
+}

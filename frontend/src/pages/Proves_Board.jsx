@@ -65,6 +65,9 @@ function ProvesBoard() {
     const [positions, setPositions] = useState([]);
     const [selectedPositions, setSelectedPositions] = useState([0]);
 
+    const [posicionsPlantilla, setPosicionsPlantilla] = useState([]);
+    const [selectedPositionId, setSelectedPositionId] = useState(null);
+
     const [memberSearch, setMemberSearch] = useState("");
 
     const [firstCheck, setFirstCheck] = useState({
@@ -678,6 +681,35 @@ function ProvesBoard() {
         }
     }
 
+    const getPlantillesPositions = async (idPlantilla) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/plantilles/getPositionsByPlantilla?id=${idPlantilla}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setPosicionsPlantilla(data);
+            console.log("{DEBUG} Get plantilla's positions OK")
+        } else {
+            console.log("{DEBUG} Get plantilla's positions KO")
+            setError(data.message);
+        }
+    }
+
     useEffect(() => {
         getCollaMembers();
         getCollesPositions();
@@ -715,6 +747,7 @@ function ProvesBoard() {
         if (!provaInfo?.id_plantilla) return;
 
         getPlantillaById(provaInfo.id_plantilla);
+        getPlantillesPositions(provaInfo.id_plantilla);
 
     }, [provaInfo?.id_plantilla]);
 
@@ -1048,7 +1081,35 @@ function ProvesBoard() {
             </div>
 
             <div className="whole-board-prova">
+                {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => (
+                    <>
+                        <div
+                            key={posicio.id}
+                            className={`bloc-posicio-prova ${selectedPositionId === posicio.id ? "selected-bloc-prova" : ""}`}
+                            onClick={() => {
+                                if (selectedPositionId === null) {
+                                    setSelectedPositionId(posicio.id);
+                                    return;
+                                }
 
+                                if (selectedPositionId === posicio.id) {
+                                    setSelectedPositionId(null);
+                                } else {
+                                    //Aplicar lògica per canviar caselles
+                                    setSelectedPositionId(posicio.id)
+                                }
+                            }}
+                            style={{
+                                position: "absolute",
+                                left: `${posicio.coord_x}px`,
+                                top: `${posicio.coord_y}px`,
+                                backgroundColor: posicio.color,
+                                transform: `rotate(${posicio.rotacio}deg)`,
+                            }}
+                        >
+                        </div>
+                    </>
+                ))}
             </div>
 
             {showModalProva && (
