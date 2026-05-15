@@ -337,7 +337,7 @@
 
 .select-section-prova {
     flex: 1;
-    
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -398,7 +398,7 @@
     transition: 0.2s ease;
 
     box-shadow:
-        0 4px 14px rgba(0,0,0,0.15);
+        0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
 .right-part-menu-toggle:hover {
@@ -419,7 +419,7 @@
     border-radius: 0 18px 18px 0;
 
     box-shadow:
-        0 4px 18px rgba(0,0,0,0.12);
+        0 4px 18px rgba(0, 0, 0, 0.12);
 
     display: flex;
     flex-direction: column;
@@ -513,6 +513,27 @@
 
 /* BOARD PLANTILLA-ASSIGNACIONS */
 
+.whole-board-prova {
+    position: fixed;
+
+    top: 197px;
+    left: 375px;
+
+    bottom: 0;
+
+    overflow: auto;
+
+    background-color: #f3f4f6;
+}
+
+.board-canvas-prova {
+    position: relative;
+
+    width: 3000px;
+    height: 3000px;
+}
+
+
 .bloc-posicio-prova {
     position: absolute;
 
@@ -541,5 +562,5 @@
 }
 
 .selected-bloc-prova {
-    outline: 2px solid #000;   
+    outline: 2px solid #000;
 }

@@ -140,6 +140,20 @@ function ProvesBoard() {
 
     const [showRightProves, setShowRightProves] = useState(false);
 
+    const BOARD_SIZE = 3000;
+
+    const minX = Math.min(...posicionsPlantilla.map(p => p.coord_x));
+    const maxX = Math.max(...posicionsPlantilla.map(p => p.coord_x));
+
+    const minY = Math.min(...posicionsPlantilla.map(p => p.coord_y));
+    const maxY = Math.max(...posicionsPlantilla.map(p => p.coord_y));
+
+    const plantillaWidth = maxX - minX;
+    const plantillaHeight = maxY - minY;
+
+    const offsetX = BOARD_SIZE / 2 - (minX + plantillaWidth / 2);
+    const offsetY = BOARD_SIZE / 2 - (minY + plantillaHeight / 2);
+
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
 
@@ -1081,35 +1095,37 @@ function ProvesBoard() {
             </div>
 
             <div className="whole-board-prova">
-                {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => (
-                    <>
-                        <div
-                            key={posicio.id}
-                            className={`bloc-posicio-prova ${selectedPositionId === posicio.id ? "selected-bloc-prova" : ""}`}
-                            onClick={() => {
-                                if (selectedPositionId === null) {
-                                    setSelectedPositionId(posicio.id);
-                                    return;
-                                }
+                <div className="board-canvas-prova">
+                    {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => (
+                        <>
+                            <div
+                                key={posicio.id}
+                                className={`bloc-posicio-prova ${selectedPositionId === posicio.id ? "selected-bloc-prova" : ""}`}
+                                onClick={() => {
+                                    if (selectedPositionId === null) {
+                                        setSelectedPositionId(posicio.id);
+                                        return;
+                                    }
 
-                                if (selectedPositionId === posicio.id) {
-                                    setSelectedPositionId(null);
-                                } else {
-                                    //Aplicar lògica per canviar caselles
-                                    setSelectedPositionId(posicio.id)
-                                }
-                            }}
-                            style={{
-                                position: "absolute",
-                                left: `${posicio.coord_x}px`,
-                                top: `${posicio.coord_y}px`,
-                                backgroundColor: posicio.color,
-                                transform: `rotate(${posicio.rotacio}deg)`,
-                            }}
-                        >
-                        </div>
-                    </>
-                ))}
+                                    if (selectedPositionId === posicio.id) {
+                                        setSelectedPositionId(null);
+                                    } else {
+                                        //Aplicar lògica per canviar caselles
+                                        setSelectedPositionId(posicio.id)
+                                    }
+                                }}
+                                style={{
+                                    position: "absolute",
+                                    left: `${posicio.coord_x + offsetX}px`,
+                                    top: `${posicio.coord_y + offsetY}px`,
+                                    backgroundColor: posicio.color,
+                                    transform: `rotate(${posicio.rotacio}deg)`,
+                                }}
+                            >
+                            </div>
+                        </>
+                    ))}
+                </div>
             </div>
 
             {showModalProva && (
