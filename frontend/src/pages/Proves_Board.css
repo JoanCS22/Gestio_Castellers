@@ -411,9 +411,10 @@
 
 .right-part-menu-content {
     width: 278px;
-    height: 520px;
+    height: 458px;
 
     background: white;
+    border: 1px solid #374151;
 
     border-radius: 0 18px 18px 0;
 

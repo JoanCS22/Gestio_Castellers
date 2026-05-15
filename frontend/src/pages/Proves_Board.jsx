@@ -18,14 +18,19 @@ import Input from "../components/Input.jsx";
 import Button from "../components/Button.jsx";
 
 import { useSyncExternalStore } from "react";
+import { useEvent } from "../utils/EventContext.jsx"
 
 function ProvesBoard() {
     const navigate = useNavigate();
 
     const location = useLocation();
 
+    const { currentEvent } = useEvent();
+
     const params = new URLSearchParams(location.search);
     const idProva = params.get("id");
+    const idEsdeveniment = params.get("idEsdeveniment");
+    const nomEsdeveniment = params.get("nomEsdeveniment");
 
     //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
     const permissions = getPermissions();
@@ -182,34 +187,34 @@ function ProvesBoard() {
         setSelectedPositions(updated);
     };
 
-    const filteredMembers = membersByPosition.filter((member) => {
+    const filteredMembers = useMemo(() => {
+        return membersByPosition.filter((member) => {
 
-        const searchOk = member.mote?.toLowerCase().includes(memberSearch.toLowerCase());
+            const searchOk = member.mote?.toLowerCase().includes(memberSearch.toLowerCase());
+            if (!searchOk) return false;
 
-        if (!searchOk) return false;
+            const registre = assistenciaMap[member.id_usuari];
 
-        const registre = assistenciaMap[member.id_usuari];
+            if (!registre) {
+                return firstCheck.no_sap || firstCheck.no;
+            }
 
-        if (!registre) {
-            return firstCheck.no_sap || firstCheck.no;
-        }
+            if (registre.confirmacio_arribada === "si") {
+                return secondCheck.si;
+            }
 
-        if (registre.confirmacio_arribada === "si") {
-            return secondCheck.si;
-        }
-
-        switch (registre.confirmacio_previa) {
-            case "si":
-                return firstCheck.si;
-            case "no":
-                return firstCheck.no;
-            case "no_sap":
-                return firstCheck.no_sap;
-            case "pendent":
-            default:
-                return firstCheck.no_sap;
-        }
-    });
+            switch (registre.confirmacio_previa) {
+                case "si":
+                    return firstCheck.si;
+                case "no":
+                    return firstCheck.no;
+                case "no_sap":
+                    return firstCheck.no_sap;
+                default:
+                    return firstCheck.no_sap;
+            }
+        });
+    }, [membersByPosition, assistenciaMap, memberSearch, firstCheck, secondCheck]);
 
     const getCollaMembers = async () => {
 
@@ -243,12 +248,6 @@ function ProvesBoard() {
 
     const getProvaById = async () => {
 
-        setProvaInfo(null);
-
-        setInfoPlantilla([]);
-
-        setAssistencia([]);
-
         setSelectedTag("pinya");
 
         const token = localStorage.getItem("token");
@@ -271,6 +270,7 @@ function ProvesBoard() {
 
         if (response.ok) {
             setProvaInfo(data);
+            console.log(data);
             console.log("{DEBUG} Get prova by id OK")
         } else {
             console.log("{DEBUG} Get prova by id KO")
@@ -301,7 +301,6 @@ function ProvesBoard() {
         if (response.ok) {
             setInfoPlantilla({ ...data });
             setSelectedTag(data.pinya ? "pinya" : "tronc")
-            console.log(data);
             console.log("{DEBUG} Get plantilla by id OK")
         } else {
             console.log("{DEBUG} Get plantilla by id KO")
@@ -593,6 +592,7 @@ function ProvesBoard() {
             }
 
             await getProvaById();
+            await getProvesByEsdeveniment();
             resetModal();
         } else {
             if (editMode) {
@@ -671,6 +671,7 @@ function ProvesBoard() {
             setError("");
             showTempMessage("Prova eliminada correctament.");
             getCollesPositions();
+            navigate(`/proves?idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`);
         } else {
             console.log("{DEBUG} Delete prova KO");
             setError(data.message);
@@ -684,25 +685,38 @@ function ProvesBoard() {
     }, []);
 
     useEffect(() => {
-        if (idProva) {
-            getProvaById();
-        }
+
+        const loadData = async () => {
+
+            setInfoPlantilla({});
+            setAssistencia([]);
+            setSelectedTag("pinya");
+            setProvaInfo(null);
+
+            if (idProva) {
+                await getProvaById();
+            }
+        };
+
+        loadData();
+
     }, [idProva]);
 
     useEffect(() => {
 
-        if (!provaInfo) return;
+        if (!provaInfo?.id_esdeveniment) return;
 
-        if (provaInfo.id_esdeveniment) {
-            getProvesByEsdeveniment();
-            getAssistenciaByEsdeveniment(provaInfo.id_esdeveniment);
-        }
+        getProvesByEsdeveniment();
+        getAssistenciaByEsdeveniment(provaInfo.id_esdeveniment);
 
-        if (provaInfo.id_plantilla) {
-            getPlantillaById(provaInfo.id_plantilla);
-        }
+    }, [provaInfo?.id_esdeveniment]);
 
-    }, [provaInfo]);
+    useEffect(() => {
+        if (!provaInfo?.id_plantilla) return;
+
+        getPlantillaById(provaInfo.id_plantilla);
+
+    }, [provaInfo?.id_plantilla]);
 
     useEffect(() => {
         if (selectedPositions.length === 0 || selectedPositions.includes(0)) {
@@ -725,6 +739,13 @@ function ProvesBoard() {
             <TopMenu
                 title={provaInfo ? `${provaInfo.nom} - ${provaInfo.estructura}` : "Carregant prova..."}
                 tornar
+                tornar_action={
+                    currentEvent
+                        ? () => navigate(
+                            `/proves?idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`
+                        )
+                        : undefined
+                }
                 leftIcons={
                     <>
                         {provaInfo?.xarxa && (
@@ -744,7 +765,7 @@ function ProvesBoard() {
                         <div className="icon-btn" title={provaInfo?.favorita ? "Treure de favorits" : "Afegir a favorits"} onClick={() => {
                             updateFavorite(provaInfo.id, !provaInfo.favorita);
                         }}>
-                            <FaRegStar className={`icon-favorit ${provaInfo?.favorita ? "favorit-actiu" : ""}`} />
+                            <FaRegStar className={`icon-favorit ${provaInfo?.favorita ? "favorit-actiu" : ""} `} />
                         </div>
                     </>
                 }
@@ -786,7 +807,7 @@ function ProvesBoard() {
                 }
             />
             {message && (
-                <div className={`message ${message.type}`}>
+                <div className={`message ${message.type} `}>
                     {message.message}
                 </div>
             )}
@@ -906,7 +927,7 @@ function ProvesBoard() {
                 <div className="top-part-prova-board-posicions">
                     <label
                         key={0}
-                        className={`container-position-prova-board ${selectedPositions.includes(0) ? "position-selected" : ""}`}
+                        className={`container-position-prova-board ${selectedPositions.includes(0) ? "position-selected" : ""} `}
                         title="Filtrar per totes les posicions"
                     >
                         <span className="position-name-board">
@@ -923,8 +944,8 @@ function ProvesBoard() {
                     {positions.map((position) => (
                         <label
                             key={position.id}
-                            className={`container-position-prova-board ${selectedPositions.includes(position.nom) ? "position-selected" : ""}`}
-                            title={`Filtrar per ${position.nom}`}
+                            className={`container-position-prova-board ${selectedPositions.includes(position.nom) ? "position-selected" : ""} `}
+                            title={`Filtrar per ${position.nom} `}
                         >
                             <span className="position-name-board">
                                 {position.nom}
@@ -943,41 +964,41 @@ function ProvesBoard() {
             <div className="create-prova-sections">
                 {infoPlantilla.pinya && (
                     <>
-                        <div className={`select-section-prova ${selectedTag === "pinya" ? "active" : ""}`} onClick={() => {
+                        <div className={`select-section-prova ${selectedTag === "pinya" ? "active" : ""} `} onClick={() => {
                             setSelectedTag("pinya");
                         }}>Pinya</div>
                     </>
                 )}
                 {infoPlantilla.folre && (
                     <>
-                        <div className={`select-section-prova ${selectedTag === "folre" ? "active" : ""}`} onClick={() => {
+                        <div className={`select-section-prova ${selectedTag === "folre" ? "active" : ""} `} onClick={() => {
                             setSelectedTag("folre");
                         }}>Folre</div>
                     </>
                 )}
                 {infoPlantilla.manilles && (
                     <>
-                        <div className={`select-section-prova ${selectedTag === "manilles" ? "active" : ""}`} onClick={() => {
+                        <div className={`select-section-prova ${selectedTag === "manilles" ? "active" : ""} `} onClick={() => {
                             setSelectedTag("manilles");
                         }}>Manilles</div>
                     </>
                 )}
                 {infoPlantilla.puntals && (
                     <>
-                        <div className={`select-section-prova ${selectedTag === "puntals" ? "active" : ""}`} onClick={() => {
+                        <div className={`select-section-prova ${selectedTag === "puntals" ? "active" : ""} `} onClick={() => {
                             setSelectedTag("puntals");
                         }}>Puntals</div>
                     </>
                 )}
                 {infoPlantilla.tronc && (
                     <>
-                        <div className={`select-section-prova ${selectedTag === "tronc" ? "active" : ""}`} onClick={() => {
+                        <div className={`select-section-prova ${selectedTag === "tronc" ? "active" : ""} `} onClick={() => {
                             setSelectedTag("tronc");
                         }}>Tronc</div>
                     </>
                 )}
             </div>
-            <div className={`right-part-menu-desplegable ${showRightProves ? "open" : "closed"}`}>
+            <div className={`right-part-menu-desplegable ${showRightProves ? "open" : "closed"} `}>
 
                 <div
                     className="right-part-menu-toggle"
@@ -1005,7 +1026,7 @@ function ProvesBoard() {
                                     key={prova.id}
                                     className="container-right-prova-menu"
                                     onClick={() => {
-                                        navigate(`/proves_board?id=${prova.id}`);
+                                        navigate(`/proves_board?id=${prova.id}&idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`);
                                     }}
                                 >
                                     <span className="container-right-prova-menu-name">

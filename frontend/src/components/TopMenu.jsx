@@ -8,7 +8,8 @@ import LeftMenu from "./LeftMenu";
 
 import "./TopMenu.css";
 
-function TopMenu({ title = "text", tornar = false, canvi_colla = false, onReady, leftIcons, rightIcons }) {
+function TopMenu({ title = "text", tornar = false, tornar_action, 
+  canvi_colla = false, onReady, leftIcons, rightIcons }) {
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false)
@@ -190,7 +191,7 @@ function TopMenu({ title = "text", tornar = false, canvi_colla = false, onReady,
 
       <div className="right-content">
         {tornar ? (
-          <div className="user-wrapper" onClick={() => navigate(-1)}>
+          <div className="user-wrapper" onClick={tornar_action ? tornar_action : () => {navigate(-1)}}>
             <FaArrowLeft />
             <span>TORNAR</span>
           </div>

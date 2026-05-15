@@ -376,7 +376,7 @@ function ProvesInici() {
                         <>
                             <div className="container-proves">
                                 <div className="container-proves-text" onClick={() => {
-                                    navigate(`/proves_board?id=${prova.id}`)
+                                    navigate(`/proves_board?id=${prova.id}&idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`)
                                 }}>
                                     <span>{prova.nom}</span>
                                     <span>{prova.estructura}</span>
