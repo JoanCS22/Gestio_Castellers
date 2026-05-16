@@ -431,14 +431,14 @@ const intercanviarPosicions = async (req, res) => {
         const id_usuari_1 = id_usuari1.rows[0]?.id_usuari;
         const id_usuari_2 = id_usuari2.rows[0]?.id_usuari;
 
-        const result1 = await client.query(
+        await client.query(
             `UPDATE assignacions_prova
              SET id_usuari = $1
              WHERE id = $2`,
             [id_usuari_2, id_assignacio_1]
         );
 
-        const result1 = await client.query(
+        await client.query(
             `UPDATE assignacions_prova
              SET id_usuari = $1
              WHERE id = $2`,

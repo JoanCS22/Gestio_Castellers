@@ -6,7 +6,7 @@ import {
     FaCheck, FaCheckDouble, FaVideoSlash, FaVideo, FaTrashAlt, FaTimesCircle, FaCheckCircle,
     FaRegStar, FaHashtag, FaEye, FaEyeSlash, FaPencilAlt, FaPlusSquare, FaSearch,
     FaTimes, FaQuestionCircle, FaUserTimes, FaUserAltSlash, FaUsersSlash,
-    FaAngleRight, FaAngleLeft, FaBandAid, FaBaby 
+    FaAngleRight, FaAngleLeft, FaBandAid, FaBaby
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -102,12 +102,15 @@ function ProvesBoard() {
 
     const [members, setMembers] = useState([]);
     const [membersByPosition, setMembersByPosition] = useState([]);
+    const [selectedMemberId, setSelectedMemberId] = useState(null);
 
     const [positions, setPositions] = useState([]);
     const [selectedPositions, setSelectedPositions] = useState([0]);
 
     const [posicionsPlantilla, setPosicionsPlantilla] = useState([]);
     const [selectedPositionId, setSelectedPositionId] = useState(null);
+
+    const [assignacions, setAssignacions] = useState([]);
 
     const [memberSearch, setMemberSearch] = useState("");
 
@@ -142,7 +145,7 @@ function ProvesBoard() {
 
         switch (registre.confirmacio_arribada) {
             case "si":
-                return <FaCheckCircle className="icon-feta" />;
+                return <FaCheckDouble className="icon-feta" />;
 
             case "no":
                 return <FaTimesCircle className="icon-no-feta" />;
@@ -257,8 +260,13 @@ function ProvesBoard() {
                 return firstCheck.no_sap || firstCheck.no;
             }
 
-            if (registre.confirmacio_arribada === "si") {
-                return secondCheck.si;
+            switch (registre.confirmacio_arribada) {
+                case "si":
+                    return secondCheck.si;
+                case "no":
+                    return secondCheck.no;
+                case "no_sap":
+                    return secondCheck.no_sap;
             }
 
             switch (registre.confirmacio_previa) {
@@ -328,7 +336,6 @@ function ProvesBoard() {
 
         if (response.ok) {
             setProvaInfo(data);
-            console.log(data);
             console.log("{DEBUG} Get prova by id OK")
         } else {
             console.log("{DEBUG} Get prova by id KO")
@@ -765,6 +772,35 @@ function ProvesBoard() {
         }
     }
 
+    const getAssignacions = async (idProva) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/proves/getAssignacionsProva?id=${idProva}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setAssignacions(data);
+            console.log("{DEBUG} Get prova's assignacions OK")
+        } else {
+            console.log("{DEBUG} Get prova's assignacions KO")
+            setError(data.message);
+        }
+    }
+
     useEffect(() => {
         getCollaMembers();
         getCollesPositions();
@@ -782,6 +818,7 @@ function ProvesBoard() {
 
             if (idProva) {
                 await getProvaById();
+                await getAssignacions(idProva);
             }
         };
 
@@ -972,16 +1009,21 @@ function ProvesBoard() {
                 <hr />
                 <div className="left-part-prova-board-members">
                     {filteredMembers.map((member) => (
-                        <div key={member.id_usuari} className="container-member-prova-board" onClick={() => {
-                            //AFEGIR LÒGICA
-                        }}>
+                        <div key={member.id_usuari} className={`container-member-prova-board ${selectedMemberId === member.id_usuari ? "selected-bloc-membre-prova" : ""}`}
+                            onClick={() => {
+                                if (selectedMemberId === member.id_usuari) {
+                                    setSelectedMemberId(null);
+                                    return;
+                                }
+                                setSelectedMemberId(member.id_usuari);
+                            }}>
                             <span className="member-name">
                                 {member.mote}
                             </span>
 
                             <div className="member-status">
-                                {member.canalla && ( <FaBaby />)}
-                                {member.lesionat && ( <FaBandAid />)}
+                                {member.canalla && (<FaBaby />)}
+                                {member.lesionat && (<FaBandAid />)}
                                 {getAssistenciaIcon(member.id_usuari)}
                             </div>
                         </div>
