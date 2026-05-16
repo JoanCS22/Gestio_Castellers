@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
-const { getProvesByEsdeveniment, getProvaById,
+const {
+    getProvesByEsdeveniment, getProvaById,
     createProva, deleteProva,
     modifyInfoProva, updateOrder, publishProva, updateFavorite, updateFeta,
-    getAssignacionsProva, asignarPosicioProva, desasignarPosicioProva, intercanviarPosicions, buidarPlantillaProva, eliminarAbsentsProva
+    getAssignacionsProva, desasignarPosicioProva, buidarPlantillaProva, eliminarAbsentsProva,
+    asignarPosicioProva, intercanviarPosicions, canviarAssignacio,
 } = require('../controllers/proves.controller');
 const auth = require('../middleware/auth');
 
@@ -21,10 +23,12 @@ router.post('/updateFavorite', auth, updateFavorite);
 router.post('/updateFeta', auth, updateFeta);
 
 router.get('/getAssignacionsProva', auth, getAssignacionsProva);
-router.post('/asignarPosicioProva', auth, asignarPosicioProva);
 router.post('/desasignarPosicioProva', auth, desasignarPosicioProva);
-router.post('/intercanviarPosicions', auth, intercanviarPosicions);
 router.delete('/buidarPlantillaProva', auth, buidarPlantillaProva);
 router.delete('/eliminarAbsentsProva', auth, eliminarAbsentsProva);
+
+router.post('/asignarPosicioProva', auth, asignarPosicioProva);
+router.post('/intercanviarPosicions', auth, intercanviarPosicions);
+router.post('/canviarAssignacio', auth, canviarAssignacio);
 
 module.exports = router;

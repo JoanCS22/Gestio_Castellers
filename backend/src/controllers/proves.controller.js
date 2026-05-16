@@ -375,35 +375,40 @@ const asignarPosicioProva = async (req, res) => {
     }
 }
 
-const desasignarPosicioProva = async (req, res) => {
+const canviarAssignacio = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const id_prova = req.query.id;
+        const { id_assignacio, id_usuari, id_posicio } = req.body;
 
         await client.query("BEGIN");
 
-        const result = await client.query(
-            `DELETE FROM assignacions_prova 
-             WHERE id = $1
-             RETURNING *`,
-            [id_prova]
+        await client.query(
+            `UPDATE assignacions_prova
+             SET id_usuari = COALESCE($2, id_usuari),
+                 id_posicio = COALESCE($3, id_posicio)
+             WHERE id_assignacio = $1`,
+            [id_assignacio, id_usuari, id_posicio]
         );
 
         await client.query("COMMIT");
 
-        res.status(200).json(result.rows[0]);
+        res.status(200).json({
+            message: "Assignació actualitzada"
+        });
 
     } catch (error) {
         await client.query("ROLLBACK");
         console.error(error);
 
-        res.status(500).json({ message: "Error al desasignar membre de posició" });
+        res.status(500).json({
+            message: "Error actualitzant assignació"
+        });
 
     } finally {
         client.release();
     }
-}
+};
 
 const intercanviarPosicions = async (req, res) => {
     const client = await pool.connect();
@@ -417,14 +422,14 @@ const intercanviarPosicions = async (req, res) => {
         const id_usuari1 = await client.query(
             `SELECT id_usuari
              FROM assignacions_prova 
-             WHERE id = $1`,
+             WHERE id_assignacio = $1`,
             [id_assignacio_1]
         );
 
         const id_usuari2 = await client.query(
             `SELECT id_usuari
              FROM assignacions_prova 
-             WHERE id = $1`,
+             WHERE id_assignacio = $1`,
             [id_assignacio_2]
         );
 
@@ -434,14 +439,14 @@ const intercanviarPosicions = async (req, res) => {
         await client.query(
             `UPDATE assignacions_prova
              SET id_usuari = $1
-             WHERE id = $2`,
+             WHERE id_assignacio = $2`,
             [id_usuari_2, id_assignacio_1]
         );
 
         await client.query(
             `UPDATE assignacions_prova
              SET id_usuari = $1
-             WHERE id = $2`,
+             WHERE id_assignacio = $2`,
             [id_usuari_1, id_assignacio_2]
         );
 
@@ -466,6 +471,36 @@ const intercanviarPosicions = async (req, res) => {
     }
 }
 
+const desasignarPosicioProva = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const id_assignacio = req.query.id;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `DELETE FROM assignacions_prova 
+             WHERE id_assignacio = $1
+             RETURNING *`,
+            [id_assignacio]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({ message: "Error al desasignar membre de posició" });
+
+    } finally {
+        client.release();
+    }
+}
+
 const buidarPlantillaProva = async (req, res) => {
     const client = await pool.connect();
 
@@ -483,7 +518,7 @@ const buidarPlantillaProva = async (req, res) => {
 
         await client.query("COMMIT");
 
-        res.status(200).json(result.rows[0]);
+        res.status(200).json(result.rows);
 
     } catch (error) {
         await client.query("ROLLBACK");
@@ -505,7 +540,7 @@ const eliminarAbsentsProva = async (req, res) => {
         await client.query("BEGIN");
 
         const result = await client.query(
-            `DELETE FROM assignacions_prova 
+            `DELETE FROM assignacions_prova ap
              WHERE id_prova IN (
                 SELECT id
                 FROM proves
@@ -523,7 +558,7 @@ const eliminarAbsentsProva = async (req, res) => {
 
         await client.query("COMMIT");
 
-        res.status(200).json(result.rows[0]);
+        res.status(200).json(result.rows);
 
     } catch (error) {
         await client.query("ROLLBACK");
@@ -540,5 +575,6 @@ module.exports = {
     getProvesByEsdeveniment, getProvaById,
     createProva, deleteProva,
     modifyInfoProva, updateOrder, publishProva, updateFavorite, updateFeta,
-    getAssignacionsProva, asignarPosicioProva, desasignarPosicioProva, intercanviarPosicions, buidarPlantillaProva, eliminarAbsentsProva
+    getAssignacionsProva, desasignarPosicioProva, buidarPlantillaProva, eliminarAbsentsProva,
+    asignarPosicioProva, intercanviarPosicions, canviarAssignacio,
 };

@@ -5,7 +5,8 @@ const getMembers = async (req, res) => {
         const collaActiva = req.query.id;
 
         const result = await pool.query(
-            `SELECT m.id_colla, m.id_usuari, u.nom, u.cognoms, u.mote, r.nom AS rol, m.data_acces, u.lesionat, u.canalla,
+            `SELECT m.id_colla, m.id_usuari, u.nom, u.cognoms, u.mote, r.nom AS rol, m.data_acces, 
+             u.lesionat, u.canalla, u.altura_total, u.altura_espatlles, u.envergadura,
              COALESCE(
                 ARRAY_AGG(p.nom) FILTER (WHERE p.nom IS NOT NULL),
                 '{}'

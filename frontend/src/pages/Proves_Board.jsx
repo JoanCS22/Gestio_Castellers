@@ -801,6 +801,96 @@ function ProvesBoard() {
         }
     }
 
+    const asignarPosicio = async () => {
+
+        if (!selectedPositionId || !selectedMemberId) { return; }
+
+        const token = localStorage.getItem("token");
+
+        let response;
+
+        const assignacioPosicio = assignacions.find(a => a.id_posicio === selectedPositionId);
+        const assignacioMembre = assignacions.find(a => a.id_usuari === selectedMemberId);
+
+        const idAssignacioPosicio = assignacioPosicio?.id_assignacio;
+        const idAssignacioMembre = assignacioMembre?.id_assignacio;
+
+        if (assignacioPosicio && assignacioMembre) {
+            response = await fetch("http://localhost:5000/proves/intercanviarPosicions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    id_assignacio_1: idAssignacioPosicio,
+                    id_assignacio_2: idAssignacioMembre,
+                }),
+            });
+        } else if (assignacioPosicio) {
+            response = await fetch("http://localhost:5000/proves/canviarAssignacio", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    id_assignacio: idAssignacioPosicio,
+                    id_usuari: selectedMemberId,
+                }),
+            });
+        } else if (assignacioMembre) {
+            response = await fetch("http://localhost:5000/proves/canviarAssignacio", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    id_assignacio: idAssignacioMembre,
+                    id_posicio: selectedPositionId,
+                }),
+            });
+        } else {
+            response = await fetch("http://localhost:5000/proves/asignarPosicioProva", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    id_prova: idProva,
+                    id_posicio: selectedPositionId,
+                    id_usuari: selectedMemberId,
+                }),
+            });
+        }
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setSelectedMemberId(null);
+            setSelectedPositionId(null);
+            await getAssignacions();
+            console.log("{DEBUG} Get prova's assignacions OK")
+        } else {
+            console.log("{DEBUG} Get prova's assignacions KO")
+            setError(data.message);
+        }
+    }
+
+    useEffect(() => {
+        if (selectedMemberId && selectedPositionId) {
+            asignarPosicio();
+        }
+    }, [selectedMemberId, selectedPositionId]);
+
     useEffect(() => {
         getCollaMembers();
         getCollesPositions();
@@ -1013,10 +1103,11 @@ function ProvesBoard() {
                             onClick={() => {
                                 if (selectedMemberId === member.id_usuari) {
                                     setSelectedMemberId(null);
-                                    return;
+                                } else {
+                                    setSelectedMemberId(member.id_usuari);
                                 }
-                                setSelectedMemberId(member.id_usuari);
-                            }}>
+                            }}
+                        >
                             <span className="member-name">
                                 {member.mote}
                             </span>
@@ -1189,22 +1280,24 @@ function ProvesBoard() {
                 onMouseLeave={handleMouseUp}
             >
                 <div className="board-canvas-prova">
-                    {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => (
-                        <>
+                    {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => {
+
+                        const assignacio = assignacions.find(
+                            a => a.id_posicio === posicio.id
+                        );
+
+                        return (
                             <div
                                 key={posicio.id}
-                                className={`bloc-posicio-prova ${selectedPositionId === posicio.id ? "selected-bloc-prova" : ""}`}
+                                className={`bloc-posicio-prova 
+                                    ${selectedPositionId === posicio.id ? "selected-bloc-prova" : ""}
+                                    ${selectedMemberId === assignacio?.id_usuari ? "selected-bloc-member" : ""}
+                                `}
                                 onClick={() => {
-                                    if (selectedPositionId === null) {
-                                        setSelectedPositionId(posicio.id);
-                                        return;
-                                    }
-
                                     if (selectedPositionId === posicio.id) {
                                         setSelectedPositionId(null);
                                     } else {
-                                        //Aplicar lògica per canviar caselles
-                                        setSelectedPositionId(posicio.id)
+                                        setSelectedPositionId(posicio.id);
                                     }
                                 }}
                                 style={{
@@ -1215,9 +1308,21 @@ function ProvesBoard() {
                                     transform: `rotate(${posicio.rotacio}deg)`,
                                 }}
                             >
+                                <span>
+                                    {assignacio?.mote || ""}
+                                </span>
+                                <span>
+                                    {selectedMesura === 1 ? (assignacio?.altura_total || "")
+                                        : (<>{selectedMesura === 2 ? (assignacio?.altura_espatlles || "")
+                                            : (
+                                                assignacio?.envergadura || ""
+                                            )
+                                        }</>)
+                                    }
+                                </span>
                             </div>
-                        </>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 
