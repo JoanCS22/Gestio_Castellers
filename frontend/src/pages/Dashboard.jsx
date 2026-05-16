@@ -272,8 +272,8 @@ function Dashboard() {
                                     (hasWritePermission("proves") || prova.public) && (
                                         <>
                                             <div className="container-proves-dashboard" onClick={() => {
-                                                    navigate(`/proves_board?id=${prova.id}`)
-                                                }}>
+                                                navigate(`/proves_board?id=${prova.id}&idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`)
+                                            }}>
                                                 <div className="container-proves-text-dashboard">
                                                     <span>{prova.nom}</span>
                                                 </div>

@@ -27,6 +27,47 @@ function ProvesBoard() {
 
     const { currentEvent } = useEvent();
 
+    const boardRef = useRef(null);
+
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [startY, setStartY] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
+    const [scrollTop, setScrollTop] = useState(0);
+
+    const handleMouseDown = (e) => {
+        const board = boardRef.current;
+
+        setIsDragging(true);
+
+        setStartX(e.pageX - board.offsetLeft);
+        setStartY(e.pageY - board.offsetTop);
+
+        setScrollLeft(board.scrollLeft);
+        setScrollTop(board.scrollTop);
+    };
+
+    const handleMouseMove = (e) => {
+        if (!isDragging) return;
+
+        e.preventDefault();
+
+        const board = boardRef.current;
+
+        const x = e.pageX - board.offsetLeft;
+        const y = e.pageY - board.offsetTop;
+
+        const walkX = x - startX;
+        const walkY = y - startY;
+
+        board.scrollLeft = scrollLeft - walkX;
+        board.scrollTop = scrollTop - walkY;
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
     const params = new URLSearchParams(location.search);
     const idProva = params.get("id");
     const idEsdeveniment = params.get("idEsdeveniment");
@@ -140,7 +181,7 @@ function ProvesBoard() {
 
     const [showRightProves, setShowRightProves] = useState(false);
 
-    const BOARD_SIZE = 3000;
+    const BOARD_SIZE = 1500;
 
     const minX = Math.min(...posicionsPlantilla.map(p => p.coord_x));
     const maxX = Math.max(...posicionsPlantilla.map(p => p.coord_x));
@@ -1074,6 +1115,8 @@ function ProvesBoard() {
                                     className="container-right-prova-menu"
                                     onClick={() => {
                                         navigate(`/proves_board?id=${prova.id}&idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`);
+                                        setSelectedPositionId(null);
+                                        setShowRightProves(!showRightProves)
                                     }}
                                 >
                                     <span className="container-right-prova-menu-name">
@@ -1094,7 +1137,13 @@ function ProvesBoard() {
                 )}
             </div>
 
-            <div className="whole-board-prova">
+            <div ref={boardRef}
+                className="whole-board-prova"
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+            >
                 <div className="board-canvas-prova">
                     {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => (
                         <>

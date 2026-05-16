@@ -518,19 +518,27 @@
 
     top: 197px;
     left: 375px;
+    right: 0;
 
     bottom: 0;
 
     overflow: auto;
 
     background-color: #f3f4f6;
+
+    cursor: grab;
+    user-select: none;
+}
+
+.whole-board-prova:active {
+    cursor: grabbing;
 }
 
 .board-canvas-prova {
     position: relative;
 
-    width: 3000px;
-    height: 3000px;
+    width: 1500px;
+    height: 1500px;
 }
 
 
