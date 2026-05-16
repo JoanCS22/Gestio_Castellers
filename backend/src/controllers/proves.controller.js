@@ -315,8 +315,230 @@ const deleteProva = async (req, res) => {
     }
 }
 
+const getAssignacionsProva = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const id_prova = req.query.id;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `SELECT *
+             FROM assignacions_prova 
+             WHERE id_prova = $1`,
+            [id_prova]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(result.rows);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({ message: "Error al rebre dades {getAssignacionsProva}" });
+
+    } finally {
+        client.release();
+    }
+}
+
+const asignarPosicioProva = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const { id_prova, id_posicio, id_usuari } = req.body;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `INSERT INTO assignacions_prova (id_prova, id_posicio, id_usuari)
+             VALUES ($1, $2, $3)
+             RETURNING *`,
+            [id_prova, id_posicio, id_usuari]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({ message: "Error a l'assignar usuari a posició" });
+
+    } finally {
+        client.release();
+    }
+}
+
+const desasignarPosicioProva = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const id_prova = req.query.id;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `DELETE FROM assignacions_prova 
+             WHERE id = $1
+             RETURNING *`,
+            [id_prova]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({ message: "Error al desasignar membre de posició" });
+
+    } finally {
+        client.release();
+    }
+}
+
+const intercanviarPosicions = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+
+        const { id_assignacio_1, id_assignacio_2 } = req.body;
+
+        await client.query("BEGIN");
+
+        const id_usuari1 = await client.query(
+            `SELECT id_usuari
+             FROM assignacions_prova 
+             WHERE id = $1`,
+            [id_assignacio_1]
+        );
+
+        const id_usuari2 = await client.query(
+            `SELECT id_usuari
+             FROM assignacions_prova 
+             WHERE id = $1`,
+            [id_assignacio_2]
+        );
+
+        const id_usuari_1 = id_usuari1.rows[0]?.id_usuari;
+        const id_usuari_2 = id_usuari2.rows[0]?.id_usuari;
+
+        const result1 = await client.query(
+            `UPDATE assignacions_prova
+             SET id_usuari = $1
+             WHERE id = $2`,
+            [id_usuari_2, id_assignacio_1]
+        );
+
+        const result1 = await client.query(
+            `UPDATE assignacions_prova
+             SET id_usuari = $1
+             WHERE id = $2`,
+            [id_usuari_1, id_assignacio_2]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json({
+            message: "Posicions intercanviades"
+        });
+
+    } catch (error) {
+
+        await client.query("ROLLBACK");
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Error intercanviant posicions"
+        });
+
+    } finally {
+        client.release();
+    }
+}
+
+const buidarPlantillaProva = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const id_prova = req.query.id;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `DELETE FROM assignacions_prova 
+             WHERE id_prova = $1
+             RETURNING *`,
+            [id_prova]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({ message: "Error al buidar la plantilla" });
+
+    } finally {
+        client.release();
+    }
+}
+
+const eliminarAbsentsProva = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const id_esdeveniment = req.query.id;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `DELETE FROM assignacions_prova 
+             WHERE id_prova IN (
+                SELECT id
+                FROM proves
+                WHERE id_esdeveniment = $1
+             )
+             AND ap.id_usuari IN (
+                SELECT a.id_usuari
+                FROM assistencia a
+                WHERE a.id_esdeveniment = $1
+                AND ( a.confirmacio_previa = 'no' OR a.confirmacio_arribada = 'no' )
+             )
+             RETURNING *`,
+            [id_esdeveniment]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({ message: "Error al buidar la plantilla" });
+
+    } finally {
+        client.release();
+    }
+}
+
 module.exports = {
     getProvesByEsdeveniment, getProvaById,
     createProva, deleteProva,
-    modifyInfoProva, updateOrder, publishProva, updateFavorite, updateFeta
+    modifyInfoProva, updateOrder, publishProva, updateFavorite, updateFeta,
+    getAssignacionsProva, asignarPosicioProva, desasignarPosicioProva, intercanviarPosicions, buidarPlantillaProva, eliminarAbsentsProva
 };

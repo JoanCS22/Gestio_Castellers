@@ -6,7 +6,7 @@ import {
     FaCheck, FaCheckDouble, FaVideoSlash, FaVideo, FaTrashAlt, FaTimesCircle, FaCheckCircle,
     FaRegStar, FaHashtag, FaEye, FaEyeSlash, FaPencilAlt, FaPlusSquare, FaSearch,
     FaTimes, FaQuestionCircle, FaUserTimes, FaUserAltSlash, FaUsersSlash,
-    FaAngleRight, FaAngleLeft
+    FaAngleRight, FaAngleLeft, FaBandAid, FaBaby 
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -980,6 +980,8 @@ function ProvesBoard() {
                             </span>
 
                             <div className="member-status">
+                                {member.canalla && ( <FaBaby />)}
+                                {member.lesionat && ( <FaBandAid />)}
                                 {getAssistenciaIcon(member.id_usuari)}
                             </div>
                         </div>
