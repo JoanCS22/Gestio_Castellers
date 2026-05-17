@@ -525,7 +525,7 @@
 
     top: 197px;
     left: 375px;
-    right: 0;
+    right: 30px;
 
     bottom: 0;
 
@@ -559,11 +559,14 @@
     border: 1px solid #777;
 
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 
     font-size: 14px;
     font-weight: 600;
+
+    gap: -1px;
 
     cursor: pointer;
 
@@ -581,5 +584,10 @@
 }
 
 .selected-bloc-member {
-    outline: 2px solid #ff0000;
+    outline: 3px solid #ff0000;
+}
+
+.bloc-posicio-prova span{
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 14px;
 }

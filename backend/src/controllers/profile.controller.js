@@ -42,6 +42,8 @@ const modifyUserData = async (req, res) => {
         const requestedUserId = req.query.userId;
         const loggedUserId = req.user.id;
 
+        console.log(requestedUserId);
+
         const userId = requestedUserId || loggedUserId;
 
         const { nom, cognoms, mote, telefon, altura_espatlles, envergadura, pes,

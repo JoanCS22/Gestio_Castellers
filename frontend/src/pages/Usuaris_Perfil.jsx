@@ -251,7 +251,15 @@ function UserProfile() {
             return;
         }
 
-        const response = await fetch(`http://localhost:5000/profile/modifyUserData?userId=${userId}`, {
+        let query;
+
+        if (isTecnica) {
+            query = `http://localhost:5000/profile/modifyUserData?userId=${userId}`;
+        } else {
+            query = `http://localhost:5000/profile/modifyUserData`;
+        }
+
+        const response = await fetch(query, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -284,6 +292,7 @@ function UserProfile() {
 
         if (response.ok) {
             console.log("{DEBUG} Modify user's data OK");
+            setError("");
             showTempMessage("Informació general de l'usuari actualitzada correctament.");
         } else {
             console.log("{DEBUG} Modify user's data KO");

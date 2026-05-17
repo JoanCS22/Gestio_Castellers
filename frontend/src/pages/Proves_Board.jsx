@@ -772,7 +772,7 @@ function ProvesBoard() {
         }
     }
 
-    const getAssignacions = async (idProva) => {
+    const getAssignacions = async () => {
 
         const token = localStorage.getItem("token");
 
@@ -865,6 +865,40 @@ function ProvesBoard() {
                 }),
             });
         }
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            await getAssignacions();
+            setSelectedPositionId(null);
+            setSelectedMemberId(null);
+            console.log("{DEBUG} Assignar posicions OK")
+        } else {
+            console.log("{DEBUG} Assignar posicions KO")
+            setError(data.message);
+        }
+    }
+
+    const moureAssignacio = async (idAssignacioDesti, idNovaPosicio) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/proves/canviPosicionsBuidaPlena`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                id_assignacio: idAssignacioDesti,
+                id_posicio: idNovaPosicio,
+            }),
+        });
 
         if (response.status === 401 || response.status === 403) {
             localStorage.clear();
@@ -875,15 +909,55 @@ function ProvesBoard() {
         const data = await response.json();
 
         if (response.ok) {
-            setSelectedMemberId(null);
-            setSelectedPositionId(null);
             await getAssignacions();
-            console.log("{DEBUG} Get prova's assignacions OK")
+            setSelectedPositionId(null);
+            setSelectedMemberId(null);
+            console.log("{DEBUG} Intercanviar posicions OK")
         } else {
-            console.log("{DEBUG} Get prova's assignacions KO")
+            console.log("{DEBUG} Intercanviar posicions KO")
             setError(data.message);
         }
     }
+
+    const intercanviarPosicions = async (assignacio1, assignacio2) => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(
+            "http://localhost:5000/proves/intercanviarPosicions",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    id_assignacio_1: assignacio1.id_assignacio,
+                    id_assignacio_2: assignacio2.id_assignacio,
+                }),
+            }
+        );
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            await getAssignacions();
+
+            setSelectedPositionId(null);
+            setSelectedMemberId(null);
+
+            console.log("{DEBUG} Intercanvi posicions OK");
+        } else {
+            console.log("{DEBUG} Intercanvi posicions KO");
+            setError(data.message);
+        }
+    };
 
     useEffect(() => {
         if (selectedMemberId && selectedPositionId) {
@@ -908,7 +982,7 @@ function ProvesBoard() {
 
             if (idProva) {
                 await getProvaById();
-                await getAssignacions(idProva);
+                await getAssignacions();
             }
         };
 
@@ -956,9 +1030,13 @@ function ProvesBoard() {
                 tornar
                 tornar_action={
                     currentEvent
-                        ? () => navigate(
-                            `/proves?idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`
-                        )
+                        ? () => {
+                            navigate(
+                                `/proves?idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`
+                            );
+                            setSelectedMemberId(null);
+                            setSelectedPositionId(null);
+                        }
                         : undefined
                 }
                 leftIcons={
@@ -1282,9 +1360,11 @@ function ProvesBoard() {
                 <div className="board-canvas-prova">
                     {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => {
 
-                        const assignacio = assignacions.find(
-                            a => a.id_posicio === posicio.id
-                        );
+                        const assignacio = assignacions.find(a => a.id_posicio === posicio.id);
+                        let membreActual;
+                        if (assignacio) {
+                            membreActual = members.find(m => m.id_usuari === assignacio.id_usuari);
+                        }
 
                         return (
                             <div
@@ -1294,11 +1374,33 @@ function ProvesBoard() {
                                     ${selectedMemberId === assignacio?.id_usuari ? "selected-bloc-member" : ""}
                                 `}
                                 onClick={() => {
-                                    if (selectedPositionId === posicio.id) {
-                                        setSelectedPositionId(null);
-                                    } else {
-                                        setSelectedPositionId(posicio.id);
+                                    const posicioAnterior = selectedPositionId;
+                                    const posicioNova = posicio.id;
+
+                                    if (!posicioAnterior) {
+                                        setSelectedPositionId(posicioNova);
+                                        return;
                                     }
+
+                                    if (posicioAnterior === posicioNova) {
+                                        setSelectedPositionId(null);
+                                        return;
+                                    }
+
+                                    const assignacioAnterior = assignacions.find(a => a.id_posicio === posicioAnterior);
+                                    const assignacioNova = assignacions.find(a => a.id_posicio === posicioNova);
+
+                                    if (assignacioAnterior && assignacioNova) {
+                                        intercanviarPosicions(assignacioAnterior, assignacioNova);
+                                    } else if (assignacioAnterior || assignacioNova) {
+                                        if (assignacioAnterior) {
+                                            moureAssignacio(assignacioAnterior.id_assignacio, posicioNova);
+                                        } else if (assignacioNova) {
+                                            moureAssignacio(assignacioNova.id_assignacio, posicioAnterior);
+                                        }
+                                    }
+
+                                    setSelectedPositionId(posicio.id);
                                 }}
                                 style={{
                                     position: "absolute",
@@ -1309,13 +1411,13 @@ function ProvesBoard() {
                                 }}
                             >
                                 <span>
-                                    {assignacio?.mote || ""}
+                                    {membreActual?.mote || ""}
                                 </span>
                                 <span>
-                                    {selectedMesura === 1 ? (assignacio?.altura_total || "")
-                                        : (<>{selectedMesura === 2 ? (assignacio?.altura_espatlles || "")
+                                    {selectedMesura === 1 ? (membreActual?.altura_total || "")
+                                        : (<>{selectedMesura === 2 ? (membreActual?.altura_espatlles || "")
                                             : (
-                                                assignacio?.envergadura || ""
+                                                membreActual?.envergadura || ""
                                             )
                                         }</>)
                                     }

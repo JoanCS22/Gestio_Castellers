@@ -6,7 +6,7 @@ const {
     createProva, deleteProva,
     modifyInfoProva, updateOrder, publishProva, updateFavorite, updateFeta,
     getAssignacionsProva, desasignarPosicioProva, buidarPlantillaProva, eliminarAbsentsProva,
-    asignarPosicioProva, intercanviarPosicions, canviarAssignacio,
+    asignarPosicioProva, intercanviarPosicions, canviarAssignacio, canviPosicionsBuidaPlena,
 } = require('../controllers/proves.controller');
 const auth = require('../middleware/auth');
 
@@ -30,5 +30,6 @@ router.delete('/eliminarAbsentsProva', auth, eliminarAbsentsProva);
 router.post('/asignarPosicioProva', auth, asignarPosicioProva);
 router.post('/intercanviarPosicions', auth, intercanviarPosicions);
 router.post('/canviarAssignacio', auth, canviarAssignacio);
+router.post('/canviPosicionsBuidaPlena', auth, canviPosicionsBuidaPlena);
 
 module.exports = router;

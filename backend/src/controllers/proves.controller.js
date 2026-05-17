@@ -471,6 +471,43 @@ const intercanviarPosicions = async (req, res) => {
     }
 }
 
+const canviPosicionsBuidaPlena = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+
+        const { id_assignacio, id_posicio } = req.body;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `UPDATE assignacions_prova
+             SET id_posicio = $1
+             WHERE id_assignacio = $2`,
+            [id_posicio, id_assignacio]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json({
+            message: "Posicions intercanviades"
+        });
+
+    } catch (error) {
+
+        await client.query("ROLLBACK");
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Error intercanviant posicions"
+        });
+
+    } finally {
+        client.release();
+    }
+}
+
 const desasignarPosicioProva = async (req, res) => {
     const client = await pool.connect();
 
@@ -576,5 +613,5 @@ module.exports = {
     createProva, deleteProva,
     modifyInfoProva, updateOrder, publishProva, updateFavorite, updateFeta,
     getAssignacionsProva, desasignarPosicioProva, buidarPlantillaProva, eliminarAbsentsProva,
-    asignarPosicioProva, intercanviarPosicions, canviarAssignacio,
+    asignarPosicioProva, intercanviarPosicions, canviarAssignacio, canviPosicionsBuidaPlena
 };
