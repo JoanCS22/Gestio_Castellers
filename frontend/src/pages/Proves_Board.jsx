@@ -283,6 +283,25 @@ function ProvesBoard() {
         });
     }, [membersByPosition, assistenciaMap, memberSearch, firstCheck, secondCheck]);
 
+    const sortedFilteredMembers = useMemo(() => {
+        const unassigned = [];
+        const assigned = [];
+
+        filteredMembers.forEach(member => {
+            const isAssigned = assignacions.some(
+                a => a.id_usuari === member.id_usuari
+            );
+
+            if (isAssigned) {
+                assigned.push(member);
+            } else {
+                unassigned.push(member);
+            }
+        });
+
+        return [...unassigned, ...assigned];
+    }, [filteredMembers, assignacions]);
+
     const getCollaMembers = async () => {
 
         const token = localStorage.getItem("token");
@@ -1041,7 +1060,7 @@ function ProvesBoard() {
 
         const token = localStorage.getItem("token");
 
-        if(!provaInfo?.id_esdeveniment) {
+        if (!provaInfo?.id_esdeveniment) {
             return;
         }
 
@@ -1297,27 +1316,34 @@ function ProvesBoard() {
                 </div>
                 <hr />
                 <div className="left-part-prova-board-members">
-                    {filteredMembers.map((member) => (
-                        <div key={member.id_usuari} className={`container-member-prova-board ${selectedMemberId === member.id_usuari ? "selected-bloc-membre-prova" : ""}`}
-                            onClick={() => {
-                                if (selectedMemberId === member.id_usuari) {
-                                    setSelectedMemberId(null);
-                                } else {
-                                    setSelectedMemberId(member.id_usuari);
-                                }
-                            }}
-                        >
-                            <span className="member-name">
-                                {member.mote}
-                            </span>
+                    {sortedFilteredMembers.map((member) => {
 
-                            <div className="member-status">
-                                {member.canalla && (<FaBaby />)}
-                                {member.lesionat && (<FaBandAid />)}
-                                {getAssistenciaIcon(member.id_usuari)}
+                        const assignacio = assignacions.find(a => a.id_usuari === member.id_usuari);
+
+                        return (
+                            <div key={member.id_usuari}
+                                className={`container-member-prova-board ${selectedMemberId === member.id_usuari ? "selected-bloc-membre-prova" : ""}
+                            ${assignacio ? "assigned-bloc-membre-prova" : ""}`}
+                                onClick={() => {
+                                    if (selectedMemberId === member.id_usuari) {
+                                        setSelectedMemberId(null);
+                                    } else {
+                                        setSelectedMemberId(member.id_usuari);
+                                    }
+                                }}
+                            >
+                                <span className="member-name">
+                                    {member.mote}
+                                </span>
+
+                                <div className="member-status">
+                                    {member.canalla && (<FaBaby />)}
+                                    {member.lesionat && (<FaBandAid />)}
+                                    {getAssistenciaIcon(member.id_usuari)}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             </div>
             <div className="top-part-prova-board">
@@ -1343,7 +1369,7 @@ function ProvesBoard() {
                     <div className="top-part-prova-board-icons">
                         <FaUserTimes title="Eliminar persones absents" onClick={() => {
                             treureAbsents();
-                         }} />
+                        }} />
                         <FaUserAltSlash title="Buidar casella seleccionada" onClick={() => {
                             treureMembrePosicio();
                         }} />
@@ -1543,17 +1569,16 @@ function ProvesBoard() {
                             >
                                 <span className="posicio-mote-prova">
                                     {membreActual?.mote || ""}
-                                    <span className="posicio-icon-prova">
-                                        {assignacio && (getAssistenciaIcon(assignacio?.id_usuari))}
-                                    </span>
                                 </span>
+
                                 <span className="posicio-mesura-prova">
+                                    <span className="posicio-icon-prova">
+                                        {assignacio && getAssistenciaIcon(assignacio?.id_usuari)}
+                                    </span>
+
                                     {selectedMesura === 1 ? (membreActual?.altura_total || "")
-                                        : (<>{selectedMesura === 2 ? (membreActual?.altura_espatlles || "")
-                                            : (
-                                                membreActual?.envergadura || ""
-                                            )
-                                        }</>)
+                                        : selectedMesura === 2 ? (membreActual?.altura_espatlles || "")
+                                            : (membreActual?.envergadura || "")
                                     }
                                 </span>
                             </div>
