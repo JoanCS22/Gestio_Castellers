@@ -111,6 +111,7 @@ function ProvesBoard() {
     const [selectedPositionId, setSelectedPositionId] = useState(null);
 
     const [assignacions, setAssignacions] = useState([]);
+    const [selectedAssignacioId, setSelectedAssignacioId] = useState(null);
 
     const [memberSearch, setMemberSearch] = useState("");
 
@@ -877,6 +878,7 @@ function ProvesBoard() {
             await getAssignacions();
             setSelectedPositionId(null);
             setSelectedMemberId(null);
+            setSelectedAssignacioId(null);
             console.log("{DEBUG} Assignar posicions OK")
         } else {
             console.log("{DEBUG} Assignar posicions KO")
@@ -912,6 +914,7 @@ function ProvesBoard() {
             await getAssignacions();
             setSelectedPositionId(null);
             setSelectedMemberId(null);
+            setSelectedAssignacioId(null);
             console.log("{DEBUG} Intercanviar posicions OK")
         } else {
             console.log("{DEBUG} Intercanviar posicions KO")
@@ -951,10 +954,127 @@ function ProvesBoard() {
 
             setSelectedPositionId(null);
             setSelectedMemberId(null);
+            setSelectedAssignacioId(null);
 
             console.log("{DEBUG} Intercanvi posicions OK");
         } else {
             console.log("{DEBUG} Intercanvi posicions KO");
+            setError(data.message);
+        }
+    };
+
+    const treureMembrePosicio = async () => {
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/proves/desasignarPosicioProva?id=${selectedAssignacioId}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+            }
+        );
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            await getAssignacions();
+
+            setSelectedPositionId(null);
+            setSelectedMemberId(null);
+            setSelectedAssignacioId(null);
+
+            console.log("{DEBUG} Treure membre posició OK");
+        } else {
+            console.log("{DEBUG} Treure membre posició KO");
+            setError(data.message);
+        }
+    };
+
+    const buidarPlantilla = async () => {
+
+        if (!window.confirm("Segur que vols buidar la plantilla d'aquesta prova?")) return;
+
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`http://localhost:5000/proves/buidarPlantillaProva?id=${idProva}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+            }
+        );
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            await getAssignacions();
+
+            setSelectedPositionId(null);
+            setSelectedMemberId(null);
+            setSelectedAssignacioId(null);
+
+            console.log("{DEBUG} Buidar plantilla OK");
+        } else {
+            console.log("{DEBUG} Buidar plantilla KO");
+            setError(data.message);
+        }
+    };
+
+    const treureAbsents = async () => {
+
+        const token = localStorage.getItem("token");
+
+        if(!provaInfo?.id_esdeveniment) {
+            return;
+        }
+
+        const id_esdeveniment = provaInfo?.id_esdeveniment;
+
+        const response = await fetch(`http://localhost:5000/proves/eliminarAbsentsProva?id=${id_esdeveniment}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+            }
+        );
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.clear();
+            navigate("/login");
+            return;
+        }
+
+        const data = await response.json();
+
+        if (response.ok) {
+            await getAssignacions();
+
+            setSelectedPositionId(null);
+            setSelectedMemberId(null);
+            setSelectedAssignacioId(null);
+
+            console.log("{DEBUG} Treure absents prova OK");
+        } else {
+            console.log("{DEBUG} Treure absents prova KO");
             setError(data.message);
         }
     };
@@ -1036,6 +1156,7 @@ function ProvesBoard() {
                             );
                             setSelectedMemberId(null);
                             setSelectedPositionId(null);
+                            setSelectedAssignacioId(null);
                         }
                         : undefined
                 }
@@ -1220,9 +1341,15 @@ function ProvesBoard() {
                         </div>
                     </div>
                     <div className="top-part-prova-board-icons">
-                        <FaUserTimes title="Eliminar persones absents" onClick={() => { }} />
-                        <FaUserAltSlash title="Buidar casella seleccionada" onClick={() => { }} />
-                        <FaUsersSlash title="Buidar plantilla" onClick={() => { }} />
+                        <FaUserTimes title="Eliminar persones absents" onClick={() => {
+                            treureAbsents();
+                         }} />
+                        <FaUserAltSlash title="Buidar casella seleccionada" onClick={() => {
+                            treureMembrePosicio();
+                        }} />
+                        <FaUsersSlash title="Buidar plantilla" onClick={() => {
+                            buidarPlantilla();
+                        }} />
                     </div>
                 </div>
                 <div className="top-part-prova-board-posicions">
@@ -1329,6 +1456,8 @@ function ProvesBoard() {
                                     onClick={() => {
                                         navigate(`/proves_board?id=${prova.id}&idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`);
                                         setSelectedPositionId(null);
+                                        setSelectedMemberId(null);
+                                        setSelectedAssignacioId(null);
                                         setShowRightProves(!showRightProves)
                                     }}
                                 >
@@ -1379,11 +1508,13 @@ function ProvesBoard() {
 
                                     if (!posicioAnterior) {
                                         setSelectedPositionId(posicioNova);
+                                        setSelectedAssignacioId(assignacio?.id_assignacio || null);
                                         return;
                                     }
 
                                     if (posicioAnterior === posicioNova) {
                                         setSelectedPositionId(null);
+                                        setSelectedAssignacioId(null);
                                         return;
                                     }
 
@@ -1400,7 +1531,7 @@ function ProvesBoard() {
                                         }
                                     }
 
-                                    setSelectedPositionId(posicio.id);
+                                    setSelectedPositionId(posicioNova);
                                 }}
                                 style={{
                                     position: "absolute",
@@ -1410,10 +1541,13 @@ function ProvesBoard() {
                                     transform: `rotate(${posicio.rotacio}deg)`,
                                 }}
                             >
-                                <span>
+                                <span className="posicio-mote-prova">
                                     {membreActual?.mote || ""}
+                                    <span className="posicio-icon-prova">
+                                        {assignacio && (getAssistenciaIcon(assignacio?.id_usuari))}
+                                    </span>
                                 </span>
-                                <span>
+                                <span className="posicio-mesura-prova">
                                     {selectedMesura === 1 ? (membreActual?.altura_total || "")
                                         : (<>{selectedMesura === 2 ? (membreActual?.altura_espatlles || "")
                                             : (

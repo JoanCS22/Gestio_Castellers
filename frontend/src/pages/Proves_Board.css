@@ -587,7 +587,24 @@
     outline: 3px solid #ff0000;
 }
 
-.bloc-posicio-prova span{
+.posicio-mote-prova {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.posicio-icon-prova {
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.posicio-mesura-prova {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 11px;
+    opacity: 0.8;
+    font-weight: 400;
 }

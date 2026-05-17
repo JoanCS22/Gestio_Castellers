@@ -525,7 +525,7 @@ const desasignarPosicioProva = async (req, res) => {
 
         await client.query("COMMIT");
 
-        res.status(200).json(result.rows[0]);
+        res.status(200).json(result.rows);
 
     } catch (error) {
         await client.query("ROLLBACK");
@@ -578,16 +578,16 @@ const eliminarAbsentsProva = async (req, res) => {
 
         const result = await client.query(
             `DELETE FROM assignacions_prova ap
-             WHERE id_prova IN (
+             WHERE ap.id_prova IN (
                 SELECT id
-                FROM proves
-                WHERE id_esdeveniment = $1
+                FROM proves p
+                WHERE p.id_esdeveniment = $1
              )
              AND ap.id_usuari IN (
                 SELECT a.id_usuari
                 FROM assistencia a
                 WHERE a.id_esdeveniment = $1
-                AND ( a.confirmacio_previa = 'no' OR a.confirmacio_arribada = 'no' )
+                AND ((a.confirmacio_previa = 'no' AND a.confirmacio_arribada = 'pendent') OR a.confirmacio_arribada = 'no' )
              )
              RETURNING *`,
             [id_esdeveniment]

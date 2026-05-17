@@ -15,10 +15,10 @@
     contrasenya VARCHAR(255) NOT NULL,
     telefon VARCHAR(255),
 
-    altura_total INT CHECK (altura_total > 0),
-    altura_espatlles INT CHECK (altura_espatlles > 0),
-    envergadura INT CHECK (envergadura > 0),
-    pes INT CHECK (pes > 0),
+    altura_total INT DEFAULT 1 CHECK (altura_total > 0),
+    altura_espatlles INT DEFAULT 1 CHECK (altura_espatlles > 0),
+    envergadura INT DEFAULT 1 CHECK (envergadura > 0),
+    pes INT DEFAULT 1 CHECK (pes > 0),
 
     url_foto VARCHAR(255),
 

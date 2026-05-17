@@ -23,7 +23,7 @@ router.post('/updateFavorite', auth, updateFavorite);
 router.post('/updateFeta', auth, updateFeta);
 
 router.get('/getAssignacionsProva', auth, getAssignacionsProva);
-router.post('/desasignarPosicioProva', auth, desasignarPosicioProva);
+router.delete('/desasignarPosicioProva', auth, desasignarPosicioProva);
 router.delete('/buidarPlantillaProva', auth, buidarPlantillaProva);
 router.delete('/eliminarAbsentsProva', auth, eliminarAbsentsProva);
 
