@@ -51,7 +51,8 @@ function App() {
 
       <Route path="/proves" element={<ProvesInici />} />
       <Route path="/proves_llistat" element={<ProvesLlistat />} />
-      <Route path="/proves_board" element={<ProvesBoard />} />
+      <Route path="/proves_board_edit" element={<ProvesBoard />} />
+      <Route path="/proves_board_show" element={<ProvesBoard />} />
     </Routes>
   );
 }

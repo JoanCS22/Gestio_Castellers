@@ -21,6 +21,7 @@ function Dashboard() {
     //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
     const permissions = getPermissions();
     const permissionsReady = permissions && Object.keys(permissions).length > 0;
+    const hasAccess = (key) => permissions[key] !== "X";
     const hasWritePermission = (key) => permissions[key] === "W";
     const hasReadPermission = (key) => permissions[key] === "R";
 
@@ -269,10 +270,14 @@ function Dashboard() {
                         <div className="lower-proves-part">
                             <div className="grid-proves-list-dashboard">
                                 {futurProves.map((prova) => (
-                                    (hasWritePermission("proves") || prova.public) && (
+                                    (hasAccess("proves") || prova.public) && (
                                         <>
                                             <div className="container-proves-dashboard" onClick={() => {
-                                                navigate(`/proves_board?id=${prova.id}&idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`)
+                                                if (hasWritePermission('proves')) {
+                                                    navigate(`/proves_board_edit?id=${prova.id}&idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`)
+                                                } else {
+                                                    navigate(`/proves_board_show?id=${prova.id}&idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`)
+                                                }
                                             }}>
                                                 <div className="container-proves-text-dashboard">
                                                     <span>{prova.nom}</span>

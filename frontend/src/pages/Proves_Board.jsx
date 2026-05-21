@@ -30,6 +30,8 @@ function ProvesBoard() {
 
     const boardRef = useRef(null);
 
+    const isShown = location.pathname === '/proves_board_show';
+
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [startY, setStartY] = useState(0);
@@ -180,7 +182,7 @@ function ProvesBoard() {
         return map;
     }, [assistencia]);
 
-    const [showCastell, setShowCastell] = useState(false);
+    const [showCastell, setShowCastell] = useState(isShown);
     const [editMode, setEditMode] = useState(false);
     const [showModalProva, setShowModalProva] = useState(false);
 
@@ -1605,11 +1607,11 @@ function ProvesBoard() {
                 <>
                     <ShowBoard
                         button={
-                                <Button
-                                    text={"Tornar"}
-                                    icon={<FaArrowLeft />}
-                                    action={() => { setShowCastell(false); }}
-                                />
+                            <Button
+                                text={"Tornar"}
+                                icon={<FaArrowLeft />}
+                                action={() => { isShown ? navigate(-1) : setShowCastell(false); }}
+                            />
                         }
                         positions={posicionsPlantilla}
                         assignacions={assignacions}

@@ -10,7 +10,11 @@ function ShowBoard({
     members,
 }) {
     const params = new URLSearchParams(location.search);
-    const userId = params.get("userId");
+    const user = JSON.parse(localStorage.getItem("user"));
+    const userId = user?.id;
+
+    console.log("USER LOCALSTORAGE:", user);
+    console.log("USER ID:", userId);
 
     const seccionsOrden = ["pinya", "folre", "manilles", "puntals", "tronc"];
 
@@ -29,7 +33,6 @@ function ShowBoard({
                     p => p.seccio === seccio
                 );
 
-                // 👇 no mostrar secciones vacías
                 if (!sectionPositions.length) {
                     return null;
                 }
@@ -78,6 +81,11 @@ function ShowBoard({
                                     const membreActual = assignacio
                                         ? members.find(m => m.id_usuari === assignacio.id_usuari)
                                         : null;
+
+                                    if (membreActual) {
+                                        console.log();
+                                        console.log(userId);
+                                    }
 
                                     return (
                                         <div

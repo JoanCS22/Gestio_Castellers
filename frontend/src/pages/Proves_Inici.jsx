@@ -372,11 +372,15 @@ function ProvesInici() {
             </div>
             <div className="grid-proves-list">
                 {proves.map((prova) => (
-                    (hasWritePermission("proves") || prova.public) && (
+                    (hasAccess("proves") || prova.public) && (
                         <>
                             <div className="container-proves">
                                 <div className="container-proves-text" onClick={() => {
-                                    navigate(`/proves_board?id=${prova.id}&idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`)
+                                    if (hasWritePermission("proves")) {
+                                        navigate(`/proves_board_edit?id=${prova.id}&idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`)
+                                    } else {
+                                        navigate(`/proves_board_show?id=${prova.id}&idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`)
+                                    }
                                 }}>
                                     <span>{prova.nom}</span>
                                     <span>{prova.estructura}</span>
