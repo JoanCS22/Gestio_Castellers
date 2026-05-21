@@ -6,7 +6,7 @@ import {
     FaCheck, FaCheckDouble, FaVideoSlash, FaVideo, FaTrashAlt, FaTimesCircle, FaCheckCircle,
     FaRegStar, FaHashtag, FaEye, FaEyeSlash, FaPencilAlt, FaPlusSquare, FaSearch,
     FaTimes, FaQuestionCircle, FaUserTimes, FaUserAltSlash, FaUsersSlash,
-    FaAngleRight, FaAngleLeft, FaBandAid, FaBaby
+    FaAngleRight, FaAngleLeft, FaBandAid, FaChild, FaArrowLeft
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -16,6 +16,7 @@ import "./Proves_Board.css"
 import TopMenu from "../components/TopMenu.jsx";
 import Input from "../components/Input.jsx";
 import Button from "../components/Button.jsx";
+import ShowBoard from "../components/showBoard.jsx";
 
 import { useSyncExternalStore } from "react";
 import { useEvent } from "../utils/EventContext.jsx"
@@ -1162,430 +1163,460 @@ function ProvesBoard() {
 
     }, [selectedPositions, members]);
 
+    useEffect(() => {
+        if (!boardRef.current || posicionsPlantilla.length === 0) return;
+
+        const board = boardRef.current;
+
+        const centerX = offsetX + plantillaWidth / 2;
+        const centerY = offsetY + plantillaHeight / 2;
+
+        board.scrollLeft = centerX - board.clientWidth / 2;
+        board.scrollTop = centerY - board.clientHeight / 2;
+
+    }, [posicionsPlantilla]);
+
     return (
         <div>
-            <TopMenu
-                title={provaInfo ? `${provaInfo.nom} - ${provaInfo.estructura}` : "Carregant prova..."}
-                tornar
-                tornar_action={
-                    currentEvent
-                        ? () => {
-                            navigate(
-                                `/proves?idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`
-                            );
-                            setSelectedMemberId(null);
-                            setSelectedPositionId(null);
-                            setSelectedAssignacioId(null);
+            {!showCastell ? (
+                <>
+                    <TopMenu
+                        title={provaInfo ? `${provaInfo.nom} - ${provaInfo.estructura}` : "Carregant prova..."}
+                        tornar
+                        tornar_action={
+                            currentEvent
+                                ? () => {
+                                    navigate(
+                                        `/proves?idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`
+                                    );
+                                    setSelectedMemberId(null);
+                                    setSelectedPositionId(null);
+                                    setSelectedAssignacioId(null);
+                                }
+                                : undefined
                         }
-                        : undefined
-                }
-                leftIcons={
-                    <>
-                        {provaInfo?.xarxa && (
-                            <div className="icon-btn" title="Prova amb xarxa">
-                                <FaHashtag />
-                            </div>
-                        )}
-                        <div className="icon-btn" title={provaInfo?.feta ? "Prova realitzada" : "Prova no realitzada"} onClick={() => {
-                            updateFeta(provaInfo.id, !provaInfo?.feta);
-                        }}>
-                            {provaInfo?.feta ? (
-                                <FaCheckCircle className="icon-feta" />
-                            ) : (
-                                <FaTimesCircle className="icon-no-feta" />
-                            )}
-                        </div>
-                        <div className="icon-btn" title={provaInfo?.favorita ? "Treure de favorits" : "Afegir a favorits"} onClick={() => {
-                            updateFavorite(provaInfo.id, !provaInfo.favorita);
-                        }}>
-                            <FaRegStar className={`icon-favorit ${provaInfo?.favorita ? "favorit-actiu" : ""} `} />
-                        </div>
-                    </>
-                }
-
-                rightIcons={
-                    <>
-                        <div className="icon-btn" title={showCastell ? "Projectar castell" : "Editar castell"}
-                            onClick={() => { setShowCastell(!showCastell) }}>
-                            {showCastell ? (
-                                <FaVideoSlash />
-                            ) : (
-                                <FaVideo />
-                            )}
-                        </div>
-                        <div className="icon-btn" title={provaInfo?.public ? "Prova pública" : "Prova no pública"} onClick={() => {
-                            publishProva(provaInfo.id, !provaInfo.public);
-                        }}>
-                            {provaInfo?.public ? (
-                                <FaEye />
-                            ) : (
-                                <FaEyeSlash />
-                            )}
-                        </div>
-                        <div className="icon-btn" title="Editar informació prova" onClick={() => {
-                            setModalTags({
-                                nom: provaInfo.nom,
-                                descripcio: provaInfo.descripcio,
-                                estructura: provaInfo.estructura,
-                                xarxa: provaInfo.xarxa,
-                                public: provaInfo.public,
-                            });
-                            setSelectedPlantilla(provaInfo.id_plantilla);
-                            setEditMode(true);
-                            setShowModalProva(true);
-                        }}>
-                            <FaPencilAlt />
-                        </div>
-                    </>
-                }
-            />
-            {message && (
-                <div className={`message ${message.type} `}>
-                    {message.message}
-                </div>
-            )}
-            <div className="left-part-prova-board">
-                <div className="left-part-prova-board-filters">
-                    <div className="left-part-prova-board-filters-search">
-                        <h4>Membres</h4>
-                        <div className="search-tab-plantilles">
-                            <span>Cercar:</span>
-                            <FaSearch />
-                            <input
-                                type='search'
-                                placeholder='Cercar...'
-                                value={memberSearch}
-                                onChange={(e) => setMemberSearch(e.target.value)}
-                            />
-                        </div>
-                    </div>
-                    <div className="left-part-prova-board-filters-checkboxrow-icons">
-                        <div></div>
-                        <FaCheckCircle className="icon-feta" />
-                        <FaTimesCircle className="icon-no-feta" />
-                        <FaQuestionCircle className="icon-unknown" />
-                    </div>
-                    <div className="left-part-prova-board-filters-checkboxrow-1">
-                        <FaCheck />
-                        <div left-part-prova-board-filters-checkboxrow-element>
-                            <input
-                                type="checkbox"
-                                checked={firstCheck.si}
-                                onChange={(e) => setFirstCheck({ ...firstCheck, si: e.target.checked })}
-                            />
-                        </div>
-                        <div left-part-prova-board-filters-checkboxrow-element>
-                            <input
-                                type="checkbox"
-                                checked={firstCheck.no}
-                                onChange={(e) => setFirstCheck({ ...firstCheck, no: e.target.checked })}
-                            />
-                        </div>
-                        <div left-part-prova-board-filters-checkboxrow-element>
-                            <input
-                                type="checkbox"
-                                checked={firstCheck.no_sap}
-                                onChange={(e) => setFirstCheck({ ...firstCheck, no_sap: e.target.checked })}
-                            />
-                        </div>
-                    </div>
-                    <div className="left-part-prova-board-filters-checkboxrow-2">
-                        <FaCheckDouble />
-                        <div left-part-prova-board-filters-checkboxrow-element>
-                            <input
-                                type="checkbox"
-                                checked={secondCheck.si}
-                                onChange={(e) => setSecondCheck({ ...secondCheck, si: e.target.checked })}
-                            />
-                        </div>
-                        <div left-part-prova-board-filters-checkboxrow-element>
-                            <input
-                                type="checkbox"
-                                checked={secondCheck.no}
-                                onChange={(e) => setSecondCheck({ ...secondCheck, no: e.target.checked })}
-                            />
-                        </div>
-                        <div left-part-prova-board-filters-checkboxrow-element>
-                            <input
-                                type="checkbox"
-                                checked={secondCheck.no_sap}
-                                onChange={(e) => setSecondCheck({ ...secondCheck, no_sap: e.target.checked })}
-                            />
-                        </div>
-                    </div>
-                </div>
-                <hr />
-                <div className="left-part-prova-board-members">
-                    {sortedFilteredMembers.map((member) => {
-
-                        const assignacio = assignacions.find(a => a.id_usuari === member.id_usuari);
-
-                        return (
-                            <div key={member.id_usuari}
-                                className={`container-member-prova-board ${selectedMemberId === member.id_usuari ? "selected-bloc-membre-prova" : ""}
-                            ${assignacio ? "assigned-bloc-membre-prova" : ""}`}
-                                onClick={() => {
-                                    if (selectedMemberId === member.id_usuari) {
-                                        setSelectedMemberId(null);
-                                    } else {
-                                        setSelectedMemberId(member.id_usuari);
-                                    }
-                                }}
-                            >
-                                <span className="member-name">
-                                    {member.mote}
-                                </span>
-
-                                <div className="member-status">
-                                    {member.canalla && (<FaBaby />)}
-                                    {member.lesionat && (<FaBandAid />)}
-                                    {getAssistenciaIcon(member.id_usuari)}
+                        leftIcons={
+                            <>
+                                {provaInfo?.xarxa && (
+                                    <div className="icon-btn" title="Prova amb xarxa">
+                                        <FaHashtag />
+                                    </div>
+                                )}
+                                <div className="icon-btn" title={provaInfo?.feta ? "Prova realitzada" : "Prova no realitzada"} onClick={() => {
+                                    updateFeta(provaInfo.id, !provaInfo?.feta);
+                                }}>
+                                    {provaInfo?.feta ? (
+                                        <FaCheckCircle className="icon-feta" />
+                                    ) : (
+                                        <FaTimesCircle className="icon-no-feta" />
+                                    )}
                                 </div>
+                                <div className="icon-btn" title={provaInfo?.favorita ? "Treure de favorits" : "Afegir a favorits"} onClick={() => {
+                                    updateFavorite(provaInfo.id, !provaInfo.favorita);
+                                }}>
+                                    <FaRegStar className={`icon-favorit ${provaInfo?.favorita ? "favorit-actiu" : ""} `} />
+                                </div>
+                            </>
+                        }
+
+                        rightIcons={
+                            <>
+                                <div className="icon-btn" title={"Projectar castell"}
+                                    onClick={() => { setShowCastell(true) }}>
+                                    <FaVideo />
+                                </div>
+                                <div className="icon-btn" title={provaInfo?.public ? "Prova pública" : "Prova no pública"} onClick={() => {
+                                    publishProva(provaInfo.id, !provaInfo.public);
+                                }}>
+                                    {provaInfo?.public ? (
+                                        <FaEye />
+                                    ) : (
+                                        <FaEyeSlash />
+                                    )}
+                                </div>
+                                <div className="icon-btn" title="Editar informació prova" onClick={() => {
+                                    setModalTags({
+                                        nom: provaInfo.nom,
+                                        descripcio: provaInfo.descripcio,
+                                        estructura: provaInfo.estructura,
+                                        xarxa: provaInfo.xarxa,
+                                        public: provaInfo.public,
+                                    });
+                                    setSelectedPlantilla(provaInfo.id_plantilla);
+                                    setEditMode(true);
+                                    setShowModalProva(true);
+                                }}>
+                                    <FaPencilAlt />
+                                </div>
+                            </>
+                        }
+                    />
+                    {
+                        message && (
+                            <div className={`message ${message.type} `}>
+                                {message.message}
                             </div>
                         )
-                    })}
-                </div>
-            </div>
-            <div className="top-part-prova-board">
-                <div className="top-part-prova-board-actions">
-                    <div className="top-part-prova-board-icons-mesura">
-                        <label className="field-label-prova-mesura">Mesura</label>
-
-                        <div className="select-wrapper-prova-mesura">
-                            <select
-                                value={selectedMesura}
-                                onChange={(e) => setSelectedMesura(Number(e.target.value))}
-                                className="custom-select-prova-mesura"
-                            >
-
-                                {Object.entries(mesures).map(([key, value]) => (
-                                    <option key={key} value={key}>
-                                        {value}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                    <div className="top-part-prova-board-icons">
-                        <FaUserTimes title="Eliminar persones absents" onClick={() => {
-                            treureAbsents();
-                        }} />
-                        <FaUserAltSlash title="Buidar casella seleccionada" onClick={() => {
-                            treureMembrePosicio();
-                        }} />
-                        <FaUsersSlash title="Buidar plantilla" onClick={() => {
-                            buidarPlantilla();
-                        }} />
-                    </div>
-                </div>
-                <div className="top-part-prova-board-posicions">
-                    <label
-                        key={0}
-                        className={`container-position-prova-board ${selectedPositions.includes(0) ? "position-selected" : ""} `}
-                        title="Filtrar per totes les posicions"
-                    >
-                        <span className="position-name-board">
-                            Totes
-                        </span>
-
-                        <input
-                            type="checkbox"
-                            checked={selectedPositions.includes(0)}
-                            onChange={() => modifySelectedPositions(0)}
-                            hidden
-                        />
-                    </label>
-                    {positions.map((position) => (
-                        <label
-                            key={position.id}
-                            className={`container-position-prova-board ${selectedPositions.includes(position.nom) ? "position-selected" : ""} `}
-                            title={`Filtrar per ${position.nom} `}
-                        >
-                            <span className="position-name-board">
-                                {position.nom}
-                            </span>
-
-                            <input
-                                type="checkbox"
-                                checked={selectedPositions.includes(position.nom)}
-                                onChange={() => modifySelectedPositions(position.nom)}
-                                hidden
-                            />
-                        </label>
-                    ))}
-                </div>
-            </div>
-            <div className="create-prova-sections">
-                {infoPlantilla.pinya && (
-                    <>
-                        <div className={`select-section-prova ${selectedTag === "pinya" ? "active" : ""} `} onClick={() => {
-                            setSelectedTag("pinya");
-                        }}>Pinya</div>
-                    </>
-                )}
-                {infoPlantilla.folre && (
-                    <>
-                        <div className={`select-section-prova ${selectedTag === "folre" ? "active" : ""} `} onClick={() => {
-                            setSelectedTag("folre");
-                        }}>Folre</div>
-                    </>
-                )}
-                {infoPlantilla.manilles && (
-                    <>
-                        <div className={`select-section-prova ${selectedTag === "manilles" ? "active" : ""} `} onClick={() => {
-                            setSelectedTag("manilles");
-                        }}>Manilles</div>
-                    </>
-                )}
-                {infoPlantilla.puntals && (
-                    <>
-                        <div className={`select-section-prova ${selectedTag === "puntals" ? "active" : ""} `} onClick={() => {
-                            setSelectedTag("puntals");
-                        }}>Puntals</div>
-                    </>
-                )}
-                {infoPlantilla.tronc && (
-                    <>
-                        <div className={`select-section-prova ${selectedTag === "tronc" ? "active" : ""} `} onClick={() => {
-                            setSelectedTag("tronc");
-                        }}>Tronc</div>
-                    </>
-                )}
-            </div>
-            <div className={`right-part-menu-desplegable ${showRightProves ? "open" : "closed"} `}>
-
-                <div
-                    className="right-part-menu-toggle"
-                    onClick={() => setShowRightProves(!showRightProves)}
-                >
-                    {showRightProves ? <FaAngleRight /> : <FaAngleLeft />}
-                </div>
-
-                {showRightProves && (
-                    <div className="right-part-menu-content">
-
-                        <div className="right-part-menu-top">
-                            <Button
-                                text={"Crear nova prova"}
-                                icon={<FaPlusSquare />}
-                                action={() => {
-                                    setShowModalProva(true);
-                                }}
-                            />
-                        </div>
-
-                        <div className="right-part-menu-list">
-                            {proves.map((prova) => (
-                                <div
-                                    key={prova.id}
-                                    className="container-right-prova-menu"
-                                    onClick={() => {
-                                        navigate(`/proves_board?id=${prova.id}&idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`);
-                                        setSelectedPositionId(null);
-                                        setSelectedMemberId(null);
-                                        setSelectedAssignacioId(null);
-                                        setShowRightProves(!showRightProves)
-                                    }}
-                                >
-                                    <span className="container-right-prova-menu-name">
-                                        {prova.nom}
-                                    </span>
-
-                                    <FaTrashAlt
-                                        className="delete-prova-icon"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            deleteProva(prova.id);
-                                        }}
+                    }
+                    <div className="left-part-prova-board">
+                        <div className="left-part-prova-board-filters">
+                            <div className="left-part-prova-board-filters-search">
+                                <h4>Membres</h4>
+                                <div className="search-tab-plantilles">
+                                    <span>Cercar:</span>
+                                    <FaSearch />
+                                    <input
+                                        type='search'
+                                        placeholder='Cercar...'
+                                        value={memberSearch}
+                                        onChange={(e) => setMemberSearch(e.target.value)}
                                     />
                                 </div>
+                            </div>
+                            <div className="left-part-prova-board-filters-checkboxrow-icons">
+                                <div></div>
+                                <FaCheckCircle className="icon-feta" />
+                                <FaTimesCircle className="icon-no-feta" />
+                                <FaQuestionCircle className="icon-unknown" />
+                            </div>
+                            <div className="left-part-prova-board-filters-checkboxrow-1">
+                                <FaCheck />
+                                <div left-part-prova-board-filters-checkboxrow-element>
+                                    <input
+                                        type="checkbox"
+                                        checked={firstCheck.si}
+                                        onChange={(e) => setFirstCheck({ ...firstCheck, si: e.target.checked })}
+                                    />
+                                </div>
+                                <div left-part-prova-board-filters-checkboxrow-element>
+                                    <input
+                                        type="checkbox"
+                                        checked={firstCheck.no}
+                                        onChange={(e) => setFirstCheck({ ...firstCheck, no: e.target.checked })}
+                                    />
+                                </div>
+                                <div left-part-prova-board-filters-checkboxrow-element>
+                                    <input
+                                        type="checkbox"
+                                        checked={firstCheck.no_sap}
+                                        onChange={(e) => setFirstCheck({ ...firstCheck, no_sap: e.target.checked })}
+                                    />
+                                </div>
+                            </div>
+                            <div className="left-part-prova-board-filters-checkboxrow-2">
+                                <FaCheckDouble />
+                                <div left-part-prova-board-filters-checkboxrow-element>
+                                    <input
+                                        type="checkbox"
+                                        checked={secondCheck.si}
+                                        onChange={(e) => setSecondCheck({ ...secondCheck, si: e.target.checked })}
+                                    />
+                                </div>
+                                <div left-part-prova-board-filters-checkboxrow-element>
+                                    <input
+                                        type="checkbox"
+                                        checked={secondCheck.no}
+                                        onChange={(e) => setSecondCheck({ ...secondCheck, no: e.target.checked })}
+                                    />
+                                </div>
+                                <div left-part-prova-board-filters-checkboxrow-element>
+                                    <input
+                                        type="checkbox"
+                                        checked={secondCheck.no_sap}
+                                        onChange={(e) => setSecondCheck({ ...secondCheck, no_sap: e.target.checked })}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div className="left-part-prova-board-members">
+                            {sortedFilteredMembers.map((member) => {
+
+                                const assignacio = assignacions.find(a => a.id_usuari === member.id_usuari);
+
+                                return (
+                                    <div key={member.id_usuari}
+                                        className={`container-member-prova-board ${selectedMemberId === member.id_usuari ? "selected-bloc-membre-prova" : ""}
+                            ${assignacio ? "assigned-bloc-membre-prova" : ""}`}
+                                        onClick={() => {
+                                            if (selectedMemberId === member.id_usuari) {
+                                                setSelectedMemberId(null);
+                                            } else {
+                                                setSelectedMemberId(member.id_usuari);
+                                            }
+                                        }}
+                                    >
+                                        <span className="member-name">
+                                            {member.mote}
+                                        </span>
+
+                                        <div className="member-status">
+                                            {member.canalla && (<FaChild />)}
+                                            {member.lesionat && (<FaBandAid />)}
+                                            {getAssistenciaIcon(member.id_usuari)}
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                    <div className="top-part-prova-board">
+                        <div className="top-part-prova-board-actions">
+                            <div className="top-part-prova-board-icons-mesura">
+                                <label className="field-label-prova-mesura">Mesura</label>
+
+                                <div className="select-wrapper-prova-mesura">
+                                    <select
+                                        value={selectedMesura}
+                                        onChange={(e) => setSelectedMesura(Number(e.target.value))}
+                                        className="custom-select-prova-mesura"
+                                    >
+
+                                        {Object.entries(mesures).map(([key, value]) => (
+                                            <option key={key} value={key}>
+                                                {value}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="top-part-prova-board-icons">
+                                <FaUserTimes title="Eliminar persones absents" onClick={() => {
+                                    treureAbsents();
+                                }} />
+                                <FaUserAltSlash title="Buidar casella seleccionada" onClick={() => {
+                                    treureMembrePosicio();
+                                }} />
+                                <FaUsersSlash title="Buidar plantilla" onClick={() => {
+                                    buidarPlantilla();
+                                }} />
+                            </div>
+                        </div>
+                        <div className="top-part-prova-board-posicions">
+                            <label
+                                key={0}
+                                className={`container-position-prova-board ${selectedPositions.includes(0) ? "position-selected" : ""} `}
+                                title="Filtrar per totes les posicions"
+                            >
+                                <span className="position-name-board">
+                                    Totes
+                                </span>
+
+                                <input
+                                    type="checkbox"
+                                    checked={selectedPositions.includes(0)}
+                                    onChange={() => modifySelectedPositions(0)}
+                                    hidden
+                                />
+                            </label>
+                            {positions.map((position) => (
+                                <label
+                                    key={position.id}
+                                    className={`container-position-prova-board ${selectedPositions.includes(position.nom) ? "position-selected" : ""} `}
+                                    title={`Filtrar per ${position.nom} `}
+                                >
+                                    <span className="position-name-board">
+                                        {position.nom}
+                                    </span>
+
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedPositions.includes(position.nom)}
+                                        onChange={() => modifySelectedPositions(position.nom)}
+                                        hidden
+                                    />
+                                </label>
                             ))}
                         </div>
                     </div>
-                )}
-            </div>
+                    <div className="create-prova-sections">
+                        {infoPlantilla.pinya && (
+                            <>
+                                <div className={`select-section-prova ${selectedTag === "pinya" ? "active" : ""} `} onClick={() => {
+                                    setSelectedTag("pinya");
+                                }}>Pinya</div>
+                            </>
+                        )}
+                        {infoPlantilla.folre && (
+                            <>
+                                <div className={`select-section-prova ${selectedTag === "folre" ? "active" : ""} `} onClick={() => {
+                                    setSelectedTag("folre");
+                                }}>Folre</div>
+                            </>
+                        )}
+                        {infoPlantilla.manilles && (
+                            <>
+                                <div className={`select-section-prova ${selectedTag === "manilles" ? "active" : ""} `} onClick={() => {
+                                    setSelectedTag("manilles");
+                                }}>Manilles</div>
+                            </>
+                        )}
+                        {infoPlantilla.puntals && (
+                            <>
+                                <div className={`select-section-prova ${selectedTag === "puntals" ? "active" : ""} `} onClick={() => {
+                                    setSelectedTag("puntals");
+                                }}>Puntals</div>
+                            </>
+                        )}
+                        {infoPlantilla.tronc && (
+                            <>
+                                <div className={`select-section-prova ${selectedTag === "tronc" ? "active" : ""} `} onClick={() => {
+                                    setSelectedTag("tronc");
+                                }}>Tronc</div>
+                            </>
+                        )}
+                    </div>
+                    <div className={`right-part-menu-desplegable ${showRightProves ? "open" : "closed"} `}>
 
-            <div ref={boardRef}
-                className="whole-board-prova"
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
-            >
-                <div className="board-canvas-prova">
-                    {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => {
+                        <div
+                            className="right-part-menu-toggle"
+                            onClick={() => setShowRightProves(!showRightProves)}
+                        >
+                            {showRightProves ? <FaAngleRight /> : <FaAngleLeft />}
+                        </div>
 
-                        const assignacio = assignacions.find(a => a.id_posicio === posicio.id);
-                        let membreActual;
-                        if (assignacio) {
-                            membreActual = members.find(m => m.id_usuari === assignacio.id_usuari);
-                        }
+                        {showRightProves && (
+                            <div className="right-part-menu-content">
 
-                        return (
-                            <div
-                                key={posicio.id}
-                                className={`bloc-posicio-prova 
+                                <div className="right-part-menu-top">
+                                    <Button
+                                        text={"Crear nova prova"}
+                                        icon={<FaPlusSquare />}
+                                        action={() => {
+                                            setShowModalProva(true);
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="right-part-menu-list">
+                                    {proves.map((prova) => (
+                                        <div
+                                            key={prova.id}
+                                            className="container-right-prova-menu"
+                                            onClick={() => {
+                                                navigate(`/proves_board?id=${prova.id}&idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`);
+                                                setSelectedPositionId(null);
+                                                setSelectedMemberId(null);
+                                                setSelectedAssignacioId(null);
+                                                setShowRightProves(!showRightProves)
+                                            }}
+                                        >
+                                            <span className="container-right-prova-menu-name">
+                                                {prova.nom}
+                                            </span>
+
+                                            <FaTrashAlt
+                                                className="delete-prova-icon"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    deleteProva(prova.id);
+                                                }}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div ref={boardRef}
+                        className="whole-board-prova"
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
+                        onMouseLeave={handleMouseUp}
+                    >
+                        <div className="board-canvas-prova">
+                            {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => {
+
+                                const assignacio = assignacions.find(a => a.id_posicio === posicio.id);
+                                let membreActual;
+                                if (assignacio) {
+                                    membreActual = members.find(m => m.id_usuari === assignacio.id_usuari);
+                                }
+
+                                return (
+                                    <div
+                                        key={posicio.id}
+                                        className={`bloc-posicio-prova 
                                     ${selectedPositionId === posicio.id ? "selected-bloc-prova" : ""}
                                     ${selectedMemberId === assignacio?.id_usuari ? "selected-bloc-member" : ""}
                                 `}
-                                onClick={() => {
-                                    const posicioAnterior = selectedPositionId;
-                                    const posicioNova = posicio.id;
+                                        onClick={() => {
+                                            const posicioAnterior = selectedPositionId;
+                                            const posicioNova = posicio.id;
 
-                                    if (!posicioAnterior) {
-                                        setSelectedPositionId(posicioNova);
-                                        setSelectedAssignacioId(assignacio?.id_assignacio || null);
-                                        return;
-                                    }
+                                            if (!posicioAnterior) {
+                                                setSelectedPositionId(posicioNova);
+                                                setSelectedAssignacioId(assignacio?.id_assignacio || null);
+                                                return;
+                                            }
 
-                                    if (posicioAnterior === posicioNova) {
-                                        setSelectedPositionId(null);
-                                        setSelectedAssignacioId(null);
-                                        return;
-                                    }
+                                            if (posicioAnterior === posicioNova) {
+                                                setSelectedPositionId(null);
+                                                setSelectedAssignacioId(null);
+                                                return;
+                                            }
 
-                                    const assignacioAnterior = assignacions.find(a => a.id_posicio === posicioAnterior);
-                                    const assignacioNova = assignacions.find(a => a.id_posicio === posicioNova);
+                                            const assignacioAnterior = assignacions.find(a => a.id_posicio === posicioAnterior);
+                                            const assignacioNova = assignacions.find(a => a.id_posicio === posicioNova);
 
-                                    if (assignacioAnterior && assignacioNova) {
-                                        intercanviarPosicions(assignacioAnterior, assignacioNova);
-                                    } else if (assignacioAnterior || assignacioNova) {
-                                        if (assignacioAnterior) {
-                                            moureAssignacio(assignacioAnterior.id_assignacio, posicioNova);
-                                        } else if (assignacioNova) {
-                                            moureAssignacio(assignacioNova.id_assignacio, posicioAnterior);
-                                        }
-                                    }
+                                            if (assignacioAnterior && assignacioNova) {
+                                                intercanviarPosicions(assignacioAnterior, assignacioNova);
+                                            } else if (assignacioAnterior || assignacioNova) {
+                                                if (assignacioAnterior) {
+                                                    moureAssignacio(assignacioAnterior.id_assignacio, posicioNova);
+                                                } else if (assignacioNova) {
+                                                    moureAssignacio(assignacioNova.id_assignacio, posicioAnterior);
+                                                }
+                                            }
 
-                                    setSelectedPositionId(posicioNova);
-                                }}
-                                style={{
-                                    position: "absolute",
-                                    left: `${posicio.coord_x + offsetX}px`,
-                                    top: `${posicio.coord_y + offsetY}px`,
-                                    backgroundColor: posicio.color,
-                                    transform: `rotate(${posicio.rotacio}deg)`,
-                                }}
-                            >
-                                <span className="posicio-mote-prova">
-                                    {membreActual?.mote || ""}
-                                </span>
+                                            setSelectedPositionId(posicioNova);
+                                        }}
+                                        style={{
+                                            position: "absolute",
+                                            left: `${posicio.coord_x + offsetX}px`,
+                                            top: `${posicio.coord_y + offsetY}px`,
+                                            backgroundColor: posicio.color,
+                                            transform: `rotate(${posicio.rotacio}deg)`,
+                                        }}
+                                    >
+                                        <span className="posicio-mote-prova">
+                                            {membreActual?.mote || ""}
+                                        </span>
 
-                                <span className="posicio-mesura-prova">
-                                    <span className="posicio-icon-prova">
-                                        {assignacio && getAssistenciaIcon(assignacio?.id_usuari)}
-                                    </span>
+                                        <span className="posicio-mesura-prova">
+                                            <span className="posicio-icon-prova">
+                                                {assignacio && getAssistenciaIcon(assignacio?.id_usuari)}
+                                            </span>
 
-                                    {selectedMesura === 1 ? (membreActual?.altura_total || "")
-                                        : selectedMesura === 2 ? (membreActual?.altura_espatlles || "")
-                                            : (membreActual?.envergadura || "")
-                                    }
-                                </span>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
+                                            {selectedMesura === 1 ? (membreActual?.altura_total || "")
+                                                : selectedMesura === 2 ? (membreActual?.altura_espatlles || "")
+                                                    : (membreActual?.envergadura || "")
+                                            }
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </>
+            ) : (
+                <>
+                    <ShowBoard
+                        button={
+                                <Button
+                                    text={"Tornar"}
+                                    icon={<FaArrowLeft />}
+                                    action={() => { setShowCastell(false); }}
+                                />
+                        }
+                        positions={posicionsPlantilla}
+                        assignacions={assignacions}
+                        members={members}
+                    />
+                </>
+            )}
 
             {showModalProva && (
                 <div className="modal-overlay-proves">
@@ -1692,8 +1723,10 @@ function ProvesBoard() {
                         </div>
                     </div>
                 </div>
-            )}
-        </div>
+            )
+            }
+
+        </div >
     )
 }
 
