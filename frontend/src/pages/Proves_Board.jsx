@@ -9,7 +9,7 @@ import {
     createProva, modifyProva, deleteProva,
     updateFavorite, updateFeta, publishProva,
     intercanviarPosicions, asignarPosicioProva, canviarAssignacio, moureAssignacio,
-    treureMembrePosicioCall, buidarPlantilla, treureAbsents,
+    treureMembrePosicio, buidarPlantilla, treureAbsents,
 } from "../services/provesService.js";
 import { getPlantillaById, getCollesPlantilles, getPlantillesPositions } from "../services/plantillesService.js";
 import { getAssistenciaByEsdeveniment } from "../services/assistenciaService.js";

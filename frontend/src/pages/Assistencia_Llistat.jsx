@@ -1,3 +1,8 @@
+import {
+    modifyAssistenciaPreviaTecnica, confirmAssistenciaTecnica, getAssistenciaByEsdeveniment
+} from "../services/assistenciaService.js";
+import { handleApiError } from "../utils/handleApiError.js";
+
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -95,119 +100,51 @@ const LlistatAssistencia = () => {
         }, 1000);
     };
 
-    const modifyAssistenciaPreviaTecnica = async (idAssistencia, confirmacio_previa) => {
-
-        const token = localStorage.getItem("token");
-
-        setIsUpdating(true);
-
-        const response = await fetch(`http://localhost:5000/assistencia/modifyAssistenciaPreviaTecnica?id=${idAssistencia}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                confirmacio_previa: confirmacio_previa
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            setError("");
-            showTempMessage("Assistència previa modificada correctament.");
-            getAssistenciaByEsdeveniment();
-            console.log("{DEBUG} Modify esdeveniment's assistencia previa OK")
-        } else {
-            console.log("{DEBUG} Modify esdeveniment's assistencia previa KO")
-            setError(data.message);
-        }
-
-        setIsUpdating(false);
-    }
-
-    const confirmAssistenciaTecnica = async (idAssistencia, confirmacio_arribada) => {
-
-        const token = localStorage.getItem("token");
-
-        setIsUpdating(true);
-
-        const response = await fetch(`http://localhost:5000/assistencia/confirmAssistencia?id=${idAssistencia}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                confirmacio_arribada: confirmacio_arribada
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            setError("");
-            showTempMessage("Assistència arribada modificada correctament.");
-            getAssistenciaByEsdeveniment();
-            console.log("{DEBUG} Modify esdeveniment's assistencia arribada OK")
-        } else {
-            console.log("{DEBUG} Modify esdeveniment's assistencia arribada KO")
-            setError(data.message);
-        }
-        setIsUpdating(false);
-    }
-
-    const getAssistenciaByEsdeveniment = async () => {
-
+    const loadAssistenciaByEsdeveniment = async () => {
         if (isUpdating) return;
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/assistencia/getAssistenciaList?id=${idEsdeveniment}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+        try {
+            const data = await getAssistenciaByEsdeveniment(idEsdeveniment);
             setAssistencia(data);
             setLastUpdate(new Date());
-            console.log("{DEBUG} Get esdeveniment's assistencia OK")
-        } else {
-            console.log("{DEBUG} Get esdeveniment's assistencia KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
+
+    const modifyAssistenciaPreviaTecnicaCall = async (idAssistencia, confirmacio_previa) => {
+        setIsUpdating(true);
+        try {
+            const data = await modifyAssistenciaPreviaTecnica(idAssistencia, confirmacio_previa);
+            setError("");
+            showTempMessage("Assistència previa modificada correctament.");
+            loadAssistenciaByEsdeveniment();
+            setIsUpdating(false);
+
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
+
+    const confirmAssistenciaTecnicaCall = async (idAssistencia, confirmacio_arribada) => {
+        setIsUpdating(true);
+        try {
+            const data = await confirmAssistenciaTecnica(idAssistencia, confirmacio_arribada);
+            setError("");
+            showTempMessage("Assistència arribada modificada correctament.");
+            loadAssistenciaByEsdeveniment();
+            setIsUpdating(false);
+
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
     useEffect(() => {
-        getAssistenciaByEsdeveniment();
+        loadAssistenciaByEsdeveniment();
 
         const interval = setInterval(() => {
             if (document.visibilityState === "visible") {
-                getAssistenciaByEsdeveniment();
+                loadAssistenciaByEsdeveniment();
             }
         }, 8000);
 
@@ -309,7 +246,7 @@ const LlistatAssistencia = () => {
 
                                         setLoadingIds(prev => [...prev, assist.id]);
 
-                                        modifyAssistenciaPreviaTecnica(assist.id, newValue)
+                                        modifyAssistenciaPreviaTecnicaCall(assist.id, newValue)
                                             .finally(() => {
                                                 setLoadingIds(prev => prev.filter(id => id !== assist.id));
                                             });
