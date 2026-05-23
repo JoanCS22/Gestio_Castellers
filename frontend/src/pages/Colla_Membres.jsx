@@ -1,3 +1,6 @@
+import { getCollaMembers, searchUsers, addUserToColla } from "../services/membersService.js";
+import { handleApiError } from "../utils/handleApiError.js";
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -70,107 +73,40 @@ function MembresColla() {
         }, 2000);
     };
 
-    const getCollaMembers = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/members/getMembers?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadCollaMembers = async () => {
+        try {
+            const data = await getCollaMembers();
             setMembers(data);
-            console.log("{DEBUG} Get colla's members OK")
-        } else {
-            console.log("{DEBUG} Get colla's members KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const searchUsers = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/members/searchUsers`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                nom: modalTags.nom || "",
-                cognoms: modalTags.cognoms || "",
-                email: modalTags.correu || ""
-            })
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const searchUsersCall = async () => {
+        try {
+            const data = await searchUsers(modalTags);
             setSearchResults(data);
-            console.log("{DEBUG} Get users by filters OK")
-        } else {
-            console.log("{DEBUG} Get users by filters KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const addUserToColla = async (idUser) => {
-
-        const token = localStorage.getItem("token");
+    const addUserToCollaCall = async (idUser) => {
         const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/members/addMember?id=${idColla}&userid=${idUser}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+        try {
+            const data = await addUserToColla(idUser);
             setError("");
             showTempMessage("Usuari afegit correctament a la colla.");
             setTimeout(() => {
                 navigate(`/tecnica_profile?userId=${idUser}&collaId=${idColla}`);
             }, 2000);
-            console.log("{DEBUG} Add user to colla OK")
-        } else {
-            console.log("{DEBUG} Add user to colla KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
     useEffect(() => {
-        getCollaMembers();
+        loadCollaMembers();
     }, []);
 
     return (
@@ -348,7 +284,7 @@ function MembresColla() {
                             <Button
                                 text="Buscar"
                                 icon={<FaSearch />}
-                                action={searchUsers}
+                                action={searchUsersCall}
                             />
                         </div>
                         <div className="table-search-users">
@@ -387,7 +323,7 @@ function MembresColla() {
                                                                     setShowModalAddMember(false);
                                                                     setSearchResults([]);
                                                                     setModalTags({ nom: "", cognoms: "", correu: "" });
-                                                                    addUserToColla(user.id);
+                                                                    addUserToCollaCall(user.id);
                                                                 }}>
                                                                     <FaPlusSquare />
                                                                 </button>

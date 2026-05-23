@@ -1,3 +1,5 @@
+import { getEsdevenimentInfo, createEsdeveniment, modifyEsdeveniment } from "../services/esdevenimentsService.js";
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -80,11 +82,7 @@ function EsdevenimentsInfo() {
         return result;
     }
 
-    const createEsdeveniment = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
+    const createEsdevenimentCall = async () => {
         const compulsoryInputs = {
             nom: "Nom",
             data: "Data",
@@ -109,70 +107,51 @@ function EsdevenimentsInfo() {
         const code = generateCode();
         console.log(code);
 
-        const response = await fetch(`http://localhost:5000/esdeveniments/createEsdeveniment?id=${idColla}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                nom: form.nom,
-                tipus: tipus === "Altres" ? tipusAltres : tipus,
-                data_esdeveniment: form.data,
-                hora: form.hora,
-                duracio: form.durada,
-                adreca: form.adreca,
-                link_adreca: form.link_adreca,
-                visible: visible,
-                acompanyat: acompanyat,
-                bus: bus,
-                data_inici_inscripcions: form.data_inscripcions,
-                info_addicional: form.info_extra,
-                codi_confirmacio: code
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Create esdeveniment OK");
+        try {
+            const data = await createEsdeveniment(form, tipus, visible, acompanyat, bus, code);
             setError("");
             showTempMessage("Esdeveniment creat correctament.");
             navigate(`/consult_esdeveniment?idEsdeveniment=${data.id}`);
-        } else {
-            console.log("{DEBUG} Create esdeveniment KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const getEsdevenimentInfo = async () => {
+    const modifyEsdevenimentCall = async () => {
+        const compulsoryInputs = {
+            nom: "Nom",
+            data: "Data",
+            hora: "Hora",
+            durada: "Durada",
+            adreca: "Adreça",
+            data_inscripcions: "Data Inscripcions"
+        };
 
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/esdeveniments/getEsdevenimentInfo?id=${idEsdeveniment}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+        for (const key in compulsoryInputs) {
+            if (!form[key] || form[key].toString().trim() === "") {
+                setError(`El camp ${compulsoryInputs[key]} és obligatori`);
+                return;
             }
-        });
+        }
 
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
+        if (tipus === "Altres" && tipusAltres.trim() === "") {
+            setError("Has d'especificar el tipus si selecciones 'Altres'");
             return;
         }
 
-        const data = await response.json();
+        try {
+            const data = await modifyEsdeveniment(idEsdeveniment, form, tipus, visible, acompanyat, bus);
+            setError("");
+            showTempMessage("Esdeveniment modificat correctament.");
+            navigate(`/consult_esdeveniment?idEsdeveniment=${idEsdeveniment}`)
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
 
-        if (response.ok) {
-
+    const loadEsdeveniment = async () => {
+        try {
+            const data = await getEsdevenimentInfo(idEsdeveniment);
             setForm({
                 nom: data.nom,
                 data: data.data_esdeveniment.split("T")[0],
@@ -189,87 +168,14 @@ function EsdevenimentsInfo() {
             setVisible(data.visible);
             setAcompanyat(data.acompanyat);
             setBus(data.bus);
-
-            console.log("{DEBUG} Get esdeveniments's data OK")
-        } else {
-            console.log("{DEBUG} Get esdeveniments's data KO")
-            setError(data.message);
-        }
-    }
-
-    const modifyEsdeveniment = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const compulsoryInputs = {
-            nom: "Nom",
-            data: "Data",
-            hora: "Hora",
-            durada: "Durada",
-            adreca: "Adreça",
-            data_inscripcions: "Data Inscripcions"
-        };
-
-        for (const key in compulsoryInputs) {
-            if (!form[key] || form[key].toString().trim() === "") {
-                setError(`El camp ${compulsoryInputs[key]} és obligatori`);
-                return;
-            }
-        }
-
-        if (tipus === "Altres" && tipusAltres.trim() === "") {
-            setError("Has d'especificar el tipus si selecciones 'Altres'");
-            return;
-        }
-
-        const code = generateCode();
-        console.log(code);
-
-        const response = await fetch(`http://localhost:5000/esdeveniments/modifyEsdeveniment?id=${idEsdeveniment}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                nom: form.nom,
-                tipus: tipus === "Altres" ? tipusAltres : tipus,
-                data_esdeveniment: form.data,
-                hora: form.hora,
-                duracio: form.durada,
-                adreca: form.adreca,
-                link_adreca: form.link_adreca,
-                visible: visible,
-                acompanyat: acompanyat,
-                bus: bus,
-                data_inici_inscripcions: form.data_inscripcions,
-                info_addicional: form.info_extra
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Modify esdeveniment OK");
-            setError("");
-            showTempMessage("Esdeveniment modificat correctament.");
-            navigate(`/consult_esdeveniment?idEsdeveniment=${idEsdeveniment}`)
-        } else {
-            console.log("{DEBUG} Modify esdeveniment KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
     useEffect(() => {
         if (isConsult || isModify) {
-            getEsdevenimentInfo();
+            loadEsdeveniment();
         }
     }, [isConsult]);
 
@@ -490,7 +396,7 @@ function EsdevenimentsInfo() {
                                 <Button
                                     text="Guardar canvis"
                                     icon={<FaSave />}
-                                    action={modifyEsdeveniment}
+                                    action={modifyEsdevenimentCall}
                                 />
                             )}
                             <Button
@@ -509,7 +415,7 @@ function EsdevenimentsInfo() {
                                 <Button
                                     text="Crear esdeveniment"
                                     icon={<FaPlusSquare />}
-                                    action={createEsdeveniment}
+                                    action={createEsdevenimentCall}
                                 />
                             )}
                             <Button
@@ -530,11 +436,11 @@ function EsdevenimentsInfo() {
                         <h2>
                             {form.codi}
                         </h2>
-                        <div className="modal-buttons-esdeveniments">                        
+                        <div className="modal-buttons-esdeveniments">
                             <Button
                                 text="Tancar"
                                 icon={<FaTimesCircle />}
-                                action={() => { setShowModal(false);}}
+                                action={() => { setShowModal(false); }}
                             />
                         </div>
                     </div>

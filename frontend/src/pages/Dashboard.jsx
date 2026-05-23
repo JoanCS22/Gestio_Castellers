@@ -1,3 +1,8 @@
+import { getCollesFutureEsdeveniments } from "../services/esdevenimentsService.js";
+import { getAssistenciaByEsdeveniment } from "../services/assistenciaService.js";
+import { getProvesByEsdeveniment } from "../services/provesService.js";
+import { handleApiError } from "../utils/handleApiError.js";
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -47,33 +52,9 @@ function Dashboard() {
 
     const { setCurrentEvent } = useEvent();
 
-    const getCollesFutureEsdeveniments = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        if (!idColla) {
-            return;
-        }
-
-        const response = await fetch(`http://localhost:5000/esdeveniments/getFutureEsdeveniments?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-
+    const loadFutureEsdeveniments = async () => {
+        try {
+            const data = await getCollesFutureEsdeveniments();
             let result = data;
 
             if (hasWritePermission("esdeveniments")) {
@@ -87,85 +68,43 @@ function Dashboard() {
 
             setFuturs(result);
             setCurrentEvent(result[0]);
-            console.log("{DEBUG} Get colla's future esdeveniments OK")
-        } else {
-            console.log("{DEBUG} Get colla's future esdeveniments KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const getAssistenciaByEsdeveniment = async (idEsdeveniment) => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/assistencia/getAssistenciaList?id=${idEsdeveniment}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadAssistencia = async (idEsdeveniment) => {
+        try {
+            const data = await getAssistenciaByEsdeveniment(idEsdeveniment);
             setAssistenciaByEvent(prev => ({
                 ...prev,
                 [idEsdeveniment]: data
             }));
-            console.log("{DEBUG} Get esdeveniment's assistencia OK")
-        } else {
-            console.log("{DEBUG} Get esdeveniment's assistencia KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const getProvesByEsdeveniment = async (idEsdeveniment) => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/proves/getProvesByEsdeveniment?id=${idEsdeveniment}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadProves = async (idEsdeveniment) => {
+        try {
+            const data = await getProvesByEsdeveniment(idEsdeveniment);
             setFuturProves(data);
-            console.log("{DEBUG} Get esdeveniments's proves OK")
-        } else {
-            console.log("{DEBUG} Get esdeveniments's proves KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
     useEffect(() => {
         if (!refreshKey) return;
-        getCollesFutureEsdeveniments();
+        loadFutureEsdeveniments();
     }, [refreshKey]);
 
     useEffect(() => {
         if (futurs.length > 0) {
             futurs.forEach(e => {
-                getAssistenciaByEsdeveniment(e.id);
+                loadAssistencia(e.id);
             });
-            getProvesByEsdeveniment(futurs[0].id);
+            loadProves(futurs[0].id);
         }
     }, [futurs]);
 
