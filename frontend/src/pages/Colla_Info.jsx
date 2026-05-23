@@ -1,3 +1,6 @@
+import { createColla, getDataColla, updateDataColla } from "../services/collaService.js";
+import { handleApiError } from "../utils/handleApiError.js";
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -55,75 +58,27 @@ function CollaInfo() {
         }, 2000);
     };
 
-    const createColla = async (e) => {
+    const createCollaCall = async (e) => {
         e.preventDefault();
-
-        const token = localStorage.getItem("token");
-
         if (form.nom == "") {
             setError(`El camp nom no pot estar buit`);
             return;
         }
 
-        const response = await fetch("http://localhost:5000/colla/createColla", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                nom: form.nom,
-                abreviacio: form.nom_curt || "",
-                telefon: form.telefon,
-                correus_contacte: form.contactes || "",
-                data_creacio: form.data_fundacio || null,
-                adreca: form.adreca || "",
-                poblacio: form.poblacio || ""
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Create colla OK");
+        try {
+            const data = await createColla(form);
             setError("");
             localStorage.setItem("id_colla", data.id);
             showTempMessage("Colla creada correctament.");
             navigate("/get_data_colla")
-        } else {
-            console.log("{DEBUG} Create colla KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const getDataColla = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/colla/getDataColla?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadDataColla = async () => {
+        try {
+            const data = await getDataColla();
             setForm({
                 nom: data.nom,
                 nom_curt: data.abreviacio || "",
@@ -135,66 +90,32 @@ function CollaInfo() {
                 adreca: data.adreca || "",
                 poblacio: data.poblacio || ""
             });
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
 
-            console.log("{DEBUG} Get colla's data OK")
-        } else {
-            console.log("{DEBUG} Get colla's data KO")
-            setError(data.message);
+    const updateDataCollaCall = async (e) => {
+        e.preventDefault();
+        if (form.nom == "") {
+            setError(`El camp nom no pot estar buit`);
+            return;
+        }
+        try {
+            const data = await updateDataColla(form);
+            setError("");
+            showTempMessage("Colla modificada correctament.");
+            navigate("/get_data_colla")
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
     useEffect(() => {
         if (isReadOnly) {
-            getDataColla();
+            loadDataColla();
         }
     }, [isReadOnly]);
-
-    const updateDataColla = async (e) => {
-        e.preventDefault();
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        if (form.nom == "") {
-            setError(`El camp nom no pot estar buit`);
-            return;
-        }
-
-        const response = await fetch(`http://localhost:5000/colla/modifyColla?id=${idColla}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                nom: form.nom,
-                abreviacio: form.nom_curt || "",
-                telefon: form.telefon,
-                correus_contacte: form.contactes || "",
-                data_creacio: form.data_fundacio || null,
-                adreca: form.adreca || "",
-                poblacio: form.poblacio || ""
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Update colla OK");
-            setError("");
-            showTempMessage("Colla modificada correctament.");
-            navigate("/get_data_colla")
-        } else {
-            console.log("{DEBUG} Update colla KO");
-            setError(data.message);
-        }
-    }
 
     return (
         <div>
@@ -317,7 +238,7 @@ function CollaInfo() {
                             <Button
                                 text="Crear colla"
                                 icon={<FaPlusSquare />}
-                                action={createColla}
+                                action={createCollaCall}
                             />
 
                             <Button
@@ -347,14 +268,14 @@ function CollaInfo() {
                             <Button
                                 text="Guardar canvis"
                                 icon={<FaSave />}
-                                action={updateDataColla}
+                                action={updateDataCollaCall}
                             />
 
                             <Button
                                 text="Cancelar"
                                 icon={<FaTimesCircle />}
                                 action={() => {
-                                    getDataColla();
+                                    loadDataColla();
                                     navigate("/get_data_colla");
                                 }}
                             />

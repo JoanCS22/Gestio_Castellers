@@ -1,6 +1,7 @@
 import {
-    getEsdevenimentInfo, getAssistenciaActual, modifyAssistenciaPrevia, verifyCode
+    getAssistenciaActual, modifyAssistenciaPrevia, verifyCode
 } from "../services/assistenciaService.js";
+import { getEsdevenimentInfo } from "../services/esdevenimentsService.js";
 import { handleApiError } from "../utils/handleApiError.js";
 
 import React, { useState, useEffect } from 'react'
