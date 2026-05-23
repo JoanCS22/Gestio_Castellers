@@ -271,35 +271,28 @@ function Dashboard() {
                             <div className="grid-proves-list-dashboard">
                                 {futurProves.map((prova) => (
                                     (hasAccess("proves") || prova.public) && (
-                                        <>
-                                            <div className="container-proves-dashboard" onClick={() => {
-                                                if (hasWritePermission('proves')) {
-                                                    navigate(`/proves_board_edit?id=${prova.id}&idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`)
-                                                } else {
-                                                    navigate(`/proves_board_show?id=${prova.id}&idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`)
-                                                }
-                                            }}>
-                                                <div className="container-proves-text-dashboard">
-                                                    <span>{prova.nom}</span>
-                                                </div>
-                                                <div className="container-proves-icons-dashboard">
-                                                    {prova.xarxa && (
-                                                        <>
-                                                            <FaHashtag title="Amb xarxa" />
-                                                        </>
-                                                    )}
-                                                    {prova.feta ? (
-                                                        <>
-                                                            <FaCheckCircle title="Realitzada" className="icon-feta-dashboard" />
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <FaTimesCircle title="No realitzada" className="icon-no-feta-dashboard" />
-                                                        </>
-                                                    )}
-                                                </div>
+                                        <div key={prova.id} className="container-proves-dashboard" onClick={() => {
+                                            if (hasWritePermission('proves')) {
+                                                navigate(`/proves_board_edit?id=${prova.id}&idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`)
+                                            } else {
+                                                navigate(`/proves_board_show?id=${prova.id}&idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`)
+                                            }
+                                        }}>
+                                            <div className="container-proves-text-dashboard">
+                                                <span>{prova.nom}</span>
                                             </div>
-                                        </>
+                                            <div className="container-proves-icons-dashboard">
+                                                {prova.xarxa && (
+                                                    <FaHashtag title="Amb xarxa" />
+                                                )}
+                                                {prova.feta ? (
+
+                                                    <FaCheckCircle title="Realitzada" className="icon-feta-dashboard" />
+                                                ) : (
+                                                    <FaTimesCircle title="No realitzada" className="icon-no-feta-dashboard" />
+                                                )}
+                                            </div>
+                                        </div>
                                     )
                                 ))}
                             </div>
