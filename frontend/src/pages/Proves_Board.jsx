@@ -8,6 +8,8 @@ import {
     getProvaById, getProvesByEsdeveniment, getAssignacions,
     createProva, modifyProva, deleteProva,
     updateFavorite, updateFeta, publishProva,
+    intercanviarPosicions, asignarPosicioProva, canviarAssignacio, moureAssignacio,
+    treureMembrePosicioCall, buidarPlantilla, treureAbsents,
 } from "../services/provesService.js";
 import { getPlantillaById, getCollesPlantilles, getPlantillesPositions } from "../services/plantillesService.js";
 import { getAssistenciaByEsdeveniment } from "../services/assistenciaService.js";
@@ -477,278 +479,112 @@ function ProvesBoard() {
 
         if (!selectedPositionId || !selectedMemberId) { return; }
 
-        const token = localStorage.getItem("token");
+        try {
+            let data;
 
-        let response;
+            const assignacioPosicio = assignacions.find(a => a.id_posicio === selectedPositionId);
+            const assignacioMembre = assignacions.find(a => a.id_usuari === selectedMemberId);
 
-        const assignacioPosicio = assignacions.find(a => a.id_posicio === selectedPositionId);
-        const assignacioMembre = assignacions.find(a => a.id_usuari === selectedMemberId);
+            const idAssignacioPosicio = assignacioPosicio?.id_assignacio;
+            const idAssignacioMembre = assignacioMembre?.id_assignacio;
 
-        const idAssignacioPosicio = assignacioPosicio?.id_assignacio;
-        const idAssignacioMembre = assignacioMembre?.id_assignacio;
+            if (assignacioPosicio && assignacioMembre) {
+                console.log("Entra intercanvi");
+                data = await intercanviarPosicions(idAssignacioPosicio, idAssignacioMembre);
+            } else if (assignacioPosicio) {
+                console.log("Entra canvi posició");
+                data = await canviarAssignacio(idAssignacioPosicio, selectedMemberId);
+            } else if (assignacioMembre) {
+                console.log("Entra canvi membre");
+                data = await canviarAssignacio(idAssignacioMembre, undefined, selectedPositionId);
+            } else {
+                console.log("Entra resta");
+                data = await asignarPosicioProva(idProva, selectedPositionId, selectedMemberId);
+            }
 
-        if (assignacioPosicio && assignacioMembre) {
-            response = await fetch("http://localhost:5000/proves/intercanviarPosicions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    id_assignacio_1: idAssignacioPosicio,
-                    id_assignacio_2: idAssignacioMembre,
-                }),
-            });
-        } else if (assignacioPosicio) {
-            response = await fetch("http://localhost:5000/proves/canviarAssignacio", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    id_assignacio: idAssignacioPosicio,
-                    id_usuari: selectedMemberId,
-                }),
-            });
-        } else if (assignacioMembre) {
-            response = await fetch("http://localhost:5000/proves/canviarAssignacio", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    id_assignacio: idAssignacioMembre,
-                    id_posicio: selectedPositionId,
-                }),
-            });
-        } else {
-            response = await fetch("http://localhost:5000/proves/asignarPosicioProva", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    id_prova: idProva,
-                    id_posicio: selectedPositionId,
-                    id_usuari: selectedMemberId,
-                }),
-            });
-        }
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
             await loadAssignacions();
             setSelectedPositionId(null);
             setSelectedMemberId(null);
             setSelectedAssignacioId(null);
-            console.log("{DEBUG} Assignar posicions OK")
-        } else {
-            console.log("{DEBUG} Assignar posicions KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const moureAssignacio = async (idAssignacioDesti, idNovaPosicio) => {
+    const moureAssignacioCall = async (idAssignacioDesti, idNovaPosicio) => {
 
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/proves/canviPosicionsBuidaPlena`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                id_assignacio: idAssignacioDesti,
-                id_posicio: idNovaPosicio,
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+        try {
+            const data = await moureAssignacio(idAssignacioDesti, idNovaPosicio);
             await loadAssignacions();
             setSelectedPositionId(null);
             setSelectedMemberId(null);
             setSelectedAssignacioId(null);
-            console.log("{DEBUG} Intercanviar posicions OK")
-        } else {
-            console.log("{DEBUG} Intercanviar posicions KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const intercanviarPosicions = async (assignacio1, assignacio2) => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(
-            "http://localhost:5000/proves/intercanviarPosicions",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    id_assignacio_1: assignacio1.id_assignacio,
-                    id_assignacio_2: assignacio2.id_assignacio,
-                }),
-            }
-        );
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const intercanviarPosicionsCall = async (assignacio1, assignacio2) => {
+        try {
+            const data = await intercanviarPosicions(assignacio1, assignacio2);
             await loadAssignacions();
 
             setSelectedPositionId(null);
             setSelectedMemberId(null);
             setSelectedAssignacioId(null);
-
-            console.log("{DEBUG} Intercanvi posicions OK");
-        } else {
-            console.log("{DEBUG} Intercanvi posicions KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     };
 
-    const treureMembrePosicio = async () => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/proves/desasignarPosicioProva?id=${selectedAssignacioId}`,
-            {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-            }
-        );
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const treureMembrePosicioCall = async () => {
+        try {
+            const data = await treureMembrePosicio(selectedAssignacioId);
             await loadAssignacions();
 
             setSelectedPositionId(null);
             setSelectedMemberId(null);
             setSelectedAssignacioId(null);
-
-            console.log("{DEBUG} Treure membre posició OK");
-        } else {
-            console.log("{DEBUG} Treure membre posició KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
-    };
+    }
 
-    const buidarPlantilla = async () => {
-
+    const buidarPlantillaCall = async () => {
         if (!window.confirm("Segur que vols buidar la plantilla d'aquesta prova?")) return;
 
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/proves/buidarPlantillaProva?id=${idProva}`,
-            {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-            }
-        );
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+        try {
+            const data = await buidarPlantilla(idProva);
             await loadAssignacions();
 
             setSelectedPositionId(null);
             setSelectedMemberId(null);
             setSelectedAssignacioId(null);
-
-            console.log("{DEBUG} Buidar plantilla OK");
-        } else {
-            console.log("{DEBUG} Buidar plantilla KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
-    };
+    }
 
-    const treureAbsents = async () => {
+    const treureAbsentsCall = async () => {
+        if (!window.confirm("Segur que vols buidar la plantilla d'aquesta prova?")) return;
 
-        const token = localStorage.getItem("token");
+        try {
+            const id_esdeveniment = provaInfo?.id_esdeveniment;
 
-        if (!provaInfo?.id_esdeveniment) {
-            return;
-        }
-
-        const id_esdeveniment = provaInfo?.id_esdeveniment;
-
-        const response = await fetch(`http://localhost:5000/proves/eliminarAbsentsProva?id=${id_esdeveniment}`,
-            {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
+            if (!provaInfo?.id_esdeveniment) {
+                return;
             }
-        );
 
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+            const data = await treureAbsents(id_esdeveniment);
             await loadAssignacions();
 
             setSelectedPositionId(null);
             setSelectedMemberId(null);
             setSelectedAssignacioId(null);
-
-            console.log("{DEBUG} Treure absents prova OK");
-        } else {
-            console.log("{DEBUG} Treure absents prova KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
-    };
+    }
 
     useEffect(() => {
         if (selectedMemberId && selectedPositionId) {
@@ -1032,13 +868,13 @@ function ProvesBoard() {
                             </div>
                             <div className="top-part-prova-board-icons">
                                 <FaUserTimes title="Eliminar persones absents" onClick={() => {
-                                    treureAbsents();
+                                    treureAbsentsCall();
                                 }} />
                                 <FaUserAltSlash title="Buidar casella seleccionada" onClick={() => {
-                                    treureMembrePosicio();
+                                    treureMembrePosicioCall();
                                 }} />
                                 <FaUsersSlash title="Buidar plantilla" onClick={() => {
-                                    buidarPlantilla();
+                                    buidarPlantillaCall();
                                 }} />
                             </div>
                         </div>
@@ -1212,12 +1048,12 @@ function ProvesBoard() {
                                             const assignacioNova = assignacions.find(a => a.id_posicio === posicioNova);
 
                                             if (assignacioAnterior && assignacioNova) {
-                                                intercanviarPosicions(assignacioAnterior, assignacioNova);
+                                                intercanviarPosicionsCall(assignacioAnterior.id_assignacio, assignacioNova.id_assignacio);
                                             } else if (assignacioAnterior || assignacioNova) {
                                                 if (assignacioAnterior) {
-                                                    moureAssignacio(assignacioAnterior.id_assignacio, posicioNova);
+                                                    moureAssignacioCall(assignacioAnterior.id_assignacio, posicioNova);
                                                 } else if (assignacioNova) {
-                                                    moureAssignacio(assignacioNova.id_assignacio, posicioAnterior);
+                                                    moureAssignacioCall(assignacioNova.id_assignacio, posicioAnterior);
                                                 }
                                             }
 

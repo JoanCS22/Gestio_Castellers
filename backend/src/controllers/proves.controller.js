@@ -381,15 +381,25 @@ const canviarAssignacio = async (req, res) => {
     try {
         const { id_assignacio, id_usuari, id_posicio } = req.body;
 
+        console.log("Entra a canviarAssignacion", req.body)
+
         await client.query("BEGIN");
 
-        await client.query(
-            `UPDATE assignacions_prova
-             SET id_usuari = COALESCE($2, id_usuari),
-                 id_posicio = COALESCE($3, id_posicio)
-             WHERE id_assignacio = $1`,
-            [id_assignacio, id_usuari, id_posicio]
-        );
+        if (id_usuari) {
+            await client.query(
+                `UPDATE assignacions_prova
+                 SET id_usuari = $2
+                 WHERE id_assignacio = $1`,
+                [id_assignacio, id_usuari]
+            );
+        } else if (id_posicio) {
+            await client.query(
+                `UPDATE assignacions_prova
+                 SET id_posicio = $2
+                 WHERE id_assignacio = $1`,
+                [id_assignacio, id_posicio]
+            );
+        }
 
         await client.query("COMMIT");
 

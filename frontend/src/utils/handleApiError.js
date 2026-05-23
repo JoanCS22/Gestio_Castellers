@@ -1,5 +1,3 @@
-// utils/handleApiError.js
-
 export const handleApiError = (err, navigate, setError) => {
 
     if (err.message === "UNAUTHORIZED") {

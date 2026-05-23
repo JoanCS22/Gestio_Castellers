@@ -81,7 +81,7 @@ export const createProva = async (idEsdeveniment, tags, idPlantilla) => {
             }),
         }
     );
-}; 
+};
 
 export const modifyProva = async (idProva, tags, idPlantilla) => {
     return await apiRequest(
@@ -98,11 +98,99 @@ export const modifyProva = async (idProva, tags, idPlantilla) => {
             }),
         }
     );
-}; 
+};
 
 export const deleteProva = async (idProva) => {
     return await apiRequest(
         `/proves/deleteProva?id=${idProva}`,
+        {
+            method: "DELETE",
+        }
+    );
+};
+
+export const intercanviarPosicions = async (id_assignacio_1, id_assignacio_2) => {
+    return await apiRequest(
+        `/proves/intercanviarPosicions`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                id_assignacio_1: id_assignacio_1,
+                id_assignacio_2: id_assignacio_2,
+            }),
+        }
+    );
+};
+
+export const canviarAssignacio = async (id_assignacio, id_usuari = undefined, id_posicio = undefined) => {
+
+    const body = { id_assignacio };
+
+    if (id_usuari !== undefined) body.id_usuari = id_usuari;
+
+    if (id_posicio !== undefined) body.id_posicio = id_posicio;
+
+    console.log(JSON.stringify({
+        body
+    }));
+
+    return await apiRequest(
+        `/proves/canviarAssignacio`,
+        {
+            method: "POST",
+            body: JSON.stringify(body),
+        }
+    );
+};
+
+export const asignarPosicioProva = async (idProva, selectedPositionId, selectedMemberId) => {
+    return await apiRequest(
+        `/proves/asignarPosicioProva`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                id_prova: idProva,
+                id_posicio: selectedPositionId,
+                id_usuari: selectedMemberId,
+            }),
+        }
+    );
+};
+
+export const moureAssignacio = async (idAssignacioDesti, idNovaPosicio) => {
+    return await apiRequest(
+        `/proves/canviPosicionsBuidaPlena`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                id_assignacio: idAssignacioDesti,
+                id_posicio: idNovaPosicio,
+            }),
+        }
+    );
+};
+
+export const treureMembrePosicio = async (idAssignacio) => {
+    return await apiRequest(
+        `/proves/desasignarPosicioProva?id=${idAssignacio}`,
+        {
+            method: "DELETE",
+        }
+    );
+};
+
+export const buidarPlantilla = async (idProva) => {
+    return await apiRequest(
+        `/proves/buidarPlantillaProva?id=${idProva}`,
+        {
+            method: "DELETE",
+        }
+    );
+};
+
+export const treureAbsents = async (id_esdeveniment) => {
+    return await apiRequest(
+        `/proves/eliminarAbsentsProva?id=${id_esdeveniment}`,
         {
             method: "DELETE",
         }
