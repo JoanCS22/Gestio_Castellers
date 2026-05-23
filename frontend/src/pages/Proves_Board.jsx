@@ -5,11 +5,11 @@ import Draggable from "react-draggable";
 import { getCollaMembers } from "../services/membersService";
 import { getCollesPositions } from "../services/collaService.js";
 import {
-    getProvaById, getProvesByEsdeveniment,
-    createProva, modifyProva,
+    getProvaById, getProvesByEsdeveniment, getAssignacions,
+    createProva, modifyProva, deleteProva,
     updateFavorite, updateFeta, publishProva,
 } from "../services/provesService.js";
-import { getPlantillaById, getCollesPlantilles } from "../services/plantillesService.js";
+import { getPlantillaById, getCollesPlantilles, getPlantillesPositions } from "../services/plantillesService.js";
 import { getAssistenciaByEsdeveniment } from "../services/assistenciaService.js";
 import { handleApiError } from "../utils/handleApiError.js";
 
@@ -383,6 +383,24 @@ function ProvesBoard() {
         }
     }
 
+    const loadPlantillesPositions = async (idPlantilla) => {
+        try {
+            const data = await getPlantillesPositions(idPlantilla);
+            setPosicionsPlantilla(data);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
+
+    const loadAssignacions = async () => {
+        try {
+            const data = await getAssignacions(idProva);
+            setAssignacions(data);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
+
     const changeFavorite = async (idPlantilla, favoriteValue) => {
         try {
             const data = await updateFavorite(idPlantilla, favoriteValue);
@@ -444,94 +462,14 @@ function ProvesBoard() {
         }
     }
 
-    const deleteProva = async (id_prova) => {
-
-        if (!window.confirm("Segur que vols eliminar aquesta prova?")) return;
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/proves/deleteProva?id=${id_prova}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Delete prova OK");
+    const deleteProvaCall = async (id_prova) => {
+        try {
+            const data = await deleteProva(id_prova);
             setError("");
             showTempMessage("Prova eliminada correctament.");
             navigate(`/proves?idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`);
-        } else {
-            console.log("{DEBUG} Delete prova KO");
-            setError(data.message);
-        }
-    }
-
-    const getPlantillesPositions = async (idPlantilla) => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/plantilles/getPositionsByPlantilla?id=${idPlantilla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            setPosicionsPlantilla(data);
-            console.log("{DEBUG} Get plantilla's positions OK")
-        } else {
-            console.log("{DEBUG} Get plantilla's positions KO")
-            setError(data.message);
-        }
-    }
-
-    const getAssignacions = async () => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/proves/getAssignacionsProva?id=${idProva}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            setAssignacions(data);
-            console.log("{DEBUG} Get prova's assignacions OK")
-        } else {
-            console.log("{DEBUG} Get prova's assignacions KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
@@ -608,7 +546,7 @@ function ProvesBoard() {
         const data = await response.json();
 
         if (response.ok) {
-            await getAssignacions();
+            await loadAssignacions();
             setSelectedPositionId(null);
             setSelectedMemberId(null);
             setSelectedAssignacioId(null);
@@ -644,7 +582,7 @@ function ProvesBoard() {
         const data = await response.json();
 
         if (response.ok) {
-            await getAssignacions();
+            await loadAssignacions();
             setSelectedPositionId(null);
             setSelectedMemberId(null);
             setSelectedAssignacioId(null);
@@ -683,7 +621,7 @@ function ProvesBoard() {
         const data = await response.json();
 
         if (response.ok) {
-            await getAssignacions();
+            await loadAssignacions();
 
             setSelectedPositionId(null);
             setSelectedMemberId(null);
@@ -719,7 +657,7 @@ function ProvesBoard() {
         const data = await response.json();
 
         if (response.ok) {
-            await getAssignacions();
+            await loadAssignacions();
 
             setSelectedPositionId(null);
             setSelectedMemberId(null);
@@ -757,7 +695,7 @@ function ProvesBoard() {
         const data = await response.json();
 
         if (response.ok) {
-            await getAssignacions();
+            await loadAssignacions();
 
             setSelectedPositionId(null);
             setSelectedMemberId(null);
@@ -799,7 +737,7 @@ function ProvesBoard() {
         const data = await response.json();
 
         if (response.ok) {
-            await getAssignacions();
+            await loadAssignacions();
 
             setSelectedPositionId(null);
             setSelectedMemberId(null);
@@ -835,7 +773,7 @@ function ProvesBoard() {
 
             if (idProva) {
                 await loadProva();
-                await getAssignacions();
+                await loadAssignacions();
             }
         };
 
@@ -855,7 +793,7 @@ function ProvesBoard() {
         if (!provaInfo?.id_plantilla) return;
 
         loadPlantilla(provaInfo.id_plantilla);
-        getPlantillesPositions(provaInfo.id_plantilla);
+        loadPlantillesPositions(provaInfo.id_plantilla);
 
     }, [provaInfo?.id_plantilla]);
 
@@ -1221,7 +1159,7 @@ function ProvesBoard() {
                                                 className="delete-prova-icon"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    deleteProva(prova.id);
+                                                    deleteProvaCall(prova.id);
                                                 }}
                                             />
                                         </div>

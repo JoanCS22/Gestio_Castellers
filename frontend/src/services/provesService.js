@@ -18,6 +18,15 @@ export const getProvesByEsdeveniment = async (idEsdeveniment) => {
     );
 };
 
+export const getAssignacions = async (idProva) => {
+    return await apiRequest(
+        `/proves/getAssignacionsProva?id=${idProva}`,
+        {
+            method: "GET",
+        }
+    );
+};
+
 export const updateFavorite = async (idPlantilla, favoriteValue) => {
     return await apiRequest(
         `/proves/updateFavorite`,
@@ -90,3 +99,12 @@ export const modifyProva = async (idProva, tags, idPlantilla) => {
         }
     );
 }; 
+
+export const deleteProva = async (idProva) => {
+    return await apiRequest(
+        `/proves/deleteProva?id=${idProva}`,
+        {
+            method: "DELETE",
+        }
+    );
+};
