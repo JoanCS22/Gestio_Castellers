@@ -1,3 +1,12 @@
+import {
+    getCollesPositions
+} from "../services/collaService.js";
+import {
+    getPlantillaById, getPlantillesPositions, deletePlantilla,
+    addPositionToPlantilla, modifyPositionFromPlantilla, deletePosicioPlantilla,
+} from "../services/plantillesService.js";
+import { handleApiError } from "../utils/handleApiError.js";
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Draggable from "react-draggable";
@@ -71,261 +80,98 @@ function PlantillesCrear() {
         }));
     };
 
-    const getPlantillaById = async () => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/plantilles/getPlantillaById?id=${idPlantilla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadPlantillaById = async () => {
+        try {
+            const data = await getPlantillaById(idPlantilla);
             setInfoPlantilla(data);
             setSelectedTag(data.pinya ? "pinya" : "tronc")
-            console.log(data);
-            console.log("{DEBUG} Get plantilla by id OK")
-        } else {
-            console.log("{DEBUG} Get plantilla by id KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const getCollesPositions = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/colla/getCollaPositions?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadCollesPositions = async () => {
+        try {
+            const data = await getCollesPositions();
             setPositions(data);
-            console.log("{DEBUG} Get colla's positions OK")
-        } else {
-            console.log("{DEBUG} Get colla's positions KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const getPlantillesPositions = async () => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/plantilles/getPositionsByPlantilla?id=${idPlantilla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadPlantillesPositions = async () => {
+        try {
+            const data = await getPlantillesPositions(idPlantilla);
             setPosicionsPlantilla(data);
-            console.log("{DEBUG} Get plantilla's positions OK")
-        } else {
-            console.log("{DEBUG} Get plantilla's positions KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const addPositionToPlantilla = async () => {
-
+    const addPosition = async () => {
         const selectedPositionData = positions.find(
             p => String(p.id) === String(currentPosition)
         );
-
         if (!selectedPositionData) {
             setError("Cal emplenar la posició.");
             return;
         }
 
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/plantilles/addPositionToPlantilla?id=${idPlantilla}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                nom: selectedPositionData?.nom,
-                color: currentAddedPosition.color,
-                coord_x: currentAddedPosition.coord_x,
-                coord_y: currentAddedPosition.coord_y,
-                rotacio: currentAddedPosition.rotacio,
-                seccio: selectedTag,
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Create posició de plantilla OK");
-
-            await getPlantillesPositions();
-
+        try {
+            const data = await addPositionToPlantilla(idPlantilla, selectedPositionData, currentAddedPosition, selectedTag);
+            await loadPlantillesPositions();
             setError("");
-            showTempMessage("Posició creada.");
-        } else {
-            console.log("{DEBUG} Create posició de plantilla KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const modifyPositionToPlantilla = async (
+    const modifyPosition = async (
         idPosicio,
         coordX = currentAddedPosition.coord_x,
         coordY = currentAddedPosition.coord_y
     ) => {
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/plantilles/modifyPositionsFromPlantilla?id=${idPosicio}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                color: currentAddedPosition.color || "#FFFFFFF",
-                coord_x: coordX || 200,
-                coord_y: coordY || 700,
-                rotacio: currentAddedPosition.rotacio || 0,
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Modify posició de plantilla OK");
-
-            await getPlantillesPositions();
-
+        try {
+            const data = await modifyPositionFromPlantilla(idPosicio, currentAddedPosition, coordX, coordY);
+            await loadPlantillesPositions();
             setError("");
-            showTempMessage("Posició modificada.");
-        } else {
-            console.log("{DEBUG} Modify posició de plantilla KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const deletePosicioPlantilla = async (idPosicio) => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/plantilles/deletePositionsFromPlantilla?id=${idPosicio}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Delete posició OK");
+    const deletePosition = async (idPosicio) => {
+        try {
+            const data = await deletePosicioPlantilla(idPosicio);
             setError("");
             showTempMessage("Posició eliminada correctament.");
-            await getPlantillesPositions();
+            await loadPlantillesPositions();
             setSelectedPositionId(null);
-        } else {
-            console.log("{DEBUG} Delete posició KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const deletePlantilla = async () => {
-
+    const deletePlantillaCall = async () => {
         if (!window.confirm("Segur que vols eliminar aquesta plantilla?")) return;
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/plantilles/deletePlantilla?id=${idPlantilla}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Delete plantilla OK");
+        try {
+            const data = await deletePlantilla(idPlantilla);
             setError("");
             showTempMessage("Plantilla eliminada correctament.");
-            await getPlantillesPositions();
+            await loadPlantillesPositions();
             setSelectedPositionId(null);
             setTimeout(() => {
                 navigate("/plantilles");
             }, 1500);
-        } else {
-            console.log("{DEBUG} Delete plantilla KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
     useEffect(() => {
-        getPlantillaById();
-        getCollesPositions();
-        getPlantillesPositions();
+        loadPlantillaById();
+        loadCollesPositions();
+        loadPlantillesPositions();
     }, []);
 
     return (
@@ -347,7 +193,7 @@ function PlantillesCrear() {
 
                 rightIcons={
                     <>
-                        <div className="icon-btn" onClick={deletePlantilla}>
+                        <div className="icon-btn" onClick={deletePlantillaCall}>
                             <FaTrashAlt />
                         </div>
                     </>
@@ -512,7 +358,7 @@ function PlantillesCrear() {
 
                                             setCurrentAddedPosition(finalPosition);
 
-                                            await addPositionToPlantilla();
+                                            await addPosition();
                                         }}
                                     />
                                 </>) : (<>
@@ -521,13 +367,13 @@ function PlantillesCrear() {
                                         text={"Modificar posició"}
                                         icon={<FaPencilAlt />}
                                         action={async () => {
-                                            await modifyPositionToPlantilla(selectedPositionId);
+                                            await modifyPosition(selectedPositionId);
                                         }}
                                     />
                                     <FaTrashAlt
                                         className="select-wrapper-plantilla-buttons-delete"
                                         onClick={async () => {
-                                            await deletePosicioPlantilla(selectedPositionId);
+                                            await deletePosition(selectedPositionId);
                                         }}
                                     />
                                 </>)}
@@ -594,7 +440,7 @@ function PlantillesCrear() {
                                     coord_y: newY
                                 }));
 
-                                await modifyPositionToPlantilla(
+                                await modifyPosition(
                                     selectedPositionId,
                                     newX,
                                     newY

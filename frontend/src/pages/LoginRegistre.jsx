@@ -1,3 +1,8 @@
+import {
+    register, login,
+} from "../services/authService.js";
+import { handleApiError } from "../utils/handleApiError.js";
+
 import "./LoginRegistre.css";
 import Input from "../components/Input";
 
@@ -39,88 +44,35 @@ function LoginRegistre() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");
-
-        if (isLogin) {
-            const response = await fetch("http://localhost:5000/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email,
-                    contrasenya: password,
-                }),
-            });
-
-            if (response.status === 401 || response.status === 403) {
+        
+        try {
+            if (isLogin) {
+                const data = await login(email, password);
+                setError("");
                 localStorage.clear();
-                navigate("/login");
-                return;
-            }
-
-            const data = await response.json();
-
-            if (response.ok) {
-                localStorage.clear();
-
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
-
-                console.log("{DEBUG} Login OK")
-
                 showTempMessage("Iniciant sessió...");
-
                 setTimeout(() => {
                     navigate("/dashboard");
                 }, 2000);
             } else {
-                setError(data.message);
-                console.log("{DEBUG} Login KO")
-            }
-        } else {
-            if (!validatePassword(password)) {
-                setError("La contrasenya ha de tenir mínim 8 caràcters, una lletra, un número i un símbol");
-                return;
-            } else if (!validateEmail(email)) {
-                setError("El correu electrònic no té un format vàlid");
-                return;
-            }
-
-            try {
-                const response = await fetch("http://localhost:5000/register", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        contrasenya: password,
-                    }),
-                });
-
-                if (response.status === 401 || response.status === 403) {
-                    localStorage.clear();
-                    navigate("/login");
+                if (!validatePassword(password)) {
+                    setError("La contrasenya ha de tenir mínim 8 caràcters, una lletra, un número i un símbol");
                     return;
-                }   
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    showTempMessage("Usuari creat correctament.");
-                    setEmail("");
-                    setPassword("");
-                    console.log("{DEBUG} Register OK")
-                    navigate("/login");
-                } else {
-                    console.log("{DEBUG} Register KO");
-                    setError(data.message || "Error desconocido");
+                } else if (!validateEmail(email)) {
+                    setError("El correu electrònic no té un format vàlid");
+                    return;
                 }
-            } catch (error) {
-                console.log("{DEBUG} Register KO");
-                console.error("{INFO} Error de connexió:", error);
+                const data = await register(email, password);
+                showTempMessage("Usuari creat correctament.");
+                setEmail("");
+                setPassword("");
+                console.log("{DEBUG} Register OK")
+                navigate("/login");
             }
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     };
 

@@ -1,3 +1,8 @@
+import {
+    getCollesPlantilles, getCollesStructures, createPlantilla, modifyPlantilla,
+} from "../services/plantillesService.js";
+import { handleApiError } from "../utils/handleApiError.js";
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -81,173 +86,67 @@ function PlantillesList() {
         setError("");
     };
 
-    const getCollesPlantilles = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/plantilles/getPlantillesByColla?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadPlantilles = async () => {
+        try {
+            const data = await getCollesPlantilles();
             setPlantilles(data);
-            console.log("{DEBUG} Get colla's plantilles OK")
-        } else {
-            console.log("{DEBUG} Get colla's plantilles KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const getCollesStructures = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/plantilles/getEstructuresByColla?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadStructures = async () => {
+        try {
+            const data = await getCollesStructures();
             setEstructures(data);
-            console.log("{DEBUG} Get colla's structures OK")
-        } else {
-            console.log("{DEBUG} Get colla's structures KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const createPlantilla = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
+    const createStructureCall = async () => {
         const compulsoryInputs = {
             nom: "Nom",
             estructura: "Estructura",
         };
-
         for (const key in compulsoryInputs) {
             if (!modalTags[key] || modalTags[key].toString().trim() === "") {
                 setError(`El camp ${compulsoryInputs[key]} és obligatori`);
                 return;
             }
         }
-
         const hasAnySectionSelected =
             tronc || pinya || folre || manilles || puntals;
-
         if (!hasAnySectionSelected) {
             setError("Has de seleccionar almenys una secció");
             return;
         }
 
-        const response = await fetch(`http://localhost:5000/plantilles/createPlantilla?id=${idColla}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                nom: modalTags.nom,
-                descripcio: modalTags.descripcio,
-                estructura: modalTags.estructura,
-                tronc: tronc || false,
-                pinya: pinya || false,
-                folre: folre || false,
-                manilles: manilles || false,
-                puntals: puntals || false,
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Create plantilla OK");
-
-            await getCollesPlantilles();
-            await getCollesStructures();
-
+        try {
+            const data = await createPlantilla(modalTags, tronc, pinya, folre, manilles, puntals);
+            await loadPlantilles();
+            await loadStructures();
             resetModal();
             showTempMessage("Plantilla creada correctament.");
-        } else {
-            console.log("{DEBUG} Create plantilla KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const modifyInfoPlantilla = async (idPlantilla, action, favoriteValue = false) => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/plantilles/modifyInfoPlantilla?id=${idPlantilla}&action=${action}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                nom: modalTags.nom,
-                descripcio: modalTags.descripcio,
-                estructura: modalTags.estructura,
-                favorita: favoriteValue
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Modify plantilla OK");
-
-            await getCollesPlantilles();
-
+    const modifyPlantillaCall = async (idPlantilla, action, favoriteValue = false) => {
+        try {
+            const data = await modifyPlantilla(idPlantilla, action, favoriteValue, modalTags);
+            await loadPlantilles();
             resetModal();
             showTempMessage("Plantilla modificada.");
-        } else {
-            console.log("{DEBUG} Modify plantilla KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
     useEffect(() => {
-        getCollesPlantilles();
-        getCollesStructures();
+        loadPlantilles();
+        loadStructures();
     }, []);
 
     useEffect(() => {
@@ -329,7 +228,7 @@ function PlantillesList() {
                         </div>
                         <div className="container-plantilla-icons">
                             <FaRegStar title="Afegir a favorits" className={plantilla.favorita ? "favorit-actiu" : ""} onClick={() => {
-                                modifyInfoPlantilla(plantilla.id, "favorite", !plantilla.favorita)
+                                modifyPlantillaCall(plantilla.id, "favorite", !plantilla.favorita)
                             }} />
                             <FaPencilAlt title="Modificar informació" onClick={() => {
                                 setIsModify(true);
@@ -349,7 +248,7 @@ function PlantillesList() {
                 <div className="modal-overlay-plantilles">
                     <div className="modal-plantilles">
                         <h2>
-                            {!isModify ? "Nova plantilla": "Editar informació plantilla"}
+                            {!isModify ? "Nova plantilla" : "Editar informació plantilla"}
                         </h2>
                         <div className="input-group-plantilles">
                             <Input
@@ -481,7 +380,7 @@ function PlantillesList() {
                                     <Button
                                         text={"Afegir plantilla"}
                                         icon={<FaPlusSquare />}
-                                        action={createPlantilla}
+                                        action={createStructureCall}
                                     />
                                 </>
                             ) : (
@@ -489,7 +388,7 @@ function PlantillesList() {
                                     <Button
                                         text={"Modificar informació"}
                                         icon={<FaPencilAlt />}
-                                        action={() => { modifyInfoPlantilla(currentPlantillaId, false) }}
+                                        action={() => { modifyPlantillaCall(currentPlantillaId, false) }}
                                     />
                                 </>
                             )}
