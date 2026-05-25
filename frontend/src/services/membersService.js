@@ -72,3 +72,13 @@ export const deleteMember = async (userId) => {
         }
     );
 };
+
+export const getMemberPermissions = async () => {
+    const idColla = localStorage.getItem("id_colla");
+    return await apiRequest(
+        `/members/getMemberPermissions?id=${idColla}`,
+        {
+            method: "GET",
+        }
+    );
+};

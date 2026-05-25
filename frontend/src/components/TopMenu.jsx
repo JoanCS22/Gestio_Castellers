@@ -1,3 +1,10 @@
+import {
+  getCollesUser,
+} from "../services/collaService.js";
+import {
+  getMemberPermissions,
+} from "../services/membersService.js";
+
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaBars, FaUserCircle, FaArrowLeft, FaPlusSquare, FaChevronDown, FaChevronUp } from "react-icons/fa";
@@ -8,7 +15,7 @@ import LeftMenu from "./LeftMenu";
 
 import "./TopMenu.css";
 
-function TopMenu({ title = "text", tornar = false, tornar_action, 
+function TopMenu({ title = "text", tornar = false, tornar_action,
   canvi_colla = false, onReady, leftIcons, rightIcons }) {
   const navigate = useNavigate();
 
@@ -37,84 +44,45 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
     }, 2000);
   };
 
-  const getCollesUser = async () => {
-
-    const token = localStorage.getItem("token");
-
-    const response = await fetch("http://localhost:5000/colla/getCollesUser", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      }
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
+  const getCollesUserCall = async () => {
+    try {
+      const data = await getCollesUser();
       setColles(data);
 
       if (data.length > 0) {
         const storedId = localStorage.getItem("id_colla");
-
         let selectedColla;
-
         if (storedId) {
           selectedColla = data.find(c => c.id == storedId);
         }
-
         if (!selectedColla) {
           selectedColla = data[0];
           localStorage.setItem("id_colla", selectedColla.id);
         }
-
         setTitle(selectedColla.nom);
       }
-
-      console.log("{DEBUG} Get user's colles OK")
-    } else {
-      console.log("{DEBUG} Get user's colles KO")
+    } catch (err) {
+      handleApiError(err, navigate, setError);
     }
   }
 
-  const getMemberPermissions = async () => {
-
-    const token = localStorage.getItem("token");
-    const idColla = localStorage.getItem("id_colla");
-    const iduser = localStorage.getItem("user");
-
-    const response = await fetch(`http://localhost:5000/members/getMemberPermissions?id=${idColla}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      }
-    });
-
-    if (response.status === 401 || response.status === 403) {
-      localStorage.clear();
-      navigate("/login");
-      return;
-    }
-
-    const data = await response.json();
-
-    if (response.ok) {
+  const getMemberPermissionsCall = async () => {
+    try {
+      const data = await getMemberPermissions();
       localStorage.setItem("permissions", JSON.stringify(data.permisos));
-      console.log("{DEBUG} Get user's roles OK")
-    } else {
-      console.log("{DEBUG} Get user's roles KO")
+    } catch (err) {
+      handleApiError(err, navigate, setError);
     }
   }
 
   useEffect(() => {
     const init = async () => {
-      await getCollesUser();
+      await getCollesUserCall();
 
       const idColla = localStorage.getItem("id_colla");
 
       if (idColla) {
-        await getMemberPermissions();
+        await getMemberPermissionsCall();
       }
 
       if (onReady) onReady();
@@ -153,7 +121,7 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
                       localStorage.setItem("id_colla", colla.id);
                       setTitle(colla.nom)
                       setOpenColla(false);
-                      await getMemberPermissions();
+                      await getMemberPermissionsCall();
                       if (onReady) onReady();
                     }}>
                       {colla.nom}
@@ -191,7 +159,7 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
 
       <div className="right-content">
         {tornar ? (
-          <div className="user-wrapper" onClick={tornar_action ? tornar_action : () => {navigate(-1)}}>
+          <div className="user-wrapper" onClick={tornar_action ? tornar_action : () => { navigate(-1) }}>
             <FaArrowLeft />
             <span>TORNAR</span>
           </div>

@@ -150,3 +150,12 @@ export const deleteRoles = async (idRol) => {
         }
     );
 };
+
+export const getCollesUser = async () => {
+    return await apiRequest(
+        `/colla/getCollesUser`,
+        {
+            method: "GET",
+        }
+    );
+};
