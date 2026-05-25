@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const {
-    getProvesByEsdeveniment, getProvaById,
+    getProvesByEsdeveniment, getProvaById, getNumProvesPerMembre,
     createProva, deleteProva,
     modifyInfoProva, updateOrder, publishProva, updateFavorite, updateFeta,
     getAssignacionsProva, desasignarPosicioProva, buidarPlantillaProva, eliminarAbsentsProva,
@@ -12,6 +12,7 @@ const auth = require('../middleware/auth');
 
 router.get('/getProvesByEsdeveniment', auth, getProvesByEsdeveniment);
 router.get('/getProvaById', auth, getProvaById);
+router.get('/getNumProvesPerMembre', auth, getNumProvesPerMembre);
 
 router.post('/createProva', auth, createProva);
 router.delete('/deleteProva', auth, deleteProva);

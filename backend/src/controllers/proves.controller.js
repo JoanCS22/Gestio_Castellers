@@ -347,6 +347,7 @@ const getAssignacionsProva = async (req, res) => {
 
 const asignarPosicioProva = async (req, res) => {
     const client = await pool.connect();
+    const io = req.app.get("io");
 
     try {
         const { id_prova, id_posicio, id_usuari } = req.body;
@@ -361,6 +362,8 @@ const asignarPosicioProva = async (req, res) => {
         );
 
         await client.query("COMMIT");
+
+        io.emit("assignacionsUpdated", { id_prova });
 
         res.status(200).json(result.rows[0]);
 
@@ -377,6 +380,7 @@ const asignarPosicioProva = async (req, res) => {
 
 const canviarAssignacio = async (req, res) => {
     const client = await pool.connect();
+    const io = req.app.get("io");
 
     try {
         const { id_assignacio, id_usuari, id_posicio } = req.body;
@@ -385,23 +389,35 @@ const canviarAssignacio = async (req, res) => {
 
         await client.query("BEGIN");
 
+        let result;
+
         if (id_usuari) {
-            await client.query(
+            result = await client.query(
                 `UPDATE assignacions_prova
                  SET id_usuari = $2
-                 WHERE id_assignacio = $1`,
+                 WHERE id_assignacio = $1
+                 RETURNING id_prova`,
                 [id_assignacio, id_usuari]
             );
         } else if (id_posicio) {
-            await client.query(
+            result = await client.query(
                 `UPDATE assignacions_prova
                  SET id_posicio = $2
-                 WHERE id_assignacio = $1`,
+                 WHERE id_assignacio = $1
+                 RETURNING id_prova`,
                 [id_assignacio, id_posicio]
             );
         }
 
+        if (result.rows.length === 0) {
+            throw new Error("No s'ha trobat l'assignació");
+        }
+
+        const id_prova = result.rows[0].id_prova;
+
         await client.query("COMMIT");
+
+        io.emit("assignacionsUpdated", { id_prova });
 
         res.status(200).json({
             message: "Assignació actualitzada"
@@ -422,6 +438,7 @@ const canviarAssignacio = async (req, res) => {
 
 const intercanviarPosicions = async (req, res) => {
     const client = await pool.connect();
+    const io = req.app.get("io");
 
     try {
 
@@ -460,7 +477,18 @@ const intercanviarPosicions = async (req, res) => {
             [id_usuari_1, id_assignacio_2]
         );
 
+        const provaResult = await client.query(
+            `SELECT id_prova
+             FROM assignacions_prova
+             WHERE id_assignacio = $1`,
+            [id_assignacio_1]
+        );
+
+        const id_prova = provaResult.rows[0].id_prova;
+
         await client.query("COMMIT");
+
+        io.emit("assignacionsUpdated", { id_prova });
 
         res.status(200).json({
             message: "Posicions intercanviades"
@@ -483,6 +511,7 @@ const intercanviarPosicions = async (req, res) => {
 
 const canviPosicionsBuidaPlena = async (req, res) => {
     const client = await pool.connect();
+    const io = req.app.get("io");
 
     try {
 
@@ -493,11 +522,19 @@ const canviPosicionsBuidaPlena = async (req, res) => {
         const result = await client.query(
             `UPDATE assignacions_prova
              SET id_posicio = $1
-             WHERE id_assignacio = $2`,
+             WHERE id_assignacio = $2
+             RETURNING id_prova`,
             [id_posicio, id_assignacio]
         );
 
+        if (result.rows.length === 0) {
+            throw new Error("No s'ha trobat l'assignació");
+        }
+        const id_prova = result.rows[0].id_prova;
+
         await client.query("COMMIT");
+
+        io.emit("assignacionsUpdated", { id_prova });
 
         res.status(200).json({
             message: "Posicions intercanviades"
@@ -520,6 +557,7 @@ const canviPosicionsBuidaPlena = async (req, res) => {
 
 const desasignarPosicioProva = async (req, res) => {
     const client = await pool.connect();
+    const io = req.app.get("io");
 
     try {
         const id_assignacio = req.query.id;
@@ -533,7 +571,14 @@ const desasignarPosicioProva = async (req, res) => {
             [id_assignacio]
         );
 
+        if (result.rows.length === 0) {
+            throw new Error("No s'ha trobat l'assignació");
+        }
+        const id_prova = result.rows[0].id_prova;
+
         await client.query("COMMIT");
+
+        io.emit("assignacionsUpdated", { id_prova });
 
         res.status(200).json(result.rows);
 
@@ -550,6 +595,7 @@ const desasignarPosicioProva = async (req, res) => {
 
 const buidarPlantillaProva = async (req, res) => {
     const client = await pool.connect();
+    const io = req.app.get("io");
 
     try {
         const id_prova = req.query.id;
@@ -564,6 +610,8 @@ const buidarPlantillaProva = async (req, res) => {
         );
 
         await client.query("COMMIT");
+
+        io.emit("assignacionsUpdated", { id_prova });
 
         res.status(200).json(result.rows);
 
@@ -580,6 +628,7 @@ const buidarPlantillaProva = async (req, res) => {
 
 const eliminarAbsentsProva = async (req, res) => {
     const client = await pool.connect();
+    const io = req.app.get("io");
 
     try {
         const id_esdeveniment = req.query.id;
@@ -605,6 +654,12 @@ const eliminarAbsentsProva = async (req, res) => {
 
         await client.query("COMMIT");
 
+        const provesAfectades = [...new Set(result.rows.map(r => r.id_prova))];
+
+        provesAfectades.forEach(id_prova => {
+            io.emit("assignacionsUpdated", { id_prova });
+        });
+
         res.status(200).json(result.rows);
 
     } catch (error) {
@@ -618,8 +673,40 @@ const eliminarAbsentsProva = async (req, res) => {
     }
 }
 
+const getNumProvesPerMembre = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const id_esdeveniment = req.query.id;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `SELECT a.id_usuari, COUNT(*) AS num_proves
+             FROM assignacions_prova a
+             JOIN proves p ON p.id = a.id_prova
+             WHERE p.id_esdeveniment = $1
+             GROUP BY a.id_usuari`,
+            [id_esdeveniment]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json(result.rows);
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({ message: "Error al retornar número de proves per membre" });
+
+    } finally {
+        client.release();
+    }
+}
+
 module.exports = {
-    getProvesByEsdeveniment, getProvaById,
+    getProvesByEsdeveniment, getProvaById, getNumProvesPerMembre,
     createProva, deleteProva,
     modifyInfoProva, updateOrder, publishProva, updateFavorite, updateFeta,
     getAssignacionsProva, desasignarPosicioProva, buidarPlantillaProva, eliminarAbsentsProva,
