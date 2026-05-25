@@ -211,3 +211,12 @@ export const treureAbsents = async (id_esdeveniment) => {
         }
     );
 };
+
+export const getNumProves = async (id_esdeveniment) => {
+    return await apiRequest(
+        `/proves/getNumProvesPerMembre?id=${id_esdeveniment}`,
+        {
+            method: "GET",
+        }
+    );
+};

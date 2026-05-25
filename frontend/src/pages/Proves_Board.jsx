@@ -1,7 +1,7 @@
 import { getCollaMembers } from "../services/membersService";
 import { getCollesPositions } from "../services/collaService.js";
 import {
-    getProvaById, getProvesByEsdeveniment, getAssignacions,
+    getProvaById, getProvesByEsdeveniment, getAssignacions, getNumProves,
     createProva, modifyProva, deleteProva,
     updateFavorite, updateFeta, publishProva,
     intercanviarPosicions, asignarPosicioProva, canviarAssignacio, moureAssignacio,
@@ -19,10 +19,11 @@ import {
     FaCheck, FaCheckDouble, FaVideoSlash, FaVideo, FaTrashAlt, FaTimesCircle, FaCheckCircle,
     FaRegStar, FaHashtag, FaEye, FaEyeSlash, FaPencilAlt, FaPlusSquare, FaSearch,
     FaTimes, FaQuestionCircle, FaUserTimes, FaUserAltSlash, FaUsersSlash,
-    FaAngleRight, FaAngleLeft, FaBandAid, FaChild, FaArrowLeft
+    FaAngleRight, FaAngleLeft, FaAmbulance, FaGithubAlt, FaArrowLeft
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
+import socket from "../utils/socket";
 
 import "./Proves_Board.css"
 
@@ -127,6 +128,7 @@ function ProvesBoard() {
     const [selectedPositionId, setSelectedPositionId] = useState(null);
 
     const [assignacions, setAssignacions] = useState([]);
+    const [numAssignacions, setNumAssignacions] = useState([]);
     const [selectedAssignacioId, setSelectedAssignacioId] = useState(null);
 
     const [memberSearch, setMemberSearch] = useState("");
@@ -503,6 +505,7 @@ function ProvesBoard() {
             }
 
             await loadAssignacions();
+            await obtenirNumProvesMembre(provaInfo.id_esdeveniment);
             setSelectedPositionId(null);
             setSelectedMemberId(null);
             setSelectedAssignacioId(null);
@@ -516,6 +519,7 @@ function ProvesBoard() {
         try {
             const data = await moureAssignacio(idAssignacioDesti, idNovaPosicio);
             await loadAssignacions();
+            await obtenirNumProvesMembre(provaInfo.id_esdeveniment);
             setSelectedPositionId(null);
             setSelectedMemberId(null);
             setSelectedAssignacioId(null);
@@ -528,6 +532,7 @@ function ProvesBoard() {
         try {
             const data = await intercanviarPosicions(assignacio1, assignacio2);
             await loadAssignacions();
+            await obtenirNumProvesMembre(provaInfo.id_esdeveniment);
 
             setSelectedPositionId(null);
             setSelectedMemberId(null);
@@ -541,6 +546,7 @@ function ProvesBoard() {
         try {
             const data = await treureMembrePosicio(selectedAssignacioId);
             await loadAssignacions();
+            await obtenirNumProvesMembre(provaInfo.id_esdeveniment);
 
             setSelectedPositionId(null);
             setSelectedMemberId(null);
@@ -556,6 +562,7 @@ function ProvesBoard() {
         try {
             const data = await buidarPlantilla(idProva);
             await loadAssignacions();
+            await obtenirNumProvesMembre(provaInfo.id_esdeveniment);
 
             setSelectedPositionId(null);
             setSelectedMemberId(null);
@@ -577,10 +584,20 @@ function ProvesBoard() {
 
             const data = await treureAbsents(id_esdeveniment);
             await loadAssignacions();
+            await obtenirNumProvesMembre(id_esdeveniment);
 
             setSelectedPositionId(null);
             setSelectedMemberId(null);
             setSelectedAssignacioId(null);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
+
+    const obtenirNumProvesMembre = async (id_esdeveniment) => {
+        try {
+            const data = await getNumProves(id_esdeveniment);
+            setNumAssignacions(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
         }
@@ -622,6 +639,7 @@ function ProvesBoard() {
 
         loadProvesByEsdeveniment(provaInfo.id_esdeveniment);
         loadAssistenciaByEsdeveniment(provaInfo.id_esdeveniment);
+        obtenirNumProvesMembre(provaInfo.id_esdeveniment);
 
     }, [provaInfo?.id_esdeveniment]);
 
@@ -661,6 +679,22 @@ function ProvesBoard() {
         board.scrollTop = centerY - board.clientHeight / 2;
 
     }, [posicionsPlantilla]);
+
+    useEffect(() => {
+        const handleAssignacionsUpdated = async (data) => {
+
+            if (Number(data.id_prova) !== Number(idProva)) {
+                return;
+            }
+            await loadAssignacions();
+            await obtenirNumProvesMembre(provaInfo?.id_esdeveniment);
+        };
+
+        socket.on("assignacionsUpdated", handleAssignacionsUpdated);
+        return () => {
+            socket.off("assignacionsUpdated", handleAssignacionsUpdated);
+        };
+    }, [idProva, provaInfo]);
 
     return (
         <div>
@@ -819,11 +853,13 @@ function ProvesBoard() {
                             {sortedFilteredMembers.map((member) => {
 
                                 const assignacio = assignacions.find(a => a.id_usuari === member.id_usuari);
+                                const registre = numAssignacions.find(n => n.id_usuari === member.id_usuari) || 0;
+                                const num_proves = registre.num_proves || 0;
 
                                 return (
-                                    <div key={member.id_usuari}
+                                    <div key={member.id_usuari} title={`Persona assignada a ${num_proves} ${num_proves == 1 ? 'prova' : 'proves'}`}
                                         className={`container-member-prova-board ${selectedMemberId === member.id_usuari ? "selected-bloc-membre-prova" : ""}
-                            ${assignacio ? "assigned-bloc-membre-prova" : ""}`}
+                                                    ${assignacio ? "assigned-bloc-membre-prova" : ""}`}
                                         onClick={() => {
                                             if (selectedMemberId === member.id_usuari) {
                                                 setSelectedMemberId(null);
@@ -837,8 +873,8 @@ function ProvesBoard() {
                                         </span>
 
                                         <div className="member-status">
-                                            {member.canalla && (<FaChild />)}
-                                            {member.lesionat && (<FaBandAid />)}
+                                            {member.canalla && (<FaGithubAlt />)}
+                                            {member.lesionat && (<FaAmbulance />)}
                                             {getAssistenciaIcon(member.id_usuari)}
                                         </div>
                                     </div>
