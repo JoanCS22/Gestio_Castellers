@@ -1,3 +1,6 @@
+import { getCollesFutureEsdeveniments, getCollesPastEsdeveniments } from "../services/esdevenimentsService.js";
+import { handleApiError } from "../utils/handleApiError.js";
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -51,69 +54,27 @@ function EsdevenimentsList() {
         }, 2000);
     };
 
-    const getCollesPastEsdeveniments = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/esdeveniments/getPastEsdeveniments?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            setPassats(data);
-            console.log("{DEBUG} Get colla's past esdeveniments OK")
-        } else {
-            console.log("{DEBUG} Get colla's past esdeveniments KO")
-            setError(data.message);
+    const loadFutureEsdeveniments = async () => {
+        try {
+            const data = await getCollesFutureEsdeveniments();
+            setFuturs(data);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const getCollesFutureEsdeveniments = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/esdeveniments/getFutureEsdeveniments?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            setFuturs(data);
-            console.log("{DEBUG} Get colla's future esdeveniments OK")
-        } else {
-            console.log("{DEBUG} Get colla's future esdeveniments KO")
-            setError(data.message);
+    const loadPastEsdeveniments = async () => {
+        try {
+            const data = await getCollesPastEsdeveniments();
+            setPassats(data);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
     useEffect(() => {
-        getCollesFutureEsdeveniments();
-        getCollesPastEsdeveniments();
+        loadFutureEsdeveniments();
+        loadPastEsdeveniments();
     }, []);
 
     return (

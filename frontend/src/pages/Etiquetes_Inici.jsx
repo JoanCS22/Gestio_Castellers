@@ -1,3 +1,9 @@
+import {
+    getCollesPositions, createPosicio, updatePosicio, deletePosicio,
+    getCollesRoles, createRoles, updateRoles, deleteRoles,
+} from "../services/collaService.js";
+import { handleApiError } from "../utils/handleApiError.js";
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -15,6 +21,7 @@ import PermisoSelector from "../components/PermisoSelector";
 function Etiquetes() {
 
     const location = useLocation();
+    const navigate = useNavigate();
 
     //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
     const permissions = getPermissions();
@@ -81,304 +88,115 @@ function Etiquetes() {
         }, 2000);
     };
 
-    const getCollesPositions = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/colla/getCollaPositions?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadCollesPositions = async () => {
+        try {
+            const data = await getCollesPositions();
             setPositions(data);
-            console.log("{DEBUG} Get colla's positions OK")
-        } else {
-            console.log("{DEBUG} Get colla's positions KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const createPosicio = async (e) => {
-        e.preventDefault();
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
+    const createPosicioCall = async () => {
         if (newPositionTag.nom == "") {
             setError(`El camp nom no pot estar buit`);
             return;
         }
-
-        const response = await fetch(`http://localhost:5000/colla/createCollaPosition?id=${idColla}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                nom: newPositionTag.nom,
-                descripcio: newPositionTag.descripcio || "",
-                color: newPositionTag.color,
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Create posicio OK");
+        try {
+            const data = await createPosicio(newPositionTag);
             setError("");
             setShowModalPosicions(false);
             setNewPositionTag({ nom: "", descripcio: "" });
             showTempMessage("Posició creada correctament.");
-            getCollesPositions();
-        } else {
-            console.log("{DEBUG} Create posicio KO");
-            setError(data.message);
+            loadCollesPositions();
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const updatePosicio = async (idPosicio) => {
-
+    const updatePosicioCall = async () => {
         if (!currentPosition) return;
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/colla/updateCollaPositions?id=${idPosicio}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                descripcio: newPositionTag.descripcio || "",
-                color: newPositionTag.color,
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Update posicio OK");
+        try {
+            const data = await updatePosicio(currentPosition, newPositionTag);
             setError("");
             setShowModalPosicions(false);
             setNewPositionTag({ nom: "", descripcio: "", color: "#FFFFFF" });
             showTempMessage("Posició modificada correctament.");
-            getCollesPositions();
-        } else {
-            console.log("{DEBUG} Update posicio KO");
-            setError(data.message);
+            loadCollesPositions();
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const deletePosicio = async (idPosicio) => {
-
+    const deletePosicioCall = async (idPosicio) => {
         if (!window.confirm("Segur que vols eliminar aquesta posició?")) return;
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/colla/deleteCollaPositions?id=${idPosicio}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Delete posicio OK");
+        try {
+            const data = await deletePosicio(idPosicio);
             setError("");
             showTempMessage("Posició eliminada correctament.");
-            getCollesPositions();
-        } else {
-            console.log("{DEBUG} Delete posicio KO");
-            setError(data.message);
+            loadCollesPositions();
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const getCollesRoles = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/colla/getCollaRoles?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadCollesRoles = async () => {
+        try {
+            const data = await getCollesRoles();
             setRols(data);
-            console.log("{DEBUG} Get colla's roles OK")
-        } else {
-            console.log("{DEBUG} Get colla's roles KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const createRoles = async (e) => {
-        e.preventDefault();
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
+    const createPosicioRoles = async () => {
         if (newRoleTag.nom == "") {
             setError(`El camp nom no pot estar buit`);
             return;
         }
-
-        const response = await fetch(`http://localhost:5000/colla/createCollaRoles?id=${idColla}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                nom: newRoleTag.nom,
-                descripcio: newRoleTag.descripcio || "",
-                permisos: permisos
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Create posicio OK");
+        try {
+            const data = await createRoles(newRoleTag, permisos);
             setError("");
             setShowModalRols(false);
             setNewRoleTag({ nom: "", descripcio: "" });
             showTempMessage("Rol creat correctament.");
             resetPermisos();
-            getCollesRoles();
-        } else {
-            console.log("{DEBUG} Create role KO");
-            setError(data.message);
+            loadCollesRoles();
+            loadCollesPositions();
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const updateRoles = async (idRol) => {
-
+    const updatePosicioRoles = async (idRol) => {
         if (!currentRole) return;
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/colla/updateCollaRoles?id=${idRol}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                descripcio: newRoleTag.descripcio || "",
-                permisos: permisos
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Update roles OK");
+        try {
+            const data = await updateRoles(idRol, newRoleTag, permisos);
             setError("");
             setShowModalRols(false);
             setNewRoleTag({ nom: "", descripcio: "" });
             resetPermisos();
             showTempMessage("Rol modificat correctament.");
-            getCollesRoles();
-        } else {
-            console.log("{DEBUG} Update roles KO");
-            setError(data.message);
+            loadCollesRoles();
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const deleteRoles = async (idRol) => {
-
+    const deletePosicioRoles = async (idRol) => {
         if (!window.confirm("Segur que vols eliminar aquest rol?")) return;
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/colla/deleteCollaRole?id=${idRol}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Delete roles OK");
+        try {
+            const data = await deleteRoles(idRol);
             setError("");
             showTempMessage("Rol eliminat correctament.");
-            getCollesRoles();
-        } else {
-            console.log("{DEBUG} Delete roles KO");
-            setError(data.message);
+            loadCollesRoles();
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
     useEffect(() => {
-        getCollesPositions();
+        loadCollesPositions();
     }, []);
 
     return (
@@ -389,7 +207,7 @@ function Etiquetes() {
             <div className="selection-bar-tags">
                 <div className={`position-select-tags ${isPosition ? "active" : ""}`} onClick={() => {
                     setSelectedTag("posicions");
-                    getCollesPositions();
+                    loadCollesPositions();
                     setShowModalPosicions(false);
                     setShowModalRols(false);
                 }}>Posicions</div>
@@ -398,7 +216,7 @@ function Etiquetes() {
                     <>
                         <div className={`rols-select-tags ${isRole ? "active" : ""}`} onClick={() => {
                             setSelectedTag("rols");
-                            getCollesRoles();
+                            loadCollesRoles();
                             setShowModalPosicions(false);
                             setShowModalRols(false);
                         }}>Rols</div>
@@ -490,7 +308,7 @@ function Etiquetes() {
                                         <td>
                                             <button onClick={() => {
                                                 if (hasWritePermission("colla")) {
-                                                    deletePosicio(position.id);
+                                                    deletePosicioCall(position.id);
                                                 }
                                             }}>
                                                 <FaTrashAlt />
@@ -545,7 +363,7 @@ function Etiquetes() {
                                             <td>
                                                 <button onClick={() => {
                                                     if (rol.nom != "Administrador" && rol.nom != 'Membre' && hasWritePermission("permisos")) {
-                                                        deleteRoles(rol.id);
+                                                        deletePosicioRoles(rol.id);
                                                     }
                                                 }}>
                                                     <FaTrashAlt />
@@ -617,7 +435,7 @@ function Etiquetes() {
                                 <Button
                                     text={isCreate ? "Afegir posició" : "Guardar canvis"}
                                     icon={isCreate ? <FaPlusSquare /> : <FaSave />}
-                                    action={isCreate ? createPosicio : () => updatePosicio(currentPosition)} />
+                                    action={isCreate ? () => createPosicioCall() : () => updatePosicioCall(currentPosition)} />
 
                                 <Button
                                     text="Cancelar"
@@ -680,7 +498,7 @@ function Etiquetes() {
                                 <Button
                                     text={isCreate ? "Afegir Rol" : "Guardar canvis"}
                                     icon={isCreate ? <FaPlusSquare /> : <FaSave />}
-                                    action={isCreate ? createRoles : () => updateRoles(currentRole)} />
+                                    action={isCreate ? createPosicioRoles : () => updatePosicioRoles(currentRole)} />
 
                                 <Button
                                     text="Cancelar"

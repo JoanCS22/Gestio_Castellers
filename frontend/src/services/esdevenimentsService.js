@@ -23,6 +23,19 @@ export const getCollesFutureEsdeveniments = async () => {
     );
 };
 
+export const getCollesPastEsdeveniments = async () => {
+    const idColla = localStorage.getItem("id_colla");
+    if (!idColla) {
+        return;
+    }
+    return await apiRequest(
+        `/esdeveniments/getPastEsdeveniments?id=${idColla}`,
+        {
+            method: "GET",
+        }
+    );
+};
+
 export const createEsdeveniment = async (form, tipus, visible, acompanyat, bus, code) => {
     const idColla = localStorage.getItem("id_colla");
     return await apiRequest(
@@ -43,7 +56,7 @@ export const createEsdeveniment = async (form, tipus, visible, acompanyat, bus, 
                 data_inici_inscripcions: form.data_inscripcions,
                 info_addicional: form.info_extra,
                 codi_confirmacio: code
-            }), 
+            }),
         }
     );
 };
@@ -67,7 +80,7 @@ export const modifyEsdeveniment = async (idEsdeveniment, form, tipus, visible, a
                 bus: bus,
                 data_inici_inscripcions: form.data_inscripcions,
                 info_addicional: form.info_extra
-            }), 
+            }),
         }
     );
 };

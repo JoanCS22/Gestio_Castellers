@@ -198,7 +198,7 @@ const createCollaPosition = async (req, res) => {
             return res.status(400).json({ message: 'El nom ja existeix' });
         }
 
-        res.status(500).json({ message: 'Error al crear la colla' });
+        res.status(500).json({ message: 'Error en crear la posició' });
 
     } finally {
         client.release();

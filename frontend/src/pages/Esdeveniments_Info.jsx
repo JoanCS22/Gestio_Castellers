@@ -1,4 +1,5 @@
 import { getEsdevenimentInfo, createEsdeveniment, modifyEsdeveniment } from "../services/esdevenimentsService.js";
+import { handleApiError } from "../utils/handleApiError.js";
 
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
