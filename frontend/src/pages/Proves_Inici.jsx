@@ -1,3 +1,11 @@
+import {
+    getCollesPlantilles, getCollesStructures,
+} from "../services/plantillesService.js";
+import {
+    getProvesByEsdeveniment, createProva, updateFavorite, updateFeta
+} from "../services/provesService.js";
+import { handleApiError } from "../utils/handleApiError.js";
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Draggable from "react-draggable";
@@ -85,229 +93,82 @@ function ProvesInici() {
         setError("");
     };
 
-    const getCollesStructures = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/plantilles/getEstructuresByColla?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            setEstructures(data);
-            console.log("{DEBUG} Get colla's structures OK")
-        } else {
-            console.log("{DEBUG} Get colla's structures KO")
-            setError(data.message);
-        }
-    }
-
-    const getCollesPlantilles = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/plantilles/getPlantillesByColla?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadPlantilles = async () => {
+        try {
+            const data = await getCollesPlantilles();
             setPlantilles(data);
-            console.log("{DEBUG} Get colla's plantilles OK")
-        } else {
-            console.log("{DEBUG} Get colla's plantilles KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const getProvesByEsdeveniment = async () => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/proves/getProvesByEsdeveniment?id=${idEsdeveniment}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
+    const loadStructures = async () => {
+        try {
+            const data = await getCollesStructures();
+            setEstructures(data);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
+    }
 
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadProvesByEsdeveniment = async () => {
+        try {
+            const data = await getProvesByEsdeveniment(idEsdeveniment);
             setProves(data);
-            console.log("{DEBUG} Get esdeveniments's proves OK")
-        } else {
-            console.log("{DEBUG} Get esdeveniments's proves KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const createProva = async () => {
-
-        const token = localStorage.getItem("token");
-
+    const createProvaCall = async (action) => {
         const compulsoryInputs = {
             nom: "Nom",
             estructura: "Estructura"
         };
-
         for (const key in compulsoryInputs) {
             if (!modalTags[key] || modalTags[key].toString().trim() === "") {
                 setError(`El camp ${compulsoryInputs[key]} és obligatori`);
                 return;
             }
         }
-
         if (!selectedPlantilla) {
             setError("El camp Plantilla és obligatori");
             return;
         }
 
-        const response = await fetch(`http://localhost:5000/proves/createProva?id=${idEsdeveniment}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                nom: modalTags.nom,
-                comentari: modalTags.comentari,
-                public: modalTags.public,
-                xarxa: modalTags.xarxa,
-                estructura: modalTags.estructura,
-                id_plantilla: selectedPlantilla
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Create prova OK");
-
-            await getProvesByEsdeveniment();
-
+        try {
+            const data = await createProva(idEsdeveniment, modalTags, selectedPlantilla);
+            await loadProvesByEsdeveniment();
             resetModal();
             showTempMessage("Prova creada correctament.");
-        } else {
-            console.log("{DEBUG} Create prova KO");
-            setError(data.message);
+            resetModal();
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const updateFavorite = async (idPlantilla, favoriteValue) => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/proves/updateFavorite?id=${idPlantilla}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                favorita: favoriteValue,
-                id: idPlantilla,
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Modify prova's favorite OK");
-
-            await getProvesByEsdeveniment();
-
-            showTempMessage("Prova modificada.");
-        } else {
-            console.log("{DEBUG} Modify prova's favorite KO");
-            setError(data.message);
+    const changeFavorite = async (idPlantilla, favoriteValue) => {
+        try {
+            const data = await updateFavorite(idPlantilla, favoriteValue);
+            await loadProvesByEsdeveniment();
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const updateFeta = async (idPlantilla, fetaValue) => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/proves/updateFeta`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                feta: fetaValue,
-                id: idPlantilla,
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Modify prova's feta OK");
-
-            await getProvesByEsdeveniment();
-
-            showTempMessage("Prova modificada.");
-        } else {
-            console.log("{DEBUG} Modify prova's feta KO");
-            setError(data.message);
+    const changeFeta = async (idPlantilla, fetaValue) => {
+        try {
+            const data = await updateFeta(idPlantilla, fetaValue);
+            await loadProvesByEsdeveniment();
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
     useEffect(() => {
-        getCollesStructures();
-        getProvesByEsdeveniment();
-        getCollesPlantilles();
+        loadStructures();
+        loadProvesByEsdeveniment();
+        loadPlantilles();
     }, []);
 
     return (
@@ -395,20 +256,20 @@ function ProvesInici() {
                                         <>
                                             <FaCheckCircle title="No realitzada?" className="icon-feta"
                                                 onClick={() => {
-                                                    updateFeta(prova.id, false);
+                                                    changeFeta(prova.id, false);
                                                 }} />
                                         </>
                                     ) : (
                                         <>
                                             <FaTimesCircle title="Realitzada?" className="icon-no-feta"
                                                 onClick={() => {
-                                                    updateFeta(prova.id, true);
+                                                    changeFeta(prova.id, true);
                                                 }} />
                                         </>
                                     )}
                                     <FaRegStar title={prova.favorita ? "Treure de favorits" : "Afegir a favorits"} className={`icon-favorit ${prova.favorita ? "favorit-actiu" : ""}`}
                                         onClick={() => {
-                                            updateFavorite(prova.id, !prova.favorita);
+                                            changeFavorite(prova.id, !prova.favorita);
                                         }} />
                                 </div>
                             </div>
@@ -502,7 +363,7 @@ function ProvesInici() {
                             <Button
                                 text={"Crear prova"}
                                 icon={<FaPlusSquare />}
-                                action={createProva}
+                                action={createProvaCall}
                             />
 
                             <Button

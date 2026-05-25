@@ -1,3 +1,14 @@
+import {
+    getData, updateData,
+} from "../services/profileService.js";
+import {
+    getDataMember, modifyMember, deleteMember,
+} from "../services/membersService.js";
+import {
+    getCollesPositions, getCollesRoles,
+} from "../services/collaService.js";
+import { handleApiError } from "../utils/handleApiError.js";
+
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -85,7 +96,7 @@ function UserProfile() {
         ];
         let nonNumericFields = [];
         for (let field of fields) {
-            const value = field.value.trim();
+            const value = String(field.value || "").trim();
 
             if (value !== "" && (isNaN(value) || Number(value) <= 0)) {
                 nonNumericFields.push(field.name);
@@ -94,32 +105,9 @@ function UserProfile() {
         return nonNumericFields;
     }
 
-    const getData = async () => {
-
-        const token = localStorage.getItem("token");
-
-        const url = userId
-            ? `http://localhost:5000/profile/getUserData?userId=${userId}`
-            : `http://localhost:5000/profile/getUserData`;
-
-        const response = await fetch(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-
+    const getDataProfile = async () => {
+        try {
+            const data = await getData(userId);
             setForm({
                 nom: data.nom || "",
                 cognoms: data.cognoms || "",
@@ -137,255 +125,101 @@ function UserProfile() {
             setLesionat(data.lesionat || false);
             setGenere(data.genere || "altre");
             setCanalla(data.canalla || false);
-
-            console.log("{DEBUG} Get user's data OK")
-        } else {
-            console.log("{DEBUG} Get user's data KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const getDataMember = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/members/getDataMember?userid=${userId}&collaid=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-
+    const getDataMemberCall = async () => {
+        try {
+            const data = await getDataMember(userId);
             const row = data[0] || {};
 
             setSelectedPositions((row.posicions_ids || []).map(String));
             setSelectedGroups((row.grups_ids || []).map(String));
             setSelectedRole(row.rol_id ? String(row.rol_id) : "");
-
-            console.log("{DEBUG} Get member's data OK")
-        } else {
-            console.log("{DEBUG} Get member's data KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const getCollesPositions = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/colla/getCollaPositions?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadCollesPositions = async () => {
+        try {
+            const data = await getCollesPositions();
             setExistingPositions(data);
-            console.log("{DEBUG} Get colla's positions OK")
-        } else {
-            console.log("{DEBUG} Get colla's positions KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const getCollesRoles = async () => {
-
-        const token = localStorage.getItem("token");
-        const idColla = localStorage.getItem("id_colla");
-
-        const response = await fetch(`http://localhost:5000/colla/getCollaRoles?id=${idColla}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadCollesRoles = async () => {
+        try {
+            const data = await getCollesRoles();
             setExistingRoles(data);
-            console.log("{DEBUG} Get colla's roles OK")
-        } else {
-            console.log("{DEBUG} Get colla's roles KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const updateData = async () => {
-
-        const token = localStorage.getItem("token");
+    const modifyDataProfile = async () => {
         const errors = comprovaNums();
-
         if (errors.length > 0) {
             setError(`Els següents camps han de ser numèrics i positius: ${errors.join(", ")}`);
             return;
         }
-
         let query;
-
         if (isTecnica) {
-            query = `http://localhost:5000/profile/modifyUserData?userId=${userId}`;
+            query = `/profile/modifyUserData?userId=${userId}`;
         } else {
-            query = `http://localhost:5000/profile/modifyUserData`;
+            query = `/profile/modifyUserData`;
         }
-
-        const response = await fetch(query, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                nom: form.nom,
-                cognoms: form.cognoms,
-                mote: form.mote,
-                telefon: form.telefon,
-                altura_espatlles: form.alcadaEspatlles || null,
-                envergadura: form.envergadura || null,
-                pes: form.pes || null,
-                altura_total: form.alcada || null,
-                data_lesio: form.dataLesio || null,
-                comentari: form.infoExtra,
-                lesionat: lesionat,
-                genere: genere,
-                canalla: canalla
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log("{DEBUG} Modify user's data OK");
+        try {
+            const data = await updateData(userId, form, lesionat, genere, canalla, query);
             setError("");
             showTempMessage("Informació general de l'usuari actualitzada correctament.");
-        } else {
-            console.log("{DEBUG} Modify user's data KO");
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const modifyMember = async () => {
-
-        const token = localStorage.getItem("token");
-
+    const modifyDataMember = async () => {
         let errors = [];
-
         if (!selectedRole) {
             errors.push("El camp de rol no pot estar buit.");
         }
-
         if (errors.length > 0) {
             setError(errors.join("\n"));
             return;
         }
-
-        const response = await fetch(`http://localhost:5000/members/modifyMember?collaid=${collaId}&userid=${userId}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                id_rol: selectedRole,
-                ids_posicions: selectedPositions
-            }),
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+        try {
+            const data = await modifyMember(userId, selectedRole, selectedPositions);
             setError("");
             showTempMessage("Dades del membre actualitzades correctament.");
-            console.log("{DEBUG} Modify member OK")
-        } else {
-            console.log("{DEBUG} Modify member KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
     const deleteMemberFromColla = async () => {
-
-        const token = localStorage.getItem("token");
-
         if (!window.confirm("Segur que vols eliminar a l'usuari de la colla?")) return;
-
-        const response = await fetch(`http://localhost:5000/members/deleteMember?id=${collaId}&userid=${userId}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+        try {
+            const data = await deleteMember(userId);
             setError("");
             showTempMessage("Usuari eliminat correctament de la colla.");
             setTimeout(() => {
                 navigate(`/members`);
             }, 2000);
-            console.log("{DEBUG} Delete user from colla OK")
-        } else {
-            console.log("{DEBUG} Delete user from colla KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
     useEffect(() => {
-        getData();
+        getDataProfile();
         if (isTecnica) {
-            getDataMember();
-            getCollesRoles();
-            getCollesPositions();
+            getDataMemberCall();
+            loadCollesRoles();
+            loadCollesPositions();
         }
     }, [userId, collaId, isTecnica]);
 
@@ -632,9 +466,9 @@ function UserProfile() {
                         text="Guardar canvis"
                         icon={<FaSave />}
                         action={() => {
-                            updateData();
+                            modifyDataProfile();
                             if (isTecnica) {
-                                modifyMember();
+                                modifyDataMember();
                             }
                         }}
                     />

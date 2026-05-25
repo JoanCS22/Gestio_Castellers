@@ -38,3 +38,37 @@ export const addUserToColla = async (idUser) => {
         }
     );
 };
+
+export const getDataMember = async (userId) => {
+    const idColla = localStorage.getItem("id_colla");
+    return await apiRequest(
+        `/members/getDataMember?userid=${userId}&collaid=${idColla}`,
+        {
+            method: "GET",
+        }
+    );
+};
+
+export const modifyMember = async (userId, selectedRole, selectedPositions) => {
+    const idColla = localStorage.getItem("id_colla");
+    return await apiRequest(
+        `/members/modifyMember?collaid=${idColla}&userid=${userId}`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                id_rol: selectedRole,
+                ids_posicions: selectedPositions
+            }),
+        }
+    );
+};
+
+export const deleteMember = async (userId) => {
+    const idColla = localStorage.getItem("id_colla");
+    return await apiRequest(
+        `/members/deleteMember?id=${idColla}&userid=${userId}`,
+        {
+            method: "DELETE",
+        }
+    );
+};

@@ -66,6 +66,21 @@ export const publishProva = async (idPlantilla, publicValue) => {
     );
 };
 
+export const saveOrder = async (proves) => {
+    return await apiRequest(
+        `/proves/updateOrder`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                proves: proves.map(p => ({
+                    id: p.id,
+                    ordre: p.ordre
+                }))
+            })
+        }
+    );
+};
+
 export const createProva = async (idEsdeveniment, tags, idPlantilla) => {
     return await apiRequest(
         `/proves/createProva?id=${idEsdeveniment}`,

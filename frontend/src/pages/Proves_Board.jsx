@@ -1,7 +1,3 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import Draggable from "react-draggable";
-
 import { getCollaMembers } from "../services/membersService";
 import { getCollesPositions } from "../services/collaService.js";
 import {
@@ -14,6 +10,10 @@ import {
 import { getPlantillaById, getCollesPlantilles, getPlantillesPositions } from "../services/plantillesService.js";
 import { getAssistenciaByEsdeveniment } from "../services/assistenciaService.js";
 import { handleApiError } from "../utils/handleApiError.js";
+
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import Draggable from "react-draggable";
 
 import {
     FaCheck, FaCheckDouble, FaVideoSlash, FaVideo, FaTrashAlt, FaTimesCircle, FaCheckCircle,

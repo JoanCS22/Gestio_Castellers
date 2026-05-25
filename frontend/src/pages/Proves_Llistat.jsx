@@ -1,3 +1,8 @@
+import {
+    getProvesByEsdeveniment, saveOrder
+} from "../services/provesService.js";
+import { handleApiError } from "../utils/handleApiError.js";
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Draggable from "react-draggable";
@@ -70,68 +75,27 @@ function ProvesLlistat() {
         setProves(reordered);
     };
 
-    const getProvesByEsdeveniment = async () => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`http://localhost:5000/proves/getProvesByEsdeveniment?id=${idEsdeveniment}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.clear();
-            navigate("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const loadProvesByEsdeveniment = async () => {
+        try {
+            const data = await getProvesByEsdeveniment(idEsdeveniment);
             setProves(data);
-            console.log("{DEBUG} Get esdeveniments's proves OK")
-        } else {
-            console.log("{DEBUG} Get esdeveniments's proves KO")
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
     }
 
-    const saveOrder = async () => {
-
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(
-            "http://localhost:5000/proves/updateOrder",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    proves: proves.map(p => ({
-                        id: p.id,
-                        ordre: p.ordre
-                    }))
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        if (response.ok) {
+    const saveOrderCall = async () => {
+        try {
+            const data = await getProvesByEsdeveniment(idEsdeveniment);
             showTempMessage("Ordre guardat");
             setEditMode(false);
-        } else {
-            setError(data.message);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
         }
-    };
+    }
 
     useEffect(() => {
-        getProvesByEsdeveniment();
+        loadProvesByEsdeveniment();
     }, []);
 
     return (
@@ -163,7 +127,7 @@ function ProvesLlistat() {
                                 text='Guardar ordre'
                                 icon={<FaPencilAlt />}
                                 action={() => {
-                                    saveOrder();
+                                    saveOrderCall();
                                     setEditMode(false);
                                 }}
                             />
