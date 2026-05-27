@@ -355,8 +355,37 @@ const modifyPositionsFromPlantilla = async (req, res) => {
     }
 };
 
+const modifyUpperRelation = async (req, res) => {
+    const client = await pool.connect();
+
+    try {
+        const { id_posicio, id_posicio_up } = req.body;
+
+        await client.query("BEGIN");
+
+        const result = await client.query(
+            `UPDATE posicions_plantilla
+             SET id_posicio_up = $2
+             WHERE id = $1
+             RETURNING *`,
+            [id_posicio, id_posicio_up]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json({message: "Modified upper relation"});
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error(error);
+
+        res.status(500).json({ message: "Error al modificar upper relation" });
+    } finally {
+        client.release();
+    }
+};
+
 module.exports = {
     getPlantillesByColla, getEstructuresByColla, getPlantillaById,
-    createPlantilla, modifyInfoPlantilla, deletePlantilla,
+    createPlantilla, modifyInfoPlantilla, deletePlantilla, modifyUpperRelation,
     getPositionsByPlantilla, addPositionToPlantilla, deletePositionsFromPlantilla, modifyPositionsFromPlantilla
 };

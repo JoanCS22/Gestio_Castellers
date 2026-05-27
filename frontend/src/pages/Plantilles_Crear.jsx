@@ -2,7 +2,7 @@ import {
     getCollesPositions
 } from "../services/collaService.js";
 import {
-    getPlantillaById, getPlantillesPositions, deletePlantilla,
+    getPlantillaById, getPlantillesPositions, deletePlantilla, modifyUpperRelation,
     addPositionToPlantilla, modifyPositionFromPlantilla, deletePosicioPlantilla,
 } from "../services/plantillesService.js";
 import { handleApiError } from "../utils/handleApiError.js";
@@ -13,7 +13,7 @@ import Draggable from "react-draggable";
 
 import {
     FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare, FaTimesCircle,
-    FaRegStar, FaPencilAlt, FaTrashAlt, FaTrash, FaVideo, FaVideoSlash
+    FaRegStar, FaPencilAlt, FaTrashAlt, FaTrash, FaVideo, FaVideoSlash, FaLink, FaUnlink
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -59,10 +59,14 @@ function PlantillesCrear() {
     const [newPosition, setNewPosition] = useState(true);
     const [selectedPositionId, setSelectedPositionId] = useState(null);
 
+    const [relatedPositionId, setRelatedPositionId] = useState(null);
+
     const dragStart = useRef({ x: 0, y: 0 });
     const isDragging = useRef(false);
 
     const [isShown, setIsShown] = useState(false);
+
+    const [isRelating, setIsRelating] = useState(false);
 
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
@@ -168,6 +172,18 @@ function PlantillesCrear() {
         }
     }
 
+    const changeUpperRelation = async (idPosicio, idPosicioUp = null) => {
+        try {
+            const data = await modifyUpperRelation(idPosicio, idPosicioUp);
+            await loadPlantillesPositions();
+            setIsRelating(false);
+            setError("");
+            showTempMessage("Posicions relacionades correctament.");
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
+
     useEffect(() => {
         loadPlantillaById();
         loadCollesPositions();
@@ -204,6 +220,9 @@ function PlantillesCrear() {
                     <>
                         <div className={`select-section-plantilla ${selectedTag === "pinya" ? "active" : ""}`} onClick={() => {
                             setSelectedTag("pinya");
+                            setIsRelating(false);
+                            setNewPosition(true);
+                            setSelectedPositionId(null);
                         }}>Pinya</div>
                     </>
                 )}
@@ -211,6 +230,9 @@ function PlantillesCrear() {
                     <>
                         <div className={`select-section-plantilla ${selectedTag === "folre" ? "active" : ""}`} onClick={() => {
                             setSelectedTag("folre");
+                            setIsRelating(false);
+                            setNewPosition(true);
+                            setSelectedPositionId(null);
                         }}>Folre</div>
                     </>
                 )}
@@ -218,6 +240,9 @@ function PlantillesCrear() {
                     <>
                         <div className={`select-section-plantilla ${selectedTag === "manilles" ? "active" : ""}`} onClick={() => {
                             setSelectedTag("manilles");
+                            setIsRelating(false);
+                            setNewPosition(true);
+                            setSelectedPositionId(null);
                         }}>Manilles</div>
                     </>
                 )}
@@ -225,6 +250,9 @@ function PlantillesCrear() {
                     <>
                         <div className={`select-section-plantilla ${selectedTag === "puntals" ? "active" : ""}`} onClick={() => {
                             setSelectedTag("puntals");
+                            setIsRelating(false);
+                            setNewPosition(true);
+                            setSelectedPositionId(null);
                         }}>Puntals</div>
                     </>
                 )}
@@ -232,6 +260,9 @@ function PlantillesCrear() {
                     <>
                         <div className={`select-section-plantilla ${selectedTag === "tronc" ? "active" : ""}`} onClick={() => {
                             setSelectedTag("tronc");
+                            setIsRelating(false);
+                            setNewPosition(true);
+                            setSelectedPositionId(null);
                         }}>Tronc</div>
                     </>
                 )}
@@ -320,6 +351,26 @@ function PlantillesCrear() {
                                     value={currentAddedPosition.rotacio}
                                     onChange={handleChange}
                                 />
+                            </div>
+                            <div className="select-wrapper-plantilla-rotation" title="Relacionar amb posicions de dalt per acumular alçades a proves">
+                                {(currentPosition && selectedTag === "tronc") && (
+                                    <>
+                                        <Button
+                                            text={relatedPositionId ? "Modificar relació" : "Afegir relació"}
+                                            icon={<FaLink />}
+                                            action={async () => {
+                                                setIsRelating(true);
+                                            }}
+                                        />
+                                        {relatedPositionId && (
+                                            <FaUnlink
+                                                onClick={async () => {
+                                                    await changeUpperRelation(selectedPositionId);
+                                                }}
+                                            />
+                                        )}
+                                    </>
+                                )}
                             </div>
                             <div className="select-wrapper-plantilla-buttons">
                                 {newPosition ? (<>
@@ -451,7 +502,8 @@ function PlantillesCrear() {
                         <div ref={nodeRefs.current[posicio.id]}>
 
                             <div
-                                className={`bloc-posicio-plantilla ${selectedPositionId === posicio.id ? "selected-bloc" : ""}`}
+                                className={`bloc-posicio-plantilla ${selectedPositionId === posicio.id ? "selected-bloc" : ""}
+                                 ${relatedPositionId === posicio.id ? "related-bloc" : ""}`}
 
                                 onClick={() => {
 
@@ -459,6 +511,11 @@ function PlantillesCrear() {
                                         setSelectedPositionId(null);
                                         setNewPosition(true);
                                         setCurrentPosition("");
+                                        return;
+                                    }
+
+                                    if(isRelating) {
+                                        changeUpperRelation(selectedPositionId, posicio.id);
                                         return;
                                     }
 
@@ -475,6 +532,7 @@ function PlantillesCrear() {
 
                                     setCurrentPosition(String(posicio.position_id || posicio.id));
                                     setSelectedPositionId(posicio.id);
+                                    setRelatedPositionId(posicio.id_posicio_up);
 
                                     setCurrentAddedPosition({
                                         color: posicio.color,

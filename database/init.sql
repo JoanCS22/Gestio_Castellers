@@ -318,6 +318,7 @@
     seccio VARCHAR(255),
 
     posicio_relacio BIGINT,
+    id_posicio_up BIGINT DEFAULT NULL,
 
     FOREIGN KEY (id_plantilla)
       REFERENCES plantilles(id)

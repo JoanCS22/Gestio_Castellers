@@ -123,3 +123,16 @@ export const deletePlantilla = async (idPlantilla) => {
         }
     );
 };
+
+export const modifyUpperRelation = async (id_posicio, id_posicio_up) => {
+    return await apiRequest(
+        `/plantilles/modifyUpperRelation`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                id_posicio: id_posicio,
+                id_posicio_up: id_posicio_up,
+            }),
+        }
+    );
+};

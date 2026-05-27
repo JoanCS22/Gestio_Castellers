@@ -285,3 +285,7 @@
 .selected-bloc {
     outline: 2px solid #000;
 }
+
+.related-bloc {
+    outline: 2px dotted black;
+}
