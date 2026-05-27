@@ -320,6 +320,22 @@ function ProvesBoard() {
         return [...unassigned, ...assigned];
     }, [filteredMembers, assignacions]);
 
+    const getUsuariByPosicio = (posicio) => {
+        const assignacio = assignacions.find(a => a.id_posicio === posicio.id);
+        if (assignacio) return assignacio.id_usuari;
+
+        if (posicio.posicio_relacio) {
+            const assignacioRel = assignacions.find(a => a.id_posicio === posicio.posicio_relacio);
+            return assignacioRel?.id_usuari || null;
+        }
+        return null;
+    };
+
+    const isPinyaRelacionada = (posicio) => {
+        if (posicio.seccio !== "pinya") return false;
+        return !!posicio.posicio_relacio;
+    };
+
     const loadCollaMembers = async () => {
         try {
             const data = await getCollaMembers();
@@ -491,16 +507,12 @@ function ProvesBoard() {
             const idAssignacioMembre = assignacioMembre?.id_assignacio;
 
             if (assignacioPosicio && assignacioMembre) {
-                console.log("Entra intercanvi");
                 data = await intercanviarPosicions(idAssignacioPosicio, idAssignacioMembre);
             } else if (assignacioPosicio) {
-                console.log("Entra canvi posició");
                 data = await canviarAssignacio(idAssignacioPosicio, selectedMemberId);
             } else if (assignacioMembre) {
-                console.log("Entra canvi membre");
                 data = await canviarAssignacio(idAssignacioMembre, undefined, selectedPositionId);
             } else {
-                console.log("Entra resta");
                 data = await asignarPosicioProva(idProva, selectedPositionId, selectedMemberId);
             }
 
@@ -1051,11 +1063,15 @@ function ProvesBoard() {
                         <div className="board-canvas-prova">
                             {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => {
 
-                                const assignacio = assignacions.find(a => a.id_posicio === posicio.id);
-                                let membreActual;
-                                if (assignacio) {
-                                    membreActual = members.find(m => m.id_usuari === assignacio.id_usuari);
-                                }
+                                const assignacio =
+                                    assignacions.find(a => a.id_posicio === posicio.id) ||
+                                    (posicio.posicio_relacio
+                                        ? assignacions.find(a => a.id_posicio === posicio.posicio_relacio)
+                                        : null);
+                                const idUsuari = assignacio?.id_usuari || null;
+                                const membreActual = members.find(m => m.id_usuari === idUsuari);
+                                const isMirrorPosition = (posicio) =>
+                                    posicio.seccio === "pinya" && posicio.posicio_relacio;
 
                                 return (
                                     <div
@@ -1063,8 +1079,13 @@ function ProvesBoard() {
                                         className={`bloc-posicio-prova-edit
                                     ${selectedPositionId === posicio.id ? "selected-bloc-prova" : ""}
                                     ${selectedMemberId === assignacio?.id_usuari ? "selected-bloc-member" : ""}
+                                    ${isPinyaRelacionada(posicio) ? "disabled-pinya" : ""}
                                 `}
                                         onClick={() => {
+                                            if (isPinyaRelacionada(posicio)) {
+                                                alert("Aquesta posició de pinya està vinculada al tronc. Modifica només la posició de tronc.");
+                                                return;
+                                            }
                                             const posicioAnterior = selectedPositionId;
                                             const posicioNova = posicio.id;
 
@@ -1109,13 +1130,13 @@ function ProvesBoard() {
 
                                         <span className="posicio-mesura-prova">
                                             <span className="posicio-icon-prova">
-                                                {assignacio && getAssistenciaIcon(assignacio?.id_usuari)}
+                                                {idUsuari && getAssistenciaIcon(idUsuari)}
                                             </span>
-
                                             {selectedMesura === 1 ? (membreActual?.altura_total || "")
                                                 : selectedMesura === 2 ? (membreActual?.altura_espatlles || "")
                                                     : (membreActual?.envergadura || "")
                                             }
+                                            {assignacio && ("cm")}
                                         </span>
                                     </div>
                                 );

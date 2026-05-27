@@ -647,3 +647,7 @@
     display: flex;
     align-items: center;
 }
+
+.disabled-pinya {
+    cursor: not-allowed;
+}

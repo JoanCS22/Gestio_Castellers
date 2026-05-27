@@ -385,8 +385,6 @@ const canviarAssignacio = async (req, res) => {
     try {
         const { id_assignacio, id_usuari, id_posicio } = req.body;
 
-        console.log("Entra a canviarAssignacion", req.body)
-
         await client.query("BEGIN");
 
         let result;

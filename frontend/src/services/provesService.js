@@ -145,10 +145,6 @@ export const canviarAssignacio = async (id_assignacio, id_usuari = undefined, id
 
     if (id_posicio !== undefined) body.id_posicio = id_posicio;
 
-    console.log(JSON.stringify({
-        body
-    }));
-
     return await apiRequest(
         `/proves/canviarAssignacio`,
         {
