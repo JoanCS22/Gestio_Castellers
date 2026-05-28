@@ -5,7 +5,7 @@ import {
     getDataMember, modifyMember, deleteMember,
 } from "../services/membersService.js";
 import {
-    getCollesPositions, getCollesRoles,
+    getCollesPositions, getCollesRoles, getCollesGroups
 } from "../services/collaService.js";
 import { handleApiError } from "../utils/handleApiError.js";
 
@@ -152,6 +152,15 @@ function UserProfile() {
         }
     }
 
+    const loadCollesGrups = async () => {
+        try {
+            const data = await getCollesGroups();
+            setExistingGroups(data);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
+
     const loadCollesRoles = async () => {
         try {
             const data = await getCollesRoles();
@@ -192,7 +201,7 @@ function UserProfile() {
             return;
         }
         try {
-            const data = await modifyMember(userId, selectedRole, selectedPositions);
+            const data = await modifyMember(userId, selectedRole, selectedPositions, selectedGroups);
             setError("");
             showTempMessage("Dades del membre actualitzades correctament.");
         } catch (err) {
@@ -220,6 +229,7 @@ function UserProfile() {
             getDataMemberCall();
             loadCollesRoles();
             loadCollesPositions();
+            loadCollesGrups();
         }
     }, [userId, collaId, isTecnica]);
 

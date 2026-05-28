@@ -152,7 +152,7 @@ const modifyMember = async (req, res) => {
         const collaActiva = req.query.collaid;
         const userId = req.query.userid;
 
-        const { id_rol, ids_posicions } = req.body;
+        const { id_rol, ids_posicions, ids_grups } = req.body;
 
         await client.query("BEGIN");
 
@@ -179,11 +179,36 @@ const modifyMember = async (req, res) => {
             for (let i = 0; i < ids_posicions.length; i++) {
                 await client.query(
                     `INSERT INTO posicio_usuari (id_usuari, id_colla, id_posicio)
-                 VALUES ($1, $2, $3)
-                 RETURNING *`,
+                    VALUES ($1, $2, $3)
+                    RETURNING *`,
                     [userId, collaActiva, ids_posicions[i]]
                 );
             }
+        } else {
+            await client.query(
+                `DELETE FROM posicio_usuari
+                 WHERE id_usuari = $1 AND id_colla = $2
+                 RETURNING *`,
+                [userId, collaActiva]
+            );
+        }
+
+        if (ids_grups.length > 0) {
+            for (let i = 0; i < ids_grups.length; i++) {
+                await client.query(
+                    `INSERT INTO grup_usuari (id_usuari, id_colla, id_grup)
+                     VALUES ($1, $2, $3)
+                     RETURNING *`,
+                    [userId, collaActiva, ids_grups[i]]
+                );
+            }
+        } else {
+            await client.query(
+                `DELETE FROM grup_usuari
+                 WHERE id_usuari = $1 AND id_colla = $2
+                 RETURNING *`,
+                [userId, collaActiva]
+            );
         }
 
         await client.query("COMMIT");

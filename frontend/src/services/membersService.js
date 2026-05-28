@@ -49,7 +49,7 @@ export const getDataMember = async (userId) => {
     );
 };
 
-export const modifyMember = async (userId, selectedRole, selectedPositions) => {
+export const modifyMember = async (userId, selectedRole, selectedPositions, selectedGroups) => {
     const idColla = localStorage.getItem("id_colla");
     return await apiRequest(
         `/members/modifyMember?collaid=${idColla}&userid=${userId}`,
@@ -57,7 +57,8 @@ export const modifyMember = async (userId, selectedRole, selectedPositions) => {
             method: "POST",
             body: JSON.stringify({
                 id_rol: selectedRole,
-                ids_posicions: selectedPositions
+                ids_posicions: selectedPositions,
+                ids_grups: selectedGroups,
             }),
         }
     );

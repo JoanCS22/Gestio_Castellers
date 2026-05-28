@@ -9,6 +9,7 @@ const esdevenimentRoutes = require('./routes/esdeveniments.routes');
 const assistenciaRoutes = require('./routes/assistencia.routes');
 const plantillesRoutes = require('./routes/plantilles.routes');
 const provesRoutes = require('./routes/proves.routes');
+const notificacionsRoutes = require('./routes/notificacions.routes');
 
 require("dotenv").config();
 
@@ -33,6 +34,6 @@ app.use('/members', memberRoutes);
 app.use('/esdeveniments', esdevenimentRoutes);
 app.use('/assistencia', assistenciaRoutes);
 app.use('/plantilles', plantillesRoutes);
-app.use('/proves', provesRoutes);
+app.use('/notificacions', notificacionsRoutes);
 
 module.exports = app;
