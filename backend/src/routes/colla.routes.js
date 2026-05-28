@@ -3,7 +3,8 @@ const router = express.Router();
 
 const { createColla, getCollesUser, getDataColla, modifyColla, 
     getCollaPositions, updateCollaPositions, deleteCollaPositions, createCollaPosition, 
-    getCollaRoles, createCollaRoles, updateCollaRoles, deleteCollaRole 
+    getCollaRoles, createCollaRoles, updateCollaRoles, deleteCollaRole,
+    getCollaGroups, updateCollaGroup, deleteCollaGroup, createCollaGroup,
 } = require('../controllers/colla.controller');
 const auth = require('../middleware/auth');
 
@@ -22,5 +23,10 @@ router.get('/getCollaRoles', auth, getCollaRoles);
 router.post('/createCollaRoles', auth, createCollaRoles);
 router.post('/updateCollaRoles', auth, updateCollaRoles);
 router.delete('/deleteCollaRole', auth, deleteCollaRole);
+
+router.get('/getCollaGroups', auth, getCollaGroups);
+router.post('/updateCollaGroup', auth, updateCollaGroup);
+router.post('/createCollaGroup', auth, createCollaGroup);
+router.delete('/deleteCollaGroup', auth, deleteCollaGroup);
 
 module.exports = router;

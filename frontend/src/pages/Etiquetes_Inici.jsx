@@ -1,6 +1,7 @@
 import {
     getCollesPositions, createPosicio, updatePosicio, deletePosicio,
     getCollesRoles, createRoles, updateRoles, deleteRoles,
+    getCollesGroups, createGroup, updateGroup, deleteGroup,
 } from "../services/collaService.js";
 import { handleApiError } from "../utils/handleApiError.js";
 
@@ -36,9 +37,11 @@ function Etiquetes() {
 
     const [positions, setPositions] = useState([]);
     const [rols, setRols] = useState([]);
+    const [grups, setGrups] = useState([]);
 
     const [showModalPosicions, setShowModalPosicions] = useState(false);
     const [showModalRols, setShowModalRols] = useState(false);
+    const [showModalGroups, setShowModalGroups] = useState(false);
 
     const [newPositionTag, setNewPositionTag] = useState({
         nom: "",
@@ -46,6 +49,10 @@ function Etiquetes() {
         color: "#FFFFFF"
     });
     const [newRoleTag, setNewRoleTag] = useState({
+        nom: "",
+        descripcio: "",
+    });
+    const [newGroupTag, setNewGroupTag] = useState({
         nom: "",
         descripcio: "",
     });
@@ -67,9 +74,11 @@ function Etiquetes() {
     const [isCreate, setCreate] = useState(true);
     const [currentPosition, setCurrentPosition] = useState(null);
     const [currentRole, setCurrentRole] = useState(null);
+    const [currentGroup, setCurrentGroup] = useState(null);
 
     const isPosition = selectedTag === "posicions";
     const isRole = selectedTag === "rols";
+    const isGroup = selectedTag === "grups";
 
     const updatePermiso = (key, value) => {
         setPermisos(prev => ({
@@ -162,7 +171,6 @@ function Etiquetes() {
             showTempMessage("Rol creat correctament.");
             resetPermisos();
             loadCollesRoles();
-            loadCollesPositions();
         } catch (err) {
             handleApiError(err, navigate, setError);
         }
@@ -195,8 +203,62 @@ function Etiquetes() {
         }
     }
 
+    const loadCollesGrups = async () => {
+        try {
+            const data = await getCollesGroups();
+            setGrups(data);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
+
+    const createPosicioGrups = async () => {
+        if (newGroupTag.nom == "") {
+            setError(`El camp nom no pot estar buit`);
+            return;
+        }
+        try {
+            const data = await createGroup(newGroupTag);
+            setError("");
+            setShowModalGroups(false);
+            setNewGroupTag({ nom: "", descripcio: "" });
+            showTempMessage("Grup creat correctament.");
+            loadCollesGrups();
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
+
+    const updatePosicioGrups = async (idGrup) => {
+        if (!currentGroup) return;
+        try {
+            const data = await updateGroup(idGrup, newGroupTag);
+            setError("");
+            setShowModalGroups(false);
+            setNewGroupTag({ nom: "", descripcio: "" });
+            showTempMessage("Grup modificat correctament.");
+            loadCollesGrups();
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
+
+    const deletePosicioGrups = async (idGrup) => {
+        if (!window.confirm("Segur que vols eliminar aquest grup?")) return;
+        try {
+            const data = await deleteGroup(idGrup);
+            setError("");
+            showTempMessage("Rol eliminat correctament.");
+            loadCollesGrups();
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
+
     useEffect(() => {
         loadCollesPositions();
+        loadCollesRoles();
+        loadCollesGrups();
     }, []);
 
     return (
@@ -207,7 +269,6 @@ function Etiquetes() {
             <div className="selection-bar-tags">
                 <div className={`position-select-tags ${isPosition ? "active" : ""}`} onClick={() => {
                     setSelectedTag("posicions");
-                    loadCollesPositions();
                     setShowModalPosicions(false);
                     setShowModalRols(false);
                 }}>Posicions</div>
@@ -216,7 +277,6 @@ function Etiquetes() {
                     <>
                         <div className={`rols-select-tags ${isRole ? "active" : ""}`} onClick={() => {
                             setSelectedTag("rols");
-                            loadCollesRoles();
                             setShowModalPosicions(false);
                             setShowModalRols(false);
                         }}>Rols</div>

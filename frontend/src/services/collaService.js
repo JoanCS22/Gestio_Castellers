@@ -159,3 +159,53 @@ export const getCollesUser = async () => {
         }
     );
 };
+
+export const getCollesGroups = async () => {
+
+    const idColla = localStorage.getItem("id_colla");
+
+    return await apiRequest(
+        `/colla/getCollaGroups?id=${idColla}`,
+        {
+            method: "GET",
+        }
+    );
+};
+
+export const createGroup = async (newGroupTag) => {
+
+    const idColla = localStorage.getItem("id_colla");
+
+    return await apiRequest(
+        `/colla/createCollaGroup?id=${idColla}`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                nom: newGroupTag.nom,
+                descripcio: newGroupTag.descripcio || "",
+            }),
+        }
+    );
+};
+
+export const updateGroup = async (idGrup, newGroupTag) => {
+    return await apiRequest(
+        `/colla/updateCollaGroup?id=${idGrup}`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                id_grup: idGrup,
+                descripcio: newGroupTag.descripcio || ""
+            }),
+        }
+    );
+};
+
+export const deleteGroup = async (idGrup) => {
+    return await apiRequest(
+        `/colla/deleteCollaGroup?id=${idGrup}`,
+        {
+            method: "DELETE",
+        }
+    );
+};
