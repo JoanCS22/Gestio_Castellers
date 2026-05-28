@@ -34,6 +34,7 @@ app.use('/members', memberRoutes);
 app.use('/esdeveniments', esdevenimentRoutes);
 app.use('/assistencia', assistenciaRoutes);
 app.use('/plantilles', plantillesRoutes);
+app.use('/proves', provesRoutes);
 app.use('/notificacions', notificacionsRoutes);
 
 module.exports = app;

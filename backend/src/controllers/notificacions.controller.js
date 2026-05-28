@@ -1,6 +1,7 @@
 const pool = require('../db');
 
 const getUserNotifications = async (req, res) => {
+    const client = await pool.connect();
     try {
         const userId = req.user.id;
         const collaActiva = req.query.id;
@@ -15,10 +16,6 @@ const getUserNotifications = async (req, res) => {
             [userId, collaActiva]
         );
 
-        if (result.rows.length === 0) {
-            return res.status(200).json({ message: 'Usuari no té notificacions' });
-        }
-
         res.status(200).json(result.rows);
 
     } catch (error) {
@@ -29,6 +26,7 @@ const getUserNotifications = async (req, res) => {
 };
 
 const createNotification = async (req, res) => {
+    const client = await pool.connect();
     try {
         const userId = req.user.id;
         const collaActiva = req.query.id;
