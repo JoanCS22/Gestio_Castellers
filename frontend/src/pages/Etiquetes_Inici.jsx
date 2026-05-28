@@ -158,7 +158,7 @@ function Etiquetes() {
         }
     }
 
-    const createPosicioRoles = async () => {
+    const createCollaRoles = async () => {
         if (newRoleTag.nom == "") {
             setError(`El camp nom no pot estar buit`);
             return;
@@ -176,7 +176,7 @@ function Etiquetes() {
         }
     }
 
-    const updatePosicioRoles = async (idRol) => {
+    const updateCollaRoles = async (idRol) => {
         if (!currentRole) return;
         try {
             const data = await updateRoles(idRol, newRoleTag, permisos);
@@ -191,7 +191,7 @@ function Etiquetes() {
         }
     }
 
-    const deletePosicioRoles = async (idRol) => {
+    const deleteCollaRoles = async (idRol) => {
         if (!window.confirm("Segur que vols eliminar aquest rol?")) return;
         try {
             const data = await deleteRoles(idRol);
@@ -212,11 +212,12 @@ function Etiquetes() {
         }
     }
 
-    const createPosicioGrups = async () => {
+    const createCollaGrups = async () => {
         if (newGroupTag.nom == "") {
             setError(`El camp nom no pot estar buit`);
             return;
         }
+        console.log(newGroupTag)
         try {
             const data = await createGroup(newGroupTag);
             setError("");
@@ -229,7 +230,7 @@ function Etiquetes() {
         }
     }
 
-    const updatePosicioGrups = async (idGrup) => {
+    const updateCollaGrups = async (idGrup) => {
         if (!currentGroup) return;
         try {
             const data = await updateGroup(idGrup, newGroupTag);
@@ -243,7 +244,7 @@ function Etiquetes() {
         }
     }
 
-    const deletePosicioGrups = async (idGrup) => {
+    const deleteCollaGrups = async (idGrup) => {
         if (!window.confirm("Segur que vols eliminar aquest grup?")) return;
         try {
             const data = await deleteGroup(idGrup);
@@ -264,21 +265,25 @@ function Etiquetes() {
     return (
         <div>
             <TopMenu
-                title={isPosition ? 'Posicions' : 'Rols'}
+                title={isPosition ? 'Posicions' : isRole ? 'Rols' : 'Grups'}
             />
             <div className="selection-bar-tags">
                 <div className={`position-select-tags ${isPosition ? "active" : ""}`} onClick={() => {
                     setSelectedTag("posicions");
-                    setShowModalPosicions(false);
+                    setShowModalGroups(false);
                     setShowModalRols(false);
                 }}>Posicions</div>
-                <div className='grups-select-tags'>Grups</div>
+                <div className={`grups-select-tags ${isGroup ? "active" : ""}`} onClick={() => {
+                    setSelectedTag("grups");
+                    setShowModalPosicions(false);
+                    setShowModalRols(false);
+                }}>Grups</div>
                 {hasAccess("permisos") && (
                     <>
                         <div className={`rols-select-tags ${isRole ? "active" : ""}`} onClick={() => {
                             setSelectedTag("rols");
                             setShowModalPosicions(false);
-                            setShowModalRols(false);
+                            setShowModalGroups(false);
                         }}>Rols</div>
                     </>
                 )}
@@ -292,21 +297,25 @@ function Etiquetes() {
                 )
             }
             <div className="button-section-tags">
-                {((hasWritePermission("colla") && isPosition) || (!isPosition && hasWritePermission("permisos"))) && (
+                {((hasWritePermission("colla") && (isPosition || isGroup)) || (!isPosition && hasWritePermission("permisos"))) && (
                     <>
                         <Button
-                            text={isPosition ? 'Afegir posició' : 'Afegir rol'}
+                            text={isPosition ? 'Afegir posició' : isGroup ? 'Afegir grup' : 'Afegir rol'}
                             icon={<FaPlusSquare />}
                             action={() => {
                                 if (isPosition) {
                                     setCreate(true);
                                     setNewPositionTag({ nom: "", descripcio: "" })
                                     setShowModalPosicions(true);
-                                } else {
+                                } else if (isRole) {
                                     setCreate(true);
                                     setNewRoleTag({ nom: "", descripcio: "" });
                                     resetPermisos();
                                     setShowModalRols(true);
+                                } else {
+                                    setCreate(true);
+                                    setNewGroupTag({ nom: "", descripcio: "" });
+                                    setShowModalGroups(true);
                                 }
                             }}
                         />
@@ -383,6 +392,60 @@ function Etiquetes() {
             )
             }
             {
+                isGroup && (
+                    <div className="table-rols-tags">
+                        <table>
+                            <colgroup>
+                                <col style={{ width: "20%" }} />
+                                <col style={{ width: "60%" }} />
+                                <col style={{ width: "10%" }} />
+                                <col style={{ width: "10%" }} />
+                            </colgroup>
+
+                            <thead>
+                                <tr>
+                                    <th>Grup</th>
+                                    <th>Descripció</th>
+                                    <th>Modificar</th>
+                                    <th>Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {grups.map((grup) => (
+                                    <>
+                                        <tr key={grup.id}>
+                                            <td>{grup.nom}</td>
+                                            <td>{grup.descripcio}</td>
+                                            <td>
+                                                <button onClick={() => {
+                                                    if (hasWritePermission("colla")) {
+                                                        setCurrentGroup(grup.id);
+                                                        setCreate(false);
+                                                        setNewGroupTag({ nom: grup.nom, descripcio: grup.descripcio });
+                                                        setShowModalGroups(true);
+                                                    }
+                                                }}>
+                                                    <FaPencilAlt />
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <button onClick={() => {
+                                                    if (hasWritePermission("colla")) {
+                                                        deleteCollaGrups(grup.id);
+                                                    }
+                                                }}>
+                                                    <FaTrashAlt />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )
+            }
+            {
                 isRole && (
                     <div className="table-rols-tags">
                         <table>
@@ -423,7 +486,7 @@ function Etiquetes() {
                                             <td>
                                                 <button onClick={() => {
                                                     if (rol.nom != "Administrador" && rol.nom != 'Membre' && hasWritePermission("permisos")) {
-                                                        deletePosicioRoles(rol.id);
+                                                        deleteCollaRoles(rol.id);
                                                     }
                                                 }}>
                                                     <FaTrashAlt />
@@ -508,6 +571,58 @@ function Etiquetes() {
                 )
             }
             {
+                showModalGroups && (
+                    <div className="modal-overlay-position">
+                        <div className="modal-position">
+                            <h2>
+                                {isCreate ? "Nou grup" : "Modificar grup"}
+                            </h2>
+                            <div className="input-group">
+                                <Input
+                                    name="name"
+                                    type="text"
+                                    placeholder="Nom"
+                                    value={newGroupTag.nom}
+                                    onChange={(e) =>
+                                        setNewGroupTag({ ...newGroupTag, nom: e.target.value })
+                                    }
+                                    inputTitle="Nom"
+                                    readOnly={!isCreate}
+                                />
+                            </div>
+                            {error && (
+                                <div className="error-message">
+                                    {error}
+                                </div>
+                            )}
+                            <div>Descripció</div>
+                            <div className="input-group">
+                                <textarea
+                                    placeholder="Descripció"
+                                    value={newGroupTag.descripcio}
+                                    onChange={(e) =>
+                                        setNewGroupTag({ ...newGroupTag, descripcio: e.target.value })
+                                    }
+                                />
+                            </div>
+
+                            <div className="modal-buttons-role">
+                                <Button
+                                    text={isCreate ? "Afegir grup" : "Guardar canvis"}
+                                    icon={isCreate ? <FaPlusSquare /> : <FaSave />}
+                                    action={isCreate ? createCollaGrups : () => updateCollaGrups(currentGroup)} />
+
+                                <Button
+                                    text="Cancelar"
+                                    icon={<FaTimesCircle />}
+                                    action={() => { setShowModalGroups(false); setError("") }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+            {
                 showModalRols && (
                     <div className="modal-overlay-role">
                         <div className="modal-role">
@@ -558,7 +673,7 @@ function Etiquetes() {
                                 <Button
                                     text={isCreate ? "Afegir Rol" : "Guardar canvis"}
                                     icon={isCreate ? <FaPlusSquare /> : <FaSave />}
-                                    action={isCreate ? createPosicioRoles : () => updatePosicioRoles(currentRole)} />
+                                    action={isCreate ? createCollaRoles : () => updateCollaRoles(currentRole)} />
 
                                 <Button
                                     text="Cancelar"
