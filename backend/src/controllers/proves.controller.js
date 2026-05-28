@@ -3,6 +3,8 @@ const pool = require('../db');
 const getProvesByEsdeveniment = async (req, res) => {
     const client = await pool.connect();
 
+    console.log("Entra")
+
     try {
         const id_esdeveniment = req.query.id;
 
@@ -15,6 +17,8 @@ const getProvesByEsdeveniment = async (req, res) => {
              ORDER BY ordre ASC`,
             [id_esdeveniment]
         );
+
+        console.log(result);
 
         await client.query("COMMIT");
 

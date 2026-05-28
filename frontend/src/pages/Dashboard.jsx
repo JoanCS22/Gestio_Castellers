@@ -30,6 +30,8 @@ function Dashboard() {
     const hasWritePermission = (key) => permissions[key] === "W";
     const hasReadPermission = (key) => permissions[key] === "R";
 
+    const [error, setError] = useState("");
+
     const [futurs, setFuturs] = useState([]);
     const [futurProves, setFuturProves] = useState([]);
 

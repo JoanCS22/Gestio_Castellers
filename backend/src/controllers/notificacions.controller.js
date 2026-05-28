@@ -5,7 +5,6 @@ const getUserNotifications = async (req, res) => {
         const userId = req.user.id;
         const collaActiva = req.query.id;
 
-
         const result = await pool.query(
             `SELECT n.* 
              FROM notificacions n

@@ -14,6 +14,7 @@ import Plantilla from "./pages/Plantilles_Crear";
 import ProvesInici from "./pages/Proves_Inici";
 import ProvesLlistat from "./pages/Proves_Llistat";
 import ProvesBoard from "./pages/Proves_Board";
+import Notificacions from "./pages/Notificacions";
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
       <Route path="/proves_llistat" element={<ProvesLlistat />} />
       <Route path="/proves_board_edit" element={<ProvesBoard />} />
       <Route path="/proves_board_show" element={<ProvesBoard />} />
+      <Route path="/notificacions_board" element={<Notificacions />} />
     </Routes>
   );
 }

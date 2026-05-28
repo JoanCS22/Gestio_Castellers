@@ -95,7 +95,7 @@ const LeftMenu = () => {
 
               {hasAccess("notificacions") && (
                 <div className='menu-item' onClick={() => {
-
+                  navigate(`/notificacions_board`);
                 }}>Notificacions</div>
               )}
 
