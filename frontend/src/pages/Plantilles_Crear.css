@@ -289,3 +289,40 @@
 .related-bloc {
     outline: 2px dotted black;
 }
+
+.relating-banner {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+
+    background: #1e293b;
+    color: white;
+
+    padding: 12px 22px;
+    border-radius: 12px;
+
+    font-weight: 600;
+    font-size: 15px;
+
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+
+    animation: pulseBanner 1.5s infinite;
+}
+
+.relating-mode {
+    background-color: rgba(0,0,0,0.03);
+}
+
+.relating-mode .bloc-posicio-plantilla {
+    opacity: 0.75;
+    transition: all 0.2s ease;
+}
+
+.relating-mode .bloc-posicio-plantilla:hover {
+    opacity: 1;
+    transform: scale(1.08);
+    box-shadow: 0 0 12px rgba(59,130,246,0.7);
+    cursor: pointer;
+}

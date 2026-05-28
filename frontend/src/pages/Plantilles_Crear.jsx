@@ -174,11 +174,12 @@ function PlantillesCrear() {
 
     const changeUpperRelation = async (idPosicio, idPosicioUp = null) => {
         try {
-            const data = await modifyUpperRelation(idPosicio, idPosicioUp);
+            await modifyUpperRelation(idPosicio, idPosicioUp);
             await loadPlantillesPositions();
             setIsRelating(false);
+            setRelatedPositionId(null);
             setError("");
-            showTempMessage("Posicions relacionades correctament.");
+            showTempMessage("Relacions modificades.");
         } catch (err) {
             handleApiError(err, navigate, setError);
         }
@@ -189,6 +190,18 @@ function PlantillesCrear() {
         loadCollesPositions();
         loadPlantillesPositions();
     }, []);
+
+    useEffect(() => {
+        if (!selectedPositionId) return;
+
+        const selected = posicionsPlantilla.find(
+            p => p.id === selectedPositionId
+        );
+
+        if (selected) {
+            setRelatedPositionId(selected.id_posicio_up);
+        }
+    }, [posicionsPlantilla, selectedPositionId]);
 
     return (
         <div>
@@ -352,18 +365,19 @@ function PlantillesCrear() {
                                     onChange={handleChange}
                                 />
                             </div>
-                            <div className="select-wrapper-plantilla-rotation" title="Relacionar amb posicions de dalt per acumular alçades a proves">
+                            <div className="select-wrapper-plantilla-buttons" title="Relacionar amb posicions de dalt per acumular alçades a proves">
                                 {(currentPosition && selectedTag === "tronc") && (
                                     <>
                                         <Button
-                                            text={relatedPositionId ? "Modificar relació" : "Afegir relació"}
-                                            icon={<FaLink />}
+                                            text={isRelating ? "Cancel·lar" : relatedPositionId ? "Modificar relació" : "Afegir relació"}
+                                            icon={isRelating ? <FaTimesCircle /> : <FaLink />}
                                             action={async () => {
-                                                setIsRelating(true);
+                                                setIsRelating(!isRelating);
                                             }}
                                         />
                                         {relatedPositionId && (
                                             <FaUnlink
+                                                className="select-wrapper-plantilla-buttons-delete"
                                                 onClick={async () => {
                                                     await changeUpperRelation(selectedPositionId);
                                                 }}
@@ -434,7 +448,12 @@ function PlantillesCrear() {
                     </div>
                 </>
             )}
-            <div className="modify-plantilla-board" ref={boardRef}>
+            <div className={`modify-plantilla-board ${isRelating ? "relating-mode" : ""}`} ref={boardRef}>
+                {isRelating && (
+                    <div className="relating-banner">
+                        Selecciona una posició per relacionar-la
+                    </div>
+                )}
                 {posicionsPlantilla.filter(posicio => posicio.seccio === selectedTag).map((posicio) => (
 
                     <Draggable
@@ -502,8 +521,11 @@ function PlantillesCrear() {
                         <div ref={nodeRefs.current[posicio.id]}>
 
                             <div
-                                className={`bloc-posicio-plantilla ${selectedPositionId === posicio.id ? "selected-bloc" : ""}
-                                 ${relatedPositionId === posicio.id ? "related-bloc" : ""}`}
+                                className={`bloc-posicio-plantilla 
+                                    ${selectedPositionId === posicio.id ? "selected-bloc" : ""}
+                                    ${relatedPositionId === posicio.id ? "related-bloc" : ""}
+                                    ${isRelating ? "relating-bloc" : ""}
+                                `}
 
                                 onClick={() => {
 
@@ -514,7 +536,7 @@ function PlantillesCrear() {
                                         return;
                                     }
 
-                                    if(isRelating) {
+                                    if (isRelating) {
                                         changeUpperRelation(selectedPositionId, posicio.id);
                                         return;
                                     }
