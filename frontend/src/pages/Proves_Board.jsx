@@ -336,6 +336,44 @@ function ProvesBoard() {
         return !!posicio.posicio_relacio;
     };
 
+    const calcularAlturaAcumulada = (idPosicioInicial) => {
+
+        let alturaTotal = 0;
+        let posicioActual = posicionsPlantilla.find(
+            p => p.id === idPosicioInicial
+        );
+
+        const visited = new Set();
+
+        while (posicioActual) {
+            if (visited.has(posicioActual.id)) {
+                console.warn("Loop detectat en relacions");
+                break;
+            }
+
+            visited.add(posicioActual.id);
+
+            const assignacio = assignacions.find(
+                a => a.id_posicio === posicioActual.id
+            );
+
+            if (assignacio?.id_usuari) {
+
+                const membre = members.find(
+                    m => m.id_usuari === assignacio.id_usuari
+                );
+
+                alturaTotal += Number(membre?.altura_total || 0);
+            }
+
+            posicioActual = posicionsPlantilla.find(
+                p => p.id === posicioActual.id_posicio_up
+            );
+        }
+
+        return alturaTotal;
+    };
+
     const loadCollaMembers = async () => {
         try {
             const data = await getCollaMembers();
@@ -968,6 +1006,7 @@ function ProvesBoard() {
                             <>
                                 <div className={`select-section-prova ${selectedTag === "pinya" ? "active" : ""} `} onClick={() => {
                                     setSelectedTag("pinya");
+                                    setSelectedPositionId(null);
                                 }}>Pinya</div>
                             </>
                         )}
@@ -975,6 +1014,7 @@ function ProvesBoard() {
                             <>
                                 <div className={`select-section-prova ${selectedTag === "folre" ? "active" : ""} `} onClick={() => {
                                     setSelectedTag("folre");
+                                    setSelectedPositionId(null);
                                 }}>Folre</div>
                             </>
                         )}
@@ -982,6 +1022,7 @@ function ProvesBoard() {
                             <>
                                 <div className={`select-section-prova ${selectedTag === "manilles" ? "active" : ""} `} onClick={() => {
                                     setSelectedTag("manilles");
+                                    setSelectedPositionId(null);
                                 }}>Manilles</div>
                             </>
                         )}
@@ -989,6 +1030,7 @@ function ProvesBoard() {
                             <>
                                 <div className={`select-section-prova ${selectedTag === "puntals" ? "active" : ""} `} onClick={() => {
                                     setSelectedTag("puntals");
+                                    setSelectedPositionId(null);
                                 }}>Puntals</div>
                             </>
                         )}
@@ -996,6 +1038,7 @@ function ProvesBoard() {
                             <>
                                 <div className={`select-section-prova ${selectedTag === "tronc" ? "active" : ""} `} onClick={() => {
                                     setSelectedTag("tronc");
+                                    setSelectedPositionId(null);
                                 }}>Tronc</div>
                             </>
                         )}
@@ -1074,71 +1117,87 @@ function ProvesBoard() {
                                     posicio.seccio === "pinya" && posicio.posicio_relacio;
 
                                 return (
-                                    <div
-                                        key={posicio.id}
-                                        className={`bloc-posicio-prova-edit
-                                    ${selectedPositionId === posicio.id ? "selected-bloc-prova" : ""}
-                                    ${selectedMemberId === assignacio?.id_usuari ? "selected-bloc-member" : ""}
-                                    ${isPinyaRelacionada(posicio) ? "disabled-pinya" : ""}
-                                `}
-                                        onClick={() => {
-                                            if (isPinyaRelacionada(posicio)) {
-                                                alert("Aquesta posició de pinya està vinculada al tronc. Modifica només la posició de tronc.");
-                                                return;
-                                            }
-                                            const posicioAnterior = selectedPositionId;
-                                            const posicioNova = posicio.id;
+                                    <>
+                                        <div className="posicio-wrapper-bloc">
+                                            <div
+                                                key={posicio.id}
+                                                className={`bloc-posicio-prova-edit
+                                                ${selectedPositionId === posicio.id ? "selected-bloc-prova" : ""}
+                                                ${selectedMemberId === assignacio?.id_usuari ? "selected-bloc-member" : ""}
+                                                ${isPinyaRelacionada(posicio) ? "disabled-pinya" : ""}
+                                            `}
+                                                onClick={() => {
+                                                    if (isPinyaRelacionada(posicio)) {
+                                                        alert("Aquesta posició de pinya està vinculada al tronc. Modifica només la posició de tronc.");
+                                                        return;
+                                                    }
+                                                    const posicioAnterior = selectedPositionId;
+                                                    const posicioNova = posicio.id;
 
-                                            if (!posicioAnterior) {
-                                                setSelectedPositionId(posicioNova);
-                                                setSelectedAssignacioId(assignacio?.id_assignacio || null);
-                                                return;
-                                            }
+                                                    if (!posicioAnterior) {
+                                                        setSelectedPositionId(posicioNova);
+                                                        setSelectedAssignacioId(assignacio?.id_assignacio || null);
+                                                        return;
+                                                    }
 
-                                            if (posicioAnterior === posicioNova) {
-                                                setSelectedPositionId(null);
-                                                setSelectedAssignacioId(null);
-                                                return;
-                                            }
+                                                    if (posicioAnterior === posicioNova) {
+                                                        setSelectedPositionId(null);
+                                                        setSelectedAssignacioId(null);
+                                                        return;
+                                                    }
 
-                                            const assignacioAnterior = assignacions.find(a => a.id_posicio === posicioAnterior);
-                                            const assignacioNova = assignacions.find(a => a.id_posicio === posicioNova);
+                                                    const assignacioAnterior = assignacions.find(a => a.id_posicio === posicioAnterior);
+                                                    const assignacioNova = assignacions.find(a => a.id_posicio === posicioNova);
 
-                                            if (assignacioAnterior && assignacioNova) {
-                                                intercanviarPosicionsCall(assignacioAnterior.id_assignacio, assignacioNova.id_assignacio);
-                                            } else if (assignacioAnterior || assignacioNova) {
-                                                if (assignacioAnterior) {
-                                                    moureAssignacioCall(assignacioAnterior.id_assignacio, posicioNova);
-                                                } else if (assignacioNova) {
-                                                    moureAssignacioCall(assignacioNova.id_assignacio, posicioAnterior);
-                                                }
-                                            }
+                                                    if (assignacioAnterior && assignacioNova) {
+                                                        intercanviarPosicionsCall(assignacioAnterior.id_assignacio, assignacioNova.id_assignacio);
+                                                    } else if (assignacioAnterior || assignacioNova) {
+                                                        if (assignacioAnterior) {
+                                                            moureAssignacioCall(assignacioAnterior.id_assignacio, posicioNova);
+                                                        } else if (assignacioNova) {
+                                                            moureAssignacioCall(assignacioNova.id_assignacio, posicioAnterior);
+                                                        }
+                                                    }
 
-                                            setSelectedPositionId(posicioNova);
-                                        }}
-                                        style={{
-                                            position: "absolute",
-                                            left: `${posicio.coord_x + offsetX}px`,
-                                            top: `${posicio.coord_y + offsetY}px`,
-                                            backgroundColor: posicio.color,
-                                            transform: `rotate(${posicio.rotacio}deg)`,
-                                        }}
-                                    >
-                                        <span className="posicio-mote-prova">
-                                            {membreActual?.mote || ""}
-                                        </span>
+                                                    setSelectedPositionId(posicioNova);
+                                                }}
+                                                style={{
+                                                    position: "absolute",
+                                                    left: `${posicio.coord_x + offsetX}px`,
+                                                    top: `${posicio.coord_y + offsetY}px`,
+                                                    backgroundColor: posicio.color,
+                                                    transform: `rotate(${posicio.rotacio}deg)`,
+                                                }}
+                                            >
+                                                <span className="posicio-mote-prova">
+                                                    {membreActual?.mote || ""}
+                                                </span>
 
-                                        <span className="posicio-mesura-prova">
-                                            <span className="posicio-icon-prova">
-                                                {idUsuari && getAssistenciaIcon(idUsuari)}
-                                            </span>
-                                            {selectedMesura === 1 ? (membreActual?.altura_total || "")
-                                                : selectedMesura === 2 ? (membreActual?.altura_espatlles || "")
-                                                    : (membreActual?.envergadura || "")
-                                            }
-                                            {assignacio && ("cm")}
-                                        </span>
-                                    </div>
+                                                <span className="posicio-mesura-prova">
+                                                    <span className="posicio-icon-prova">
+                                                        {idUsuari && getAssistenciaIcon(idUsuari)}
+                                                    </span>
+                                                    {selectedMesura === 1 ? (membreActual?.altura_total || "")
+                                                        : selectedMesura === 2 ? (membreActual?.altura_espatlles || "")
+                                                            : (membreActual?.envergadura || "")
+                                                    }
+                                                    {assignacio && ("cm")}
+                                                </span>
+                                            </div>
+                                            {(posicio.nom == "Baix" && posicio.seccio === "tronc") && (
+                                                <div
+                                                    className="posicio-baix-acumulacio-alçades"
+                                                    style={{
+                                                        position: "absolute",
+                                                        left: `${posicio.coord_x + offsetX + 35}px`,
+                                                        top: `${posicio.coord_y + offsetY + 32}px`,
+                                                    }}
+                                                >
+                                                    {calcularAlturaAcumulada(posicio.id)} cm
+                                                </div>
+                                            )}
+                                        </div>
+                                    </>
                                 );
                             })}
                         </div>
