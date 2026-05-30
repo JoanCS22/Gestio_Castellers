@@ -148,7 +148,7 @@ function Notificacions() {
                         <tr>
                             <th>Emisor</th>
                             <th>Títol</th>
-                            <th>Data enviament</th>
+                            <th>Data d'enviament</th>
                             <th>Consultar</th>
                         </tr>
                     </thead>
@@ -157,7 +157,7 @@ function Notificacions() {
                             <tr key={notificacio.id}>
                                 <td>{notificacio.nom_emisor}</td>
                                 <td>{notificacio.titol}</td>
-                                <td>{notificacio.data_programacio}</td>
+                                <td>{new Date(notificacio.data_programacio).toLocaleDateString("es-ES")}</td>
                                 <td>
                                     <button onClick={() => {
                                         setCreate(false);
