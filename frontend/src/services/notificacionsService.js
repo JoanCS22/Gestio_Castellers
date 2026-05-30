@@ -13,7 +13,7 @@ export const getNotifications = async () => {
 export const sendNotification = async (modalTags, selectedGroups) => {
     const idColla = localStorage.getItem("id_colla");
     return await apiRequest(
-        `/notificacions/modifyMember?id=${idColla}`,
+        `/notificacions/createNotification?id=${idColla}`,
         {
             method: "POST",
             body: JSON.stringify({

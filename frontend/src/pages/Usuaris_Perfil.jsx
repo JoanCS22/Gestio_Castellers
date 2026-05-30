@@ -136,7 +136,7 @@ function UserProfile() {
             const row = data[0] || {};
 
             setSelectedPositions((row.posicions_ids || []).map(String));
-            setSelectedGroups((row.grups_ids || []).map(String));
+            setSelectedGroups(row.grups_ids || []);
             setSelectedRole(row.rol_id ? String(row.rol_id) : "");
         } catch (err) {
             handleApiError(err, navigate, setError);

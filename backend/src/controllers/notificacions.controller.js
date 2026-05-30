@@ -7,12 +7,14 @@ const getUserNotifications = async (req, res) => {
         const collaActiva = req.query.id;
 
         const result = await client.query(
-            `SELECT n.*, rn.vista
+            `SELECT n.*, rn.vist
              FROM notificacions n
              JOIN receptors_notificacions rn ON n.id = rn.id_notificacio
              JOIN membres_colla mc ON rn.id_usuari = mc.id_usuari
              WHERE mc.id_usuari = $1 
-             AND mc.id_colla = $2`,
+             AND mc.id_colla = $2
+             AND n.data_programacio < NOW()
+             ORDER BY n.data_programacio DESC`,
             [userId, collaActiva]
         );
 
@@ -35,7 +37,7 @@ const createNotification = async (req, res) => {
         await client.query("BEGIN");
 
         const userName = await client.query(
-            `SELECT u.mote
+            `SELECT mote
              FROM usuaris
              WHERE id = $1`,
             [userId]
@@ -50,16 +52,26 @@ const createNotification = async (req, res) => {
             `INSERT INTO notificacions (titol, missatge, data_programacio, nom_emisor)
              VALUES ($1, $2, $3, $4)
              RETURNING *`,
-            [titol, missatge, data_programacio, userName.rows[0].nom]
+            [titol, missatge, data_programacio, userName.rows[0].mote]
         );
 
-        if (ids_grups.length > 0) {
+        const idNotificacio = notification.rows[0].id;
+
+        if (Array.isArray(ids_grups) && ids_grups.length > 0) {
             await client.query(
                 `INSERT INTO receptors_notificacions (id_notificacio, id_usuari)
-                 SELECT DISTINCT $1, gu.id_usuari
+                 SELECT DISTINCT $1::bigint, gu.id_usuari
                  FROM grup_usuari gu
-                 WHERE gu.id_grup = ANY($2::bigint[])`,
-                [notification.rows[0].id, ids_grups]
+                 WHERE gu.id_grup = ANY($2)`,
+                [idNotificacio, ids_grups]
+            );
+        } else {
+            await client.query(
+                `INSERT INTO receptors_notificacions (id_notificacio, id_usuari)
+                 SELECT DISTINCT $1::bigint, mc.id_usuari
+                 FROM membres_colla mc
+                 WHERE mc.id_colla = $2`,
+                [idNotificacio, collaActiva]
             );
         }
 

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import './MultiSelectDropdown.css';
 
 function MultiSelectDropdown({ options, selected, setSelected, placeholder }) {
     const [open, setOpen] = useState(false);
@@ -40,7 +41,7 @@ function MultiSelectDropdown({ options, selected, setSelected, placeholder }) {
                         <label key={opt.id} className="multi-dropdown-item">
                             <input
                                 type="checkbox"
-                                checked={selected.includes(String(opt.id))}
+                                checked={selected.includes(opt.id)}
                                 onChange={() => toggleValue(String(opt.id))}
                             />
                             {opt.nom}
