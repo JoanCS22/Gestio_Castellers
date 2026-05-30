@@ -6,13 +6,13 @@ const getUserNotifications = async (req, res) => {
         const userId = req.user.id;
         const collaActiva = req.query.id;
 
-        const result = await pool.query(
-            `SELECT n.* 
+        const result = await client.query(
+            `SELECT n.*, rn.vista
              FROM notificacions n
              JOIN receptors_notificacions rn ON n.id = rn.id_notificacio
-             JOIN grup_usuari gu ON rn.id_grup = gu.id_grup
-             WHERE gu.id_usuari = $1 
-             AND gu.id_colla = $2`,
+             JOIN membres_colla mc ON rn.id_usuari = mc.id_usuari
+             WHERE mc.id_usuari = $1 
+             AND mc.id_colla = $2`,
             [userId, collaActiva]
         );
 
@@ -34,39 +34,38 @@ const createNotification = async (req, res) => {
 
         await client.query("BEGIN");
 
-        const userName = await pool.query(
+        const userName = await client.query(
             `SELECT u.mote
              FROM usuaris
              WHERE id = $1`,
             [userId]
         );
 
-        if (!userName) {
+        if (userName.rows.length === 0) {
             await client.query("ROLLBACK");
             return res.status(200).json({ message: 'Usuari no trobat' });
         }
 
-        const result = await client.query(
-            `INSERT INTO notificacions (titol, missatge, data_creacio, data_programacio, nom_emisor)
-             VALUES ($1, $2, $3, NOW(), $4)
+        const notification = await client.query(
+            `INSERT INTO notificacions (titol, missatge, data_programacio, nom_emisor)
+             VALUES ($1, $2, $3, $4)
              RETURNING *`,
-            [titol, missatge, data_programacio, userName[0].nom]
+            [titol, missatge, data_programacio, userName.rows[0].nom]
         );
 
         if (ids_grups.length > 0) {
-            for (let i = 0; i < ids_grups.length; i++) {
-                await client.query(
-                    `INSERT INTO receptors_notificacions (id_notificacio, id_grup)
-                     VALUES ($1, $2)
-                     RETURNING *`,
-                    [result[0].id, collaActiva, ids_grups[i]]
-                );
-            }
+            await client.query(
+                `INSERT INTO receptors_notificacions (id_notificacio, id_usuari)
+                 SELECT DISTINCT $1, gu.id_usuari
+                 FROM grup_usuari gu
+                 WHERE gu.id_grup = ANY($2::bigint[])`,
+                [notification.rows[0].id, ids_grups]
+            );
         }
 
         await client.query("COMMIT");
 
-        res.status(200).json(result.rows[0]);
+        res.status(200).json(notification.rows[0]);
 
     } catch (error) {
         await client.query("ROLLBACK");

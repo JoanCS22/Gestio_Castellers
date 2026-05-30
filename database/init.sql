@@ -235,19 +235,19 @@
 
   CREATE TABLE receptors_notificacions (
     id_notificacio BIGINT NOT NULL,
-    id_grup BIGINT NOT NULL,
+    id_usuari BIGINT NOT NULL,
 
     vist BOOLEAN DEFAULT FALSE,
     data_vista TIMESTAMPTZ,
 
-    PRIMARY KEY (id_notificacio, id_grup),
+    PRIMARY KEY (id_notificacio, id_usuari),
 
     FOREIGN KEY (id_notificacio)
       REFERENCES notificacions(id)
       ON DELETE CASCADE,
 
-    FOREIGN KEY (id_grup)
-      REFERENCES grups(id)
+    FOREIGN KEY (id_usuari)
+      REFERENCES usuaris(id)
       ON DELETE CASCADE
   );
 
