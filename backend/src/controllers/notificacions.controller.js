@@ -6,13 +6,14 @@ const getUserNotifications = async (req, res) => {
         const userId = req.user.id;
         const collaActiva = req.query.id;
 
+        console.log("Colla activa: ", collaActiva, "; Usuari actiu: ", userId);
+
         const result = await client.query(
             `SELECT n.*, rn.vist
              FROM notificacions n
              JOIN receptors_notificacions rn ON n.id = rn.id_notificacio
-             JOIN membres_colla mc ON rn.id_usuari = mc.id_usuari
-             WHERE mc.id_usuari = $1 
-             AND mc.id_colla = $2
+             WHERE rn.id_usuari = $1
+             AND rn.id_colla = $2
              AND n.data_programacio < NOW()
              ORDER BY n.data_programacio DESC`,
             [userId, collaActiva]
@@ -59,16 +60,17 @@ const createNotification = async (req, res) => {
 
         if (Array.isArray(ids_grups) && ids_grups.length > 0) {
             await client.query(
-                `INSERT INTO receptors_notificacions (id_notificacio, id_usuari)
-                 SELECT DISTINCT $1::bigint, gu.id_usuari
+                `INSERT INTO receptors_notificacions (id_notificacio, id_usuari, id_colla)
+                 SELECT DISTINCT $1::bigint, gu.id_usuari, g.id_colla
                  FROM grup_usuari gu
+                 JOIN grups g ON g.id = gu.id_grup
                  WHERE gu.id_grup = ANY($2)`,
                 [idNotificacio, ids_grups]
             );
         } else {
             await client.query(
-                `INSERT INTO receptors_notificacions (id_notificacio, id_usuari)
-                 SELECT DISTINCT $1::bigint, mc.id_usuari
+                `INSERT INTO receptors_notificacions (id_notificacio, id_usuari, id_colla)
+                 SELECT DISTINCT $1::bigint, mc.id_usuari, mc.id_colla
                  FROM membres_colla mc
                  WHERE mc.id_colla = $2`,
                 [idNotificacio, collaActiva]

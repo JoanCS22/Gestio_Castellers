@@ -1,6 +1,7 @@
 import { getCollesFutureEsdeveniments } from "../services/esdevenimentsService.js";
 import { getAssistenciaByEsdeveniment } from "../services/assistenciaService.js";
 import { getProvesByEsdeveniment } from "../services/provesService.js";
+import { getNotifications } from "../services/notificacionsService.js";
 import { handleApiError } from "../utils/handleApiError.js";
 
 import { useState, useEffect } from "react";
@@ -9,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { getPermissions } from "../utils/utils.jsx"
 
 import {
-    FaPencilAlt, FaUsers, FaRegEye, FaCalendarAlt, FaCheck, FaTimes,
+    FaPencilAlt, FaUsers, FaRegEye, FaCalendarAlt, FaCheck, FaTimes, FaCommentDots,
     FaQuestion, FaBandAid, FaClipboardList, FaHashtag, FaCheckCircle, FaTimesCircle
 } from "react-icons/fa";
 
@@ -41,6 +42,8 @@ function Dashboard() {
     const currentEsdevenimentId = futurs.length > 0 ? futurs[0].id : null;
 
     const [assistenciaByEvent, setAssistenciaByEvent] = useState({});
+
+    const [notificacions, setNotificacions] = useState([]);
 
     const getStats = (id) => {
         const assistencia = assistenciaByEvent[id] || [];
@@ -96,9 +99,23 @@ function Dashboard() {
         }
     }
 
+    const loadNotifications = async () => {
+        try {
+            const data = await getNotifications();
+
+            let result = data;
+            result = data.slice(0, 2);
+
+            setNotificacions(result);
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    }
+
     useEffect(() => {
         if (!refreshKey) return;
         loadFutureEsdeveniments();
+        loadNotifications();
     }, [refreshKey]);
 
     useEffect(() => {
@@ -243,6 +260,41 @@ function Dashboard() {
 
                 <div className="right-column-dashboard">
                     <div className="dashboard-grid-notificacions">
+                        <div className="dashboard-grid-propers-esdeveniments-title" onClick={() => {
+                            navigate("/notificacions_board");
+                        }}>
+                            <span>Darreres notificacions</span>
+                            <FaCommentDots />
+                        </div>
+                        <hr />
+                        {notificacions.length > 0 ? (
+                            <>
+                                {notificacions.map((notificacio) => {
+                                    return (
+                                        <div key={notificacio.id}>
+                                            <div
+                                                className="dashboard-grid-propers-esdeveniments-element"
+                                                onClick={() => {
+
+                                                }}
+                                            >
+                                                <div className="dashboard-grid-propers-esdeveniments-element-left">
+                                                    <div className="dashboard-grid-propers-esdeveniments-element-left-title">
+                                                        {notificacio.nom_emisor} - {new Date(notificacio.data_programacio).toLocaleDateString("es-ES")}
+                                                    </div>
+                                                    <div className="dashboard-grid-propers-esdeveniments-element-left-datetime">
+                                                        {notificacio.titol}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr />
+                                        </div>
+                                    );
+                                })}
+                            </>
+                        ) : (
+                            <span>No tens notificacions</span>
+                        )}
                     </div>
                     <div className="dashboard-grid-propers-esdeveniments">
                         <div className="dashboard-grid-propers-esdeveniments-title" onClick={() => {

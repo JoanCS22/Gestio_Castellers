@@ -240,6 +240,8 @@
     vist BOOLEAN DEFAULT FALSE,
     data_vista TIMESTAMPTZ,
 
+    id_colla BIGINT REFERENCES colles(id);
+
     PRIMARY KEY (id_notificacio, id_usuari),
 
     FOREIGN KEY (id_notificacio)
