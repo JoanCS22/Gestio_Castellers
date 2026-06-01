@@ -47,20 +47,36 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
   const getCollesUserCall = async () => {
     try {
       const data = await getCollesUser();
+
+      if (!Array.isArray(data) || data.length === 0) {
+        setColles([]);
+        setTitle("Crear nova colla");
+        return;
+      }
+
       setColles(data);
 
-      if (data.length > 0) {
-        const storedId = localStorage.getItem("id_colla");
-        let selectedColla;
-        if (storedId) {
-          selectedColla = data.find(c => c.id == storedId);
-        }
-        if (!selectedColla) {
-          selectedColla = data[0];
-          localStorage.setItem("id_colla", selectedColla.id);
-        }
-        setTitle(selectedColla.nom);
+      const storedId = localStorage.getItem("id_colla");
+
+      let selectedColla = null;
+
+      if (storedId) {
+        selectedColla = data.find(c => String(c.id) === String(storedId));
       }
+
+      if (!selectedColla) {
+        selectedColla = data[0] || null;
+      }
+
+      if (!selectedColla) {
+        setTitle("Crear nova colla");
+        setColles([]);
+        return;
+      }
+
+      localStorage.setItem("id_colla", selectedColla.id);
+      setTitle(selectedColla.nom);
+
     } catch (err) {
       handleApiError(err, navigate, setError);
     }
@@ -81,11 +97,13 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
 
       const idColla = localStorage.getItem("id_colla");
 
-      if (idColla) {
+      if (idColla && colles.some(c => String(c.id) === String(idColla))) {
         await getMemberPermissionsCall();
       }
 
-      if (onReady) onReady();
+      if (colles.length > 0 && onReady) {
+        onReady();
+      }
     };
 
     init();

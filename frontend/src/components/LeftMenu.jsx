@@ -127,11 +127,11 @@ const LeftMenu = () => {
                 </div>
               )}
 
-              {hasAccess("llistats") && (
+              {/* {hasAccess("llistats") && (
                 <div className='menu-item' onClick={() => {
 
                 }}>Llistats</div>
-              )}
+              )} */}
             </>
           ) : (
             <>
