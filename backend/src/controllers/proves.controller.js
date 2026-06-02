@@ -630,6 +630,7 @@ const eliminarAbsentsProva = async (req, res) => {
 
     try {
         const id_esdeveniment = req.query.id;
+        const id_prova = req.query.id_prova;
 
         await client.query("BEGIN");
 
@@ -639,6 +640,7 @@ const eliminarAbsentsProva = async (req, res) => {
                 SELECT id
                 FROM proves p
                 WHERE p.id_esdeveniment = $1
+                AND p.id = $2
              )
              AND ap.id_usuari IN (
                 SELECT a.id_usuari
@@ -647,7 +649,7 @@ const eliminarAbsentsProva = async (req, res) => {
                 AND ((a.confirmacio_previa = 'no' AND a.confirmacio_arribada = 'pendent') OR a.confirmacio_arribada = 'no' )
              )
              RETURNING *`,
-            [id_esdeveniment]
+            [id_esdeveniment, id_prova]
         );
 
         await client.query("COMMIT");

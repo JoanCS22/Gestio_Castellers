@@ -13,7 +13,6 @@ export const CollaProvider = ({ children }) => {
 
   const loadColles = async () => {
     try {
-      console.log("loading colles")
       setLoadingColles(true);
 
       const data = await getCollesUser();

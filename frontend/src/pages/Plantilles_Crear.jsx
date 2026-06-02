@@ -127,6 +127,7 @@ function PlantillesCrear() {
 
         try {
             const data = await addPositionToPlantilla(idPlantilla, selectedPositionData, currentAddedPosition, selectedTag);
+            setSelectedPositionId(data.id);
             await loadPlantillesPositions();
             setError("");
         } catch (err) {

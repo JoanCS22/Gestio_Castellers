@@ -199,9 +199,9 @@ export const buidarPlantilla = async (idProva) => {
     );
 };
 
-export const treureAbsents = async (id_esdeveniment) => {
+export const treureAbsents = async (id_esdeveniment, id_prova) => {
     return await apiRequest(
-        `/proves/eliminarAbsentsProva?id=${id_esdeveniment}`,
+        `/proves/eliminarAbsentsProva?id=${id_esdeveniment}&id_prova=${id_prova}`,
         {
             method: "DELETE",
         }

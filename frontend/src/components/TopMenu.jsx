@@ -54,6 +54,7 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
       }
       
       const data = await getMemberPermissions(currentColla.id);
+      console.log(data);
       localStorage.setItem("permissions", JSON.stringify(data.permisos));
     } catch (err) {
       handleApiError(err, navigate, setError);
@@ -65,8 +66,7 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
 
     const loadPermissions = async () => {
       try {
-        const data = await getMemberPermissionsCall();
-        localStorage.setItem("permissions", JSON.stringify(data.permisos));
+        await getMemberPermissionsCall();
       } catch (err) {
         console.error(err);
       }

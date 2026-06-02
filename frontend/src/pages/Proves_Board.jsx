@@ -524,7 +524,8 @@ function ProvesBoard() {
         }
     }
 
-    const deleteProvaCall = async (id_prova) => {
+    const deleteProvaCall = async (id_prova, nom_prova) => {
+        if (!window.confirm(`Vols eliminar la prova ${nom_prova.toUpperCase()}?`)) return;
         try {
             const data = await deleteProva(id_prova);
             setError("");
@@ -636,7 +637,7 @@ function ProvesBoard() {
                 return;
             }
 
-            const data = await treureAbsents(id_esdeveniment);
+            const data = await treureAbsents(id_esdeveniment, provaInfo.id);
             await loadAssignacions();
             await obtenirNumProvesMembre(id_esdeveniment);
 
@@ -1090,7 +1091,7 @@ function ProvesBoard() {
                                                 className="delete-prova-icon"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    deleteProvaCall(prova.id);
+                                                    deleteProvaCall(prova.id, prova.nom);
                                                 }}
                                             />
                                         </div>
