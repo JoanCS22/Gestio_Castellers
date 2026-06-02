@@ -8,6 +8,8 @@ import { FaSave, FaTimesCircle, FaPencilAlt, FaPlusSquare, FaSearch, FaRegEye, F
 
 import { getPermissions } from "../utils/utils.jsx"
 
+import { useColla } from "../context/CollaContext.jsx";
+
 import Input from "../components/Input";
 import TopMenu from "../components/TopMenu";
 import Button from "../components/Button";
@@ -19,6 +21,8 @@ function EsdevenimentsInfo() {
     const navigate = useNavigate();
 
     const location = useLocation();
+
+    const { currentColla, loadingColles } = useColla();
 
     const params = new URLSearchParams(location.search);
     const idEsdeveniment = params.get("idEsdeveniment");
@@ -109,7 +113,7 @@ function EsdevenimentsInfo() {
         console.log(code);
 
         try {
-            const data = await createEsdeveniment(form, tipus, visible, acompanyat, bus, code);
+            const data = await createEsdeveniment(currentColla.id, form, tipus, visible, acompanyat, bus, code);
             setError("");
             showTempMessage("Esdeveniment creat correctament.");
             navigate(`/consult_esdeveniment?idEsdeveniment=${data.id}`);

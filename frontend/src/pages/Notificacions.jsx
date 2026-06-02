@@ -13,6 +13,8 @@ import { FaSearch, FaRegEye, FaTimesCircle, FaPaperPlane } from "react-icons/fa"
 
 import { getPermissions } from "../utils/utils.jsx"
 
+import { useColla } from "../context/CollaContext.jsx";
+
 import './Notificacions.css';
 
 import TopMenu from "../components/TopMenu.jsx";
@@ -23,6 +25,8 @@ function Notificacions() {
 
     const location = useLocation();
     const navigate = useNavigate();
+
+    const { currentColla, loadingColles } = useColla();
 
     //notificacions
     const permissions = getPermissions();
@@ -61,7 +65,7 @@ function Notificacions() {
 
     const loadNotifications = async () => {
         try {
-            const data = await getNotifications();
+            const data = await getNotifications(currentColla.id);
             setNotificacions(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -88,7 +92,7 @@ function Notificacions() {
         }
 
         try {
-            const data = await sendNotification(modalTags, selectedGroups);
+            const data = await sendNotification(currentColla.id, modalTags, selectedGroups);
             setError("");
             setShowModal(false);
             setModalTags({ titol: "", missatge: "", data_programacio: getToday() });

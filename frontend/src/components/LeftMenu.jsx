@@ -5,9 +5,13 @@ import { FaBars, FaOutdent, FaCaretDown, FaCaretUp } from "react-icons/fa";
 import { getPermissions } from "../utils/utils.jsx"
 import './LeftMenu.css';
 
-import { useEvent } from "../utils/EventContext.jsx"
+import { useEvent } from "../context/EventContext.jsx"
+
+import { useColla } from "../context/CollaContext.jsx";
 
 const LeftMenu = () => {
+
+  const { currentColla, loadingColles } = useColla();
 
   const navigate = useNavigate();
 

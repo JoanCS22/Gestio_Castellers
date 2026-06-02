@@ -68,7 +68,6 @@ function LoginRegistre() {
                 showTempMessage("Usuari creat correctament.");
                 setEmail("");
                 setPassword("");
-                console.log("{DEBUG} Register OK")
                 navigate("/login");
             }
         } catch (err) {

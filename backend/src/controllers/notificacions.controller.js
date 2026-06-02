@@ -6,8 +6,6 @@ const getUserNotifications = async (req, res) => {
         const userId = req.user.id;
         const collaActiva = req.query.id;
 
-        console.log("Colla activa: ", collaActiva, "; Usuari actiu: ", userId);
-
         const result = await client.query(
             `SELECT n.*, rn.vist
              FROM notificacions n

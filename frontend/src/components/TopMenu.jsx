@@ -11,20 +11,23 @@ import { FaBars, FaUserCircle, FaArrowLeft, FaPlusSquare, FaChevronDown, FaChevr
 
 import { getPermissions } from "../utils/utils.jsx"
 
+import { useColla } from "../context/CollaContext.jsx";
+
 import LeftMenu from "./LeftMenu";
 
 import "./TopMenu.css";
 
 function TopMenu({ title = "text", tornar = false, tornar_action,
-  canvi_colla = false, onReady, leftIcons, rightIcons }) {
+  canvi_colla = false, leftIcons, rightIcons }) {
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false)
   const [open_colla, setOpenColla] = useState(false);
   const [message, setTempMessage] = useState(null);
 
-  const [colles, setColles] = useState([]);
   const [title_colla, setTitle] = useState('Crear nova colla');
+
+  const { colles, currentColla, changeColla } = useColla();
 
   const logoutApp = () => {
     localStorage.clear();
@@ -44,47 +47,13 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
     }, 2000);
   };
 
-  const getCollesUserCall = async () => {
-    try {
-      const data = await getCollesUser();
-
-      if (!Array.isArray(data) || data.length === 0) {
-        setColles([]);
-        setTitle("Crear nova colla");
-        return;
-      }
-
-      setColles(data);
-
-      const storedId = localStorage.getItem("id_colla");
-
-      let selectedColla = null;
-
-      if (storedId) {
-        selectedColla = data.find(c => String(c.id) === String(storedId));
-      }
-
-      if (!selectedColla) {
-        selectedColla = data[0] || null;
-      }
-
-      if (!selectedColla) {
-        setTitle("Crear nova colla");
-        setColles([]);
-        return;
-      }
-
-      localStorage.setItem("id_colla", selectedColla.id);
-      setTitle(selectedColla.nom);
-
-    } catch (err) {
-      handleApiError(err, navigate, setError);
-    }
-  }
-
   const getMemberPermissionsCall = async () => {
     try {
-      const data = await getMemberPermissions();
+      if(!currentColla.id) {
+        return;
+      }
+      
+      const data = await getMemberPermissions(currentColla.id);
       localStorage.setItem("permissions", JSON.stringify(data.permisos));
     } catch (err) {
       handleApiError(err, navigate, setError);
@@ -92,22 +61,19 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
   }
 
   useEffect(() => {
-    const init = async () => {
-      await getCollesUserCall();
+    if (!currentColla) return;
 
-      const idColla = localStorage.getItem("id_colla");
-
-      if (idColla && colles.some(c => String(c.id) === String(idColla))) {
-        await getMemberPermissionsCall();
-      }
-
-      if (colles.length > 0 && onReady) {
-        onReady();
+    const loadPermissions = async () => {
+      try {
+        const data = await getMemberPermissionsCall();
+        localStorage.setItem("permissions", JSON.stringify(data.permisos));
+      } catch (err) {
+        console.error(err);
       }
     };
 
-    init();
-  }, []);
+    loadPermissions();
+  }, [currentColla]);
 
   return (
     <div className='topmenu-container'>
@@ -128,7 +94,7 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
         {canvi_colla ? (
           <div className='colla-selector' onClick={() => setOpenColla(!open_colla)}>
             <div className='selector-title'>
-              <span>{title_colla}</span>
+              <span>{currentColla?.nom || "Sense colla"}</span>
               {open_colla ? (<FaChevronUp />) : (<FaChevronDown />)}
             </div>
             {open_colla && (
@@ -136,11 +102,8 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
                 {colles.map((colla) => (
                   <React.Fragment key={colla.id}>
                     <div className="dropdown-item-colla" onClick={async () => {
-                      localStorage.setItem("id_colla", colla.id);
-                      setTitle(colla.nom)
+                      changeColla(colla);
                       setOpenColla(false);
-                      await getMemberPermissionsCall();
-                      if (onReady) onReady();
                     }}>
                       {colla.nom}
                     </div>

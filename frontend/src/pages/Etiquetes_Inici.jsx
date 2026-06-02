@@ -12,6 +12,8 @@ import { FaPlusSquare, FaSearch, FaSave, FaTimesCircle, FaTrashAlt, FaPencilAlt,
 
 import { getPermissions } from "../utils/utils.jsx"
 
+import { useColla } from "../context/CollaContext.jsx";
+
 import './Etiquetes_Inici.css';
 
 import TopMenu from "../components/TopMenu";
@@ -23,6 +25,8 @@ function Etiquetes() {
 
     const location = useLocation();
     const navigate = useNavigate();
+
+    const { currentColla, loadingColles } = useColla();
 
     //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
     const permissions = getPermissions();
@@ -99,7 +103,7 @@ function Etiquetes() {
 
     const loadCollesPositions = async () => {
         try {
-            const data = await getCollesPositions();
+            const data = await getCollesPositions(currentColla.id);
             setPositions(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -112,7 +116,7 @@ function Etiquetes() {
             return;
         }
         try {
-            const data = await createPosicio(newPositionTag);
+            const data = await createPosicio(currentColla.id, newPositionTag);
             setError("");
             setShowModalPosicions(false);
             setNewPositionTag({ nom: "", descripcio: "" });
@@ -151,7 +155,7 @@ function Etiquetes() {
 
     const loadCollesRoles = async () => {
         try {
-            const data = await getCollesRoles();
+            const data = await getCollesRoles(currentColla.id);
             setRols(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -164,7 +168,7 @@ function Etiquetes() {
             return;
         }
         try {
-            const data = await createRoles(newRoleTag, permisos);
+            const data = await createRoles(currentColla.id, newRoleTag, permisos);
             setError("");
             setShowModalRols(false);
             setNewRoleTag({ nom: "", descripcio: "" });
@@ -205,7 +209,7 @@ function Etiquetes() {
 
     const loadCollesGrups = async () => {
         try {
-            const data = await getCollesGroups();
+            const data = await getCollesGroups(currentColla.id);
             setGrups(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -219,7 +223,7 @@ function Etiquetes() {
         }
         console.log(newGroupTag)
         try {
-            const data = await createGroup(newGroupTag);
+            const data = await createGroup(currentColla.id, newGroupTag);
             setError("");
             setShowModalGroups(false);
             setNewGroupTag({ nom: "", descripcio: "" });

@@ -12,10 +12,12 @@ import Draggable from "react-draggable";
 
 import {
     FaPlusSquare, FaClipboardList, FaSearch, FaTimesCircle, FaCheckCircle, FaHashtag,
-    FaRegStar
+    FaStar
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
+
+import { useColla } from "../context/CollaContext.jsx";
 
 import "./Proves_Inici.css"
 
@@ -30,6 +32,8 @@ function ProvesInici() {
     const navigate = useNavigate();
 
     const location = useLocation();
+
+    const { currentColla, loadingColles } = useColla();
 
     const params = new URLSearchParams(location.search);
     const idEsdeveniment = params.get("idEsdeveniment");
@@ -95,7 +99,7 @@ function ProvesInici() {
 
     const loadPlantilles = async () => {
         try {
-            const data = await getCollesPlantilles();
+            const data = await getCollesPlantilles(currentColla.id);
             setPlantilles(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -104,7 +108,7 @@ function ProvesInici() {
 
     const loadStructures = async () => {
         try {
-            const data = await getCollesStructures();
+            const data = await getCollesStructures(currentColla.id);
             setEstructures(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -267,7 +271,7 @@ function ProvesInici() {
                                                 }} />
                                         </>
                                     )}
-                                    <FaRegStar title={prova.favorita ? "Treure de favorits" : "Afegir a favorits"} className={`icon-favorit ${prova.favorita ? "favorit-actiu" : ""}`}
+                                    <FaStar title={prova.favorita ? "Treure de favorits" : "Afegir a favorits"} className={`icon-favorit ${prova.favorita ? "favorit-actiu" : ""}`}
                                         onClick={() => {
                                             changeFavorite(prova.id, !prova.favorita);
                                         }} />

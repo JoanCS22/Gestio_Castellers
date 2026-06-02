@@ -19,10 +19,13 @@ import Button from "../components/Button";
 
 import "./Dashboard.css";
 
-import { useEvent } from "../utils/EventContext.jsx"
+import { useEvent } from "../context/EventContext.jsx"
+import { useColla } from "../context/CollaContext.jsx";
 
 function Dashboard() {
     const navigate = useNavigate();
+
+    const { currentColla, loadingColles } = useColla();
 
     //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
     const permissions = getPermissions();
@@ -37,7 +40,6 @@ function Dashboard() {
     const [futurProves, setFuturProves] = useState([]);
 
     const [topMenuReady, setTopMenuReady] = useState(false);
-    const [refreshKey, setRefreshKey] = useState(0);
 
     const currentEsdevenimentId = futurs.length > 0 ? futurs[0].id : null;
 
@@ -59,7 +61,7 @@ function Dashboard() {
 
     const loadFutureEsdeveniments = async () => {
         try {
-            const data = await getCollesFutureEsdeveniments();
+            const data = await getCollesFutureEsdeveniments(currentColla.id);
             let result = data;
 
             if (hasWritePermission("esdeveniments")) {
@@ -72,7 +74,7 @@ function Dashboard() {
             }
 
             setFuturs(result);
-            setCurrentEvent(result[0]);
+            setCurrentEvent(result.length > 0 ? result[0] : null);
         } catch (err) {
             handleApiError(err, navigate, setError);
         }
@@ -101,7 +103,7 @@ function Dashboard() {
 
     const loadNotifications = async () => {
         try {
-            const data = await getNotifications();
+            const data = await getNotifications(currentColla.id);
 
             let result = data;
             result = data.slice(0, 2);
@@ -113,10 +115,16 @@ function Dashboard() {
     }
 
     useEffect(() => {
-        if (!refreshKey) return;
+        if (loadingColles || !currentColla) return;
+
+        setFuturs([]);
+        setFuturProves([]);
+        setAssistenciaByEvent({});
+        setNotificacions([]);
+
         loadFutureEsdeveniments();
         loadNotifications();
-    }, [refreshKey]);
+    }, [currentColla]);
 
     useEffect(() => {
         if (futurs.length > 0) {
@@ -132,7 +140,6 @@ function Dashboard() {
             <TopMenu
                 title="Dashboard"
                 canvi_colla
-                onReady={() => setRefreshKey(prev => prev + 1)}
             />
             <div className="dashboard-grid">
                 <div className="left-column-dashboard">

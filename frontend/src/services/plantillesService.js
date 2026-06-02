@@ -9,8 +9,7 @@ export const getPlantillaById = async (idPlantilla) => {
     );
 };
 
-export const getCollesPlantilles = async () => {
-    const idColla = localStorage.getItem("id_colla");
+export const getCollesPlantilles = async (idColla) => {
     return await apiRequest(
         `/plantilles/getPlantillesByColla?id=${idColla}`,
         {
@@ -19,8 +18,7 @@ export const getCollesPlantilles = async () => {
     );
 };
 
-export const getCollesStructures = async () => {
-    const idColla = localStorage.getItem("id_colla");
+export const getCollesStructures = async (idColla) => {
     return await apiRequest(
         `/plantilles/getEstructuresByColla?id=${idColla}`,
         {
@@ -29,8 +27,7 @@ export const getCollesStructures = async () => {
     );
 };
 
-export const createPlantilla = async (modalTags, tronc, pinya, folre, manilles, puntals) => {
-    const idColla = localStorage.getItem("id_colla");
+export const createPlantilla = async (idColla, modalTags, tronc, pinya, folre, manilles, puntals) => {
     return await apiRequest(
         `/plantilles/createPlantilla?id=${idColla}`,
         {
@@ -50,7 +47,6 @@ export const createPlantilla = async (modalTags, tronc, pinya, folre, manilles, 
 };
 
 export const modifyPlantilla = async (idPlantilla, action, favoriteValue, modalTags) => {
-    const idColla = localStorage.getItem("id_colla");
     return await apiRequest(
         `/plantilles/modifyInfoPlantilla?id=${idPlantilla}&action=${action}`,
         {

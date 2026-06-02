@@ -11,6 +11,8 @@ import { FaCheckDouble, FaSave, FaCheck, FaTimes, FaQuestion, FaPaperPlane, FaTi
 
 import { getPermissions } from "../utils/utils.jsx"
 
+import { useColla } from "../context/CollaContext.jsx";
+
 import './Assistencia_Usuari.css';
 
 import TopMenu from "../components/TopMenu";
@@ -21,6 +23,8 @@ const AssistenciaUsuari = () => {
     const navigate = useNavigate();
 
     const location = useLocation();
+
+    const { currentColla, loadingColles } = useColla();
 
     const id_usuari = localStorage.getItem("user").id;
 

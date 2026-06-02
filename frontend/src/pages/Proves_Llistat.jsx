@@ -9,10 +9,12 @@ import Draggable from "react-draggable";
 
 import {
     FaPlusSquare, FaClipboardList, FaSearch, FaTimesCircle, FaCheckCircle, FaHashtag,
-    FaRegStar, FaPencilAlt, FaTimes, FaChevronUp, FaChevronDown
+    FaStar, FaPencilAlt, FaTimes, FaChevronUp, FaChevronDown
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
+
+import { useColla } from "../context/CollaContext.jsx";
 
 import "./Proves_Llistat.css"
 
@@ -25,6 +27,8 @@ function ProvesLlistat() {
     const navigate = useNavigate();
 
     const location = useLocation();
+
+    const { currentColla, loadingColles } = useColla();
 
     const params = new URLSearchParams(location.search);
     const idEsdeveniment = params.get("idEsdeveniment");

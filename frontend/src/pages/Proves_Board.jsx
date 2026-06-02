@@ -17,7 +17,7 @@ import Draggable from "react-draggable";
 
 import {
     FaCheck, FaCheckDouble, FaVideoSlash, FaVideo, FaTrashAlt, FaTimesCircle, FaCheckCircle,
-    FaRegStar, FaHashtag, FaEye, FaEyeSlash, FaPencilAlt, FaPlusSquare, FaSearch,
+    FaStar, FaHashtag, FaEye, FaEyeSlash, FaPencilAlt, FaPlusSquare, FaSearch,
     FaTimes, FaQuestionCircle, FaUserTimes, FaUserAltSlash, FaUsersSlash,
     FaAngleRight, FaAngleLeft, FaAmbulance, FaGithubAlt, FaArrowLeft
 } from "react-icons/fa";
@@ -33,12 +33,16 @@ import Button from "../components/Button.jsx";
 import ShowBoard from "../components/showBoard.jsx";
 
 import { useSyncExternalStore } from "react";
-import { useEvent } from "../utils/EventContext.jsx"
+import { useEvent } from "../context/EventContext.jsx"
+
+import { useColla } from "../context/CollaContext.jsx";
 
 function ProvesBoard() {
     const navigate = useNavigate();
 
     const location = useLocation();
+
+    const { currentColla, loadingColles } = useColla();
 
     const { currentEvent } = useEvent();
 
@@ -376,7 +380,7 @@ function ProvesBoard() {
 
     const loadCollaMembers = async () => {
         try {
-            const data = await getCollaMembers();
+            const data = await getCollaMembers(currentColla.id);
             setMembers(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -407,7 +411,7 @@ function ProvesBoard() {
 
     const loadCollesPlantilles = async () => {
         try {
-            const data = await getCollesPlantilles();
+            const data = await getCollesPlantilles(currentColla.id);
             setPlantilles(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -434,7 +438,7 @@ function ProvesBoard() {
 
     const loadCollesPositions = async () => {
         try {
-            const data = await getCollesPositions();
+            const data = await getCollesPositions(currentColla.id);
             setPositions(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -784,7 +788,7 @@ function ProvesBoard() {
                                 <div className="icon-btn" title={provaInfo?.favorita ? "Treure de favorits" : "Afegir a favorits"} onClick={() => {
                                     changeFavorite(provaInfo.id, !provaInfo.favorita);
                                 }}>
-                                    <FaRegStar className={`icon-favorit ${provaInfo?.favorita ? "favorit-actiu" : ""} `} />
+                                    <FaStar className={`icon-favorit ${provaInfo?.favorita ? "favorit-actiu" : ""} `} />
                                 </div>
                             </>
                         }

@@ -8,6 +8,8 @@ import { FaSave, FaTimesCircle, FaPencilAlt, FaPlusSquare } from "react-icons/fa
 
 import { getPermissions } from "../utils/utils.jsx"
 
+import { useColla } from "../context/CollaContext.jsx";
+
 import Input from "../components/Input";
 import TopMenu from "../components/TopMenu";
 import Button from "../components/Button";
@@ -18,6 +20,8 @@ function CollaInfo() {
     const navigate = useNavigate();
 
     const location = useLocation();
+
+    const { currentColla, loadingColles } = useColla();
 
     //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
     const permissions = getPermissions();
@@ -78,7 +82,7 @@ function CollaInfo() {
 
     const loadDataColla = async () => {
         try {
-            const data = await getDataColla();
+            const data = await getDataColla(currentColla.id);
             setForm({
                 nom: data.nom,
                 nom_curt: data.abreviacio || "",
@@ -102,7 +106,7 @@ function CollaInfo() {
             return;
         }
         try {
-            const data = await updateDataColla(form);
+            const data = await updateDataColla(currentColla.id, form);
             setError("");
             showTempMessage("Colla modificada correctament.");
             navigate("/get_data_colla")

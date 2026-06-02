@@ -18,9 +18,7 @@ export const createColla = async (form) => {
     );
 };
 
-export const getDataColla = async () => {
-    const idColla = localStorage.getItem("id_colla");
-
+export const getDataColla = async (idColla) => {
     return await apiRequest(
         `/colla/getDataColla?id=${idColla}`,
         {
@@ -29,9 +27,7 @@ export const getDataColla = async () => {
     );
 };
 
-export const updateDataColla = async (form) => {
-    const idColla = localStorage.getItem("id_colla");
-
+export const updateDataColla = async (idColla, form) => {
     return await apiRequest(
         `/colla/modifyColla?id=${idColla}`,
         {
@@ -49,10 +45,7 @@ export const updateDataColla = async (form) => {
     );
 };
 
-export const getCollesPositions = async () => {
-
-    const idColla = localStorage.getItem("id_colla");
-
+export const getCollesPositions = async (idColla) => {
     return await apiRequest(
         `/colla/getCollaPositions?id=${idColla}`,
         {
@@ -61,10 +54,7 @@ export const getCollesPositions = async () => {
     );
 };
 
-export const createPosicio = async (newPositionTag) => {
-
-    const idColla = localStorage.getItem("id_colla");
-
+export const createPosicio = async (idColla, newPositionTag) => {
     return await apiRequest(
         `/colla/createCollaPosition?id=${idColla}`,
         {
@@ -100,10 +90,7 @@ export const deletePosicio = async (idPosicio) => {
     );
 };
 
-export const getCollesRoles = async () => {
-
-    const idColla = localStorage.getItem("id_colla");
-
+export const getCollesRoles = async (idColla) => {
     return await apiRequest(
         `/colla/getCollaRoles?id=${idColla}`,
         {
@@ -112,10 +99,7 @@ export const getCollesRoles = async () => {
     );
 };
 
-export const createRoles = async (newRoleTag, permisos) => {
-
-    const idColla = localStorage.getItem("id_colla");
-
+export const createRoles = async (idColla, newRoleTag, permisos) => {
     return await apiRequest(
         `/colla/createCollaRoles?id=${idColla}`,
         {
@@ -160,10 +144,7 @@ export const getCollesUser = async () => {
     );
 };
 
-export const getCollesGroups = async () => {
-
-    const idColla = localStorage.getItem("id_colla");
-
+export const getCollesGroups = async (idColla) => {
     return await apiRequest(
         `/colla/getCollaGroups?id=${idColla}`,
         {
@@ -172,10 +153,7 @@ export const getCollesGroups = async () => {
     );
 };
 
-export const createGroup = async (newGroupTag) => {
-
-    const idColla = localStorage.getItem("id_colla");
-
+export const createGroup = async (idColla, newGroupTag) => {
     return await apiRequest(
         `/colla/createCollaGroup?id=${idColla}`,
         {

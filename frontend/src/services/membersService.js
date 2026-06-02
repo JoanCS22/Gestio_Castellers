@@ -1,9 +1,6 @@
 import { apiRequest } from "./api";
 
-export const getCollaMembers = async () => {
-
-    const idColla = localStorage.getItem("id_colla");
-
+export const getCollaMembers = async (idColla) => {
     return await apiRequest(
         `/members/getMembers?id=${idColla}`,
         {
@@ -27,10 +24,7 @@ export const searchUsers = async (modalTags) => {
     );
 };
 
-export const addUserToColla = async (idUser) => {
-
-    const idColla = localStorage.getItem("id_colla");
-
+export const addUserToColla = async (idColla, idUser) => {
     return await apiRequest(
         `/members/addMember?id=${idColla}&userid=${idUser}`,
         {
@@ -39,8 +33,7 @@ export const addUserToColla = async (idUser) => {
     );
 };
 
-export const getDataMember = async (userId) => {
-    const idColla = localStorage.getItem("id_colla");
+export const getDataMember = async (idColla, userId) => {
     return await apiRequest(
         `/members/getDataMember?userid=${userId}&collaid=${idColla}`,
         {
@@ -49,8 +42,7 @@ export const getDataMember = async (userId) => {
     );
 };
 
-export const modifyMember = async (userId, selectedRole, selectedPositions, selectedGroups) => {
-    const idColla = localStorage.getItem("id_colla");
+export const modifyMember = async (idColla, userId, selectedRole, selectedPositions, selectedGroups) => {
     return await apiRequest(
         `/members/modifyMember?collaid=${idColla}&userid=${userId}`,
         {
@@ -64,8 +56,7 @@ export const modifyMember = async (userId, selectedRole, selectedPositions, sele
     );
 };
 
-export const deleteMember = async (userId) => {
-    const idColla = localStorage.getItem("id_colla");
+export const deleteMember = async (idColla, userId) => {
     return await apiRequest(
         `/members/deleteMember?id=${idColla}&userid=${userId}`,
         {
@@ -74,8 +65,7 @@ export const deleteMember = async (userId) => {
     );
 };
 
-export const getMemberPermissions = async () => {
-    const idColla = localStorage.getItem("id_colla");
+export const getMemberPermissions = async (idColla) => {
     return await apiRequest(
         `/members/getMemberPermissions?id=${idColla}`,
         {

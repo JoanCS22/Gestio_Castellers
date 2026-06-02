@@ -8,6 +8,8 @@ import { FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare } fro
 
 import { getPermissions } from "../utils/utils.jsx"
 
+import { useColla } from "../context/CollaContext.jsx";
+
 import './Colla_Membres.css';
 
 import TopMenu from "../components/TopMenu";
@@ -17,6 +19,8 @@ import Input from "../components/Input";
 function MembresColla() {
 
     const navigate = useNavigate();
+
+    const { currentColla, loadingColles } = useColla();
 
     //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
     const permissions = getPermissions();
@@ -75,7 +79,7 @@ function MembresColla() {
 
     const loadCollaMembers = async () => {
         try {
-            const data = await getCollaMembers();
+            const data = await getCollaMembers(currentColla?.id);
             setMembers(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -94,7 +98,7 @@ function MembresColla() {
     const addUserToCollaCall = async (idUser) => {
         const idColla = localStorage.getItem("id_colla");
         try {
-            const data = await addUserToColla(idUser);
+            const data = await addUserToColla(currentColla.id, idUser);
             setError("");
             showTempMessage("Usuari afegit correctament a la colla.");
             setTimeout(() => {

@@ -12,6 +12,8 @@ import { handleApiError } from "../utils/handleApiError.js";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
+import { useColla } from "../context/CollaContext.jsx";
+
 import { FaSave, FaTimesCircle, FaPencilAlt, FaUserAltSlash } from "react-icons/fa";
 
 import Input from "../components/Input";
@@ -25,6 +27,8 @@ function UserProfile() {
     const navigate = useNavigate();
 
     const location = useLocation();
+
+    const { currentColla, loadingColles } = useColla();
 
     const params = new URLSearchParams(location.search);
 
@@ -132,7 +136,7 @@ function UserProfile() {
 
     const getDataMemberCall = async () => {
         try {
-            const data = await getDataMember(userId);
+            const data = await getDataMember(currentColla.id, userId);
             const row = data[0] || {};
 
             setSelectedPositions((row.posicions_ids || []).map(String));
@@ -145,7 +149,7 @@ function UserProfile() {
 
     const loadCollesPositions = async () => {
         try {
-            const data = await getCollesPositions();
+            const data = await getCollesPositions(currentColla.id);
             setExistingPositions(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -201,7 +205,7 @@ function UserProfile() {
             return;
         }
         try {
-            const data = await modifyMember(userId, selectedRole, selectedPositions, selectedGroups);
+            const data = await modifyMember(currentColla.id, userId, selectedRole, selectedPositions, selectedGroups);
             setError("");
             showTempMessage("Dades del membre actualitzades correctament.");
         } catch (err) {
@@ -212,7 +216,7 @@ function UserProfile() {
     const deleteMemberFromColla = async () => {
         if (!window.confirm("Segur que vols eliminar a l'usuari de la colla?")) return;
         try {
-            const data = await deleteMember(userId);
+            const data = await deleteMember(currentColla.id, userId);
             setError("");
             showTempMessage("Usuari eliminat correctament de la colla.");
             setTimeout(() => {

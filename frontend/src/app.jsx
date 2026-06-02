@@ -16,7 +16,15 @@ import ProvesLlistat from "./pages/Proves_Llistat";
 import ProvesBoard from "./pages/Proves_Board";
 import Notificacions from "./pages/Notificacions";
 
+import { useColla } from "./context/CollaContext.jsx";
+
 function App() {
+  const { loadingColles } = useColla();
+
+  if (loadingColles) {
+    return <div>Carregant...</div>;
+  }
+
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" />} />

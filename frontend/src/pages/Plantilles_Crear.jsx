@@ -13,10 +13,12 @@ import Draggable from "react-draggable";
 
 import {
     FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare, FaTimesCircle,
-    FaRegStar, FaPencilAlt, FaTrashAlt, FaTrash, FaVideo, FaVideoSlash, FaLink, FaUnlink
+    FaStar, FaPencilAlt, FaTrashAlt, FaTrash, FaVideo, FaVideoSlash, FaLink, FaUnlink
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
+
+import { useColla } from "../context/CollaContext.jsx";
 
 import "./Plantilles_Crear.css"
 
@@ -26,6 +28,8 @@ import Button from "../components/Button.jsx";
 function PlantillesCrear() {
 
     const navigate = useNavigate();
+
+    const { currentColla, loadingColles } = useColla();
 
     const boardRef = useRef(null);
     const nodeRefs = useRef({});
@@ -96,7 +100,7 @@ function PlantillesCrear() {
 
     const loadCollesPositions = async () => {
         try {
-            const data = await getCollesPositions();
+            const data = await getCollesPositions(currentColla.id);
             setPositions(data);
         } catch (err) {
             handleApiError(err, navigate, setError);

@@ -10,8 +10,7 @@ export const getEsdevenimentInfo = async (idEsdeveniment) => {
     );
 };
 
-export const getCollesFutureEsdeveniments = async () => {
-    const idColla = localStorage.getItem("id_colla");
+export const getCollesFutureEsdeveniments = async (idColla) => {
     if (!idColla) {
         return;
     }
@@ -23,8 +22,7 @@ export const getCollesFutureEsdeveniments = async () => {
     );
 };
 
-export const getCollesPastEsdeveniments = async () => {
-    const idColla = localStorage.getItem("id_colla");
+export const getCollesPastEsdeveniments = async (idColla) => {
     if (!idColla) {
         return;
     }
@@ -36,8 +34,7 @@ export const getCollesPastEsdeveniments = async () => {
     );
 };
 
-export const createEsdeveniment = async (form, tipus, visible, acompanyat, bus, code) => {
-    const idColla = localStorage.getItem("id_colla");
+export const createEsdeveniment = async (idColla, form, tipus, visible, acompanyat, bus, code) => {
     return await apiRequest(
         `/esdeveniments/createEsdeveniment?id=${idColla}`,
         {
@@ -62,7 +59,6 @@ export const createEsdeveniment = async (form, tipus, visible, acompanyat, bus, 
 };
 
 export const modifyEsdeveniment = async (idEsdeveniment, form, tipus, visible, acompanyat, bus, code) => {
-    const idColla = localStorage.getItem("id_colla");
     return await apiRequest(
         `/esdeveniments/modifyEsdeveniment?id=${idEsdeveniment}`,
         {

@@ -1,7 +1,6 @@
 import { apiRequest } from "./api";
 
-export const getNotifications = async () => {
-    const idColla = localStorage.getItem("id_colla");
+export const getNotifications = async (idColla) => {
     return await apiRequest(
         `/notificacions/getUserNotifications?id=${idColla}`,
         {
@@ -10,8 +9,7 @@ export const getNotifications = async () => {
     );
 };
 
-export const sendNotification = async (modalTags, selectedGroups) => {
-    const idColla = localStorage.getItem("id_colla");
+export const sendNotification = async (idColla, modalTags, selectedGroups) => {
     return await apiRequest(
         `/notificacions/createNotification?id=${idColla}`,
         {

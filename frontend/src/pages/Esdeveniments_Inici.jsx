@@ -11,6 +11,8 @@ import {
 
 import { getPermissions } from "../utils/utils.jsx"
 
+import { useColla } from "../context/CollaContext.jsx";
+
 import Input from "../components/Input";
 import TopMenu from "../components/TopMenu";
 import Button from "../components/Button";
@@ -22,6 +24,8 @@ function EsdevenimentsList() {
     const navigate = useNavigate();
 
     const location = useLocation();
+
+    const { currentColla, loadingColles } = useColla();
 
     //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
     const permissions = getPermissions();
@@ -56,7 +60,7 @@ function EsdevenimentsList() {
 
     const loadFutureEsdeveniments = async () => {
         try {
-            const data = await getCollesFutureEsdeveniments();
+            const data = await getCollesFutureEsdeveniments(currentColla.id);
             setFuturs(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -65,7 +69,7 @@ function EsdevenimentsList() {
 
     const loadPastEsdeveniments = async () => {
         try {
-            const data = await getCollesPastEsdeveniments();
+            const data = await getCollesPastEsdeveniments(currentColla.id);
             setPassats(data);
         } catch (err) {
             handleApiError(err, navigate, setError);

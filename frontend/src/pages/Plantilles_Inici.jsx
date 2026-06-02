@@ -8,10 +8,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import {
     FaPlusSquare, FaSearch, FaUserEdit, FaArrowLeft, FaRegCheckSquare, FaTimesCircle,
-    FaRegStar, FaPencilAlt, FaTrashAlt
+    FaStar, FaPencilAlt, FaTrashAlt
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
+
+import { useColla } from "../context/CollaContext.jsx";
 
 import './Plantilles_Inici.css';
 
@@ -21,6 +23,8 @@ import Input from "../components/Input";
 
 function PlantillesList() {
     const navigate = useNavigate();
+
+    const { currentColla, loadingColles } = useColla();
 
     //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
     const permissions = getPermissions();
@@ -88,7 +92,7 @@ function PlantillesList() {
 
     const loadPlantilles = async () => {
         try {
-            const data = await getCollesPlantilles();
+            const data = await getCollesPlantilles(currentColla.id);
             setPlantilles(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -97,7 +101,7 @@ function PlantillesList() {
 
     const loadStructures = async () => {
         try {
-            const data = await getCollesStructures();
+            const data = await getCollesStructures(currentColla.id);
             setEstructures(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -123,7 +127,7 @@ function PlantillesList() {
         }
 
         try {
-            const data = await createPlantilla(modalTags, tronc, pinya, folre, manilles, puntals);
+            const data = await createPlantilla(currentColla.id, modalTags, tronc, pinya, folre, manilles, puntals);
             await loadPlantilles();
             await loadStructures();
             resetModal();
@@ -227,7 +231,7 @@ function PlantillesList() {
                             <span>{plantilla.estructura}</span>
                         </div>
                         <div className="container-plantilla-icons">
-                            <FaRegStar title="Afegir a favorits" className={plantilla.favorita ? "favorit-actiu" : ""} onClick={() => {
+                            <FaStar title="Afegir a favorits" className={plantilla.favorita ? "favorit-actiu" : ""} onClick={() => {
                                 modifyPlantillaCall(plantilla.id, "favorite", !plantilla.favorita)
                             }} />
                             <FaPencilAlt title="Modificar informació" onClick={() => {

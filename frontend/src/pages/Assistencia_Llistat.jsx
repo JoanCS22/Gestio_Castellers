@@ -10,6 +10,8 @@ import { FaSearch, FaCheckDouble, FaCheck, FaPencilAlt, FaTimes, FaQuestion, FaR
 
 import { getPermissions } from "../utils/utils.jsx"
 
+import { useColla } from "../context/CollaContext.jsx";
+
 import './Assistencia_Llistat.css';
 
 import TopMenu from "../components/TopMenu";
@@ -19,6 +21,8 @@ const LlistatAssistencia = () => {
     const navigate = useNavigate();
 
     const location = useLocation();
+
+    const { currentColla, loadingColles } = useColla();
 
     const [isUpdating, setIsUpdating] = useState(false);
     const [lastUpdate, setLastUpdate] = useState(null);
