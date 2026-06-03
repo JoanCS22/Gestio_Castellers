@@ -84,7 +84,7 @@ function LoginRegistre() {
             )}
             <div className="login-card">
 
-                <h2>{isLogin ? "Iniciar sesió" : "Registrar-se"}</h2>
+                <h2>{isLogin ? "Iniciar sessió" : "Registrar-se"}</h2>
 
                 <form onSubmit={handleSubmit}>
                     <Input
