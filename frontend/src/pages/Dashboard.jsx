@@ -7,7 +7,7 @@ import { handleApiError } from "../utils/handleApiError.js";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { getPermissions } from "../utils/utils.jsx"
+import { getPermissions } from "../utils/utils.jsx";
 
 import {
     FaPencilAlt, FaUsers, FaRegEye, FaCalendarAlt, FaCheck, FaTimes, FaCommentDots,
@@ -19,7 +19,7 @@ import Button from "../components/Button";
 
 import "./Dashboard.css";
 
-import { useEvent } from "../context/EventContext.jsx"
+import { useEvent } from "../context/EventContext.jsx";
 import { useColla } from "../context/CollaContext.jsx";
 
 function Dashboard() {
@@ -27,7 +27,6 @@ function Dashboard() {
 
     const { currentColla, loadingColles } = useColla();
 
-    //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
     const permissions = getPermissions();
     const permissionsReady = permissions && Object.keys(permissions).length > 0;
     const hasAccess = (key) => permissions[key] !== "X";
@@ -35,62 +34,48 @@ function Dashboard() {
     const hasReadPermission = (key) => permissions[key] === "R";
 
     const [error, setError] = useState("");
-
     const [futurs, setFuturs] = useState([]);
     const [futurProves, setFuturProves] = useState([]);
-
-    const [topMenuReady, setTopMenuReady] = useState(false);
-
-    const currentEsdevenimentId = futurs.length > 0 ? futurs[0].id : null;
-
     const [assistenciaByEvent, setAssistenciaByEvent] = useState({});
-
     const [notificacions, setNotificacions] = useState([]);
+
+    const { setCurrentEvent } = useEvent();
 
     const getStats = (id) => {
         const assistencia = assistenciaByEvent[id] || [];
-
         return {
-            ok: assistencia.filter(a => a.confirmacio_previa === "si").length,
-            ko: assistencia.filter(a => a.confirmacio_previa === "no").length,
+            ok:      assistencia.filter(a => a.confirmacio_previa === "si").length,
+            ko:      assistencia.filter(a => a.confirmacio_previa === "no").length,
             unknown: assistencia.filter(a => a.confirmacio_previa === "no_sap").length,
         };
     };
-
-    const { setCurrentEvent } = useEvent();
 
     const loadFutureEsdeveniments = async () => {
         try {
             const data = await getCollesFutureEsdeveniments(currentColla.id);
             let result = data;
-
             if (hasWritePermission("esdeveniments")) {
-                result = data.slice(0, 4);
-
+                result = data.slice(0, 3);
             } else if (hasReadPermission("esdeveniments")) {
-                result = data.filter(e => e.visible === true).slice(0, 4);
+                result = data.filter(e => e.visible === true).slice(0, 3);
             } else {
                 result = [];
             }
-
             setFuturs(result);
             setCurrentEvent(result.length > 0 ? result[0] : null);
         } catch (err) {
             handleApiError(err, navigate, setError);
         }
-    }
+    };
 
     const loadAssistencia = async (idEsdeveniment) => {
         try {
             const data = await getAssistenciaByEsdeveniment(idEsdeveniment);
-            setAssistenciaByEvent(prev => ({
-                ...prev,
-                [idEsdeveniment]: data
-            }));
+            setAssistenciaByEvent(prev => ({ ...prev, [idEsdeveniment]: data }));
         } catch (err) {
             handleApiError(err, navigate, setError);
         }
-    }
+    };
 
     const loadProves = async (idEsdeveniment) => {
         try {
@@ -99,261 +84,264 @@ function Dashboard() {
         } catch (err) {
             handleApiError(err, navigate, setError);
         }
-    }
+    };
 
     const loadNotifications = async () => {
         try {
             const data = await getNotifications(currentColla.id);
-
-            let result = data;
-            result = data.slice(0, 2);
-
-            setNotificacions(result);
+            setNotificacions(data.slice(0, 2));
         } catch (err) {
             handleApiError(err, navigate, setError);
         }
-    }
+    };
 
     useEffect(() => {
         if (loadingColles || !currentColla) return;
-
         setFuturs([]);
         setFuturProves([]);
         setAssistenciaByEvent({});
         setNotificacions([]);
-
         loadFutureEsdeveniments();
         loadNotifications();
     }, [currentColla]);
 
     useEffect(() => {
         if (futurs.length > 0) {
-            futurs.forEach(e => {
-                loadAssistencia(e.id);
-            });
+            futurs.forEach(e => loadAssistencia(e.id));
             loadProves(futurs[0].id);
         }
     }, [futurs]);
 
+    const primerEsdeveniment = futurs.length > 0 ? futurs[0] : null;
+    const statsProper = primerEsdeveniment ? getStats(primerEsdeveniment.id) : { ok: 0, ko: 0, unknown: 0 };
+
     return (
         <div>
-            <TopMenu
-                title="Dashboard"
-                canvi_colla
-            />
+            <TopMenu title="Dashboard" canvi_colla />
+
             <div className="dashboard-grid">
+
                 <div className="left-column-dashboard">
-                    <div className="dashboard-grid-esdeveniment">
-                        <div className="upper-esdeveniments-part">
-                            <span>{futurs.length > 0 ? futurs[0].nom : "No hi ha esdeveniments"}</span>
 
-                            {futurs.length > 0 && (() => {
-                                const stats = getStats(futurs[0].id);
-
-                                return (
-                                    <>
-                                        <div className="dashboard-numbers-assistance">
-                                            <div className="dashboard-assistencia-ok">{stats.ok}</div>
-                                            <div className="dashboard-assistencia-ko">{stats.ko}</div>
-                                            <div className="dashboard-assistencia-unknown">{stats.unknown}</div>
-                                        </div>
-
-                                        <Button
-                                            text="Consultar"
-                                            icon={<FaRegEye />}
-                                            action={() => {
-                                                navigate(`/consult_esdeveniment?idEsdeveniment=${futurs[0].id}`);
-                                            }}
-                                        />
-                                    </>
-                                );
-                            })()}
-                        </div>
-                        <hr />
-                        <div className="lower-esdeveniments-part">
-                            {futurs.length > 0 ? (
-                                <>
-                                    <Button
-                                        text="Assistència"
-                                        icon={<FaUsers />}
-                                        action={() => {
-                                            if (hasWritePermission("esdeveniments")) {
-                                                navigate(`/assistencia?idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`);
-                                            } else if (hasReadPermission("esdeveniments")) {
-                                                navigate(`/assistencia_usuari?idEsdeveniment=${futurs[0].id}`)
-                                            }
-                                        }}
-                                    />
-                                    <div className='grid-assistencia-dashboard'>
-                                        <div
-                                            className={`numbers-assistencia-usuari-element-ok`}
-                                            onClick={() => {
-                                                navigate(`/assistencia_usuari?idEsdeveniment=${futurs[0].id}&estatInicial=si`)
-                                            }}>
-                                            <FaCheck />
-                                        </div>
-                                        <div
-                                            className={`numbers-assistencia-usuari-element-ko`}
-                                            onClick={() => {
-                                                navigate(`/assistencia_usuari?idEsdeveniment=${futurs[0].id}&estatInicial=no`)
-                                            }}>
-                                            <FaTimes />
-                                        </div>
-
-                                        <div
-                                            className={`numbers-assistencia-usuari-element-unknown`}
-                                            onClick={() => {
-                                                navigate(`/assistencia_usuari?idEsdeveniment=${futurs[0].id}&estatInicial=no_sap`)
-                                            }}>
-                                            <FaQuestion />
-                                        </div>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <span>Crea un esdeveniment per modificar l'assistència</span>
-                                </>
+                    <div className="dashboard-card">
+                        <div className="dashboard-card-header">
+                            <span className="dashboard-card-label">Assistència Proper Assaig</span>
+                            {primerEsdeveniment && (
+                                <span
+                                    className="dashboard-card-link"
+                                    onClick={() => navigate(`/assistencia?idEsdeveniment=${primerEsdeveniment.id}&nomEsdeveniment=${encodeURIComponent(primerEsdeveniment.nom)}`)}
+                                >
+                                    Veure llista
+                                </span>
                             )}
-
                         </div>
-                    </div>
-                    <div className="dashboard-grid-proves">
-                        <div className="upper-proves-part" onClick={() => {
-                            navigate(`/proves?idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`);
-                        }}>
-                            {futurs.length > 0 ? (
-                                <>
-                                    <div className="dashboard-grid-propers-esdeveniments-title">
-                                        <span>{futurs.length > 0 ? `Proves ${futurs[0].nom}` : "No hi ha proves"}</span>
-                                        <FaClipboardList />
+
+                        {primerEsdeveniment ? (
+                            <>
+                                <div className="assistencia-stats-grid">
+                                    <div
+                                        className="assistencia-stat assistencia-stat--ok"
+                                        onClick={() => navigate(`/assistencia_usuari?idEsdeveniment=${primerEsdeveniment.id}&estatInicial=si`)}
+                                    >
+                                        <span className="assistencia-stat-number">{statsProper.ok}</span>
+                                        <span className="assistencia-stat-label">
+                                            <FaCheckCircle /> Confirmats
+                                        </span>
                                     </div>
-                                </>) : (<>
-                                    <span>Crea un esdeveniment per crear proves</span>
-                                </>)}
-                        </div>
-                        <hr />
-                        <div className="lower-proves-part">
-                            <div className="grid-proves-list-dashboard">
-                                {futurProves.map((prova) => (
-                                    (hasAccess("proves") || prova.public) && (
-                                        <div key={prova.id} className="container-proves-dashboard" onClick={() => {
-                                            if (hasWritePermission('proves')) {
-                                                navigate(`/proves_board_edit?id=${prova.id}&idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`)
-                                            } else {
-                                                navigate(`/proves_board_show?id=${prova.id}&idEsdeveniment=${futurs[0].id}&nomEsdeveniment=${encodeURIComponent(futurs[0].nom)}`)
-                                            }
-                                        }}>
-                                            <div className="container-proves-text-dashboard">
-                                                <span>{prova.nom}</span>
-                                            </div>
-                                            <div className="container-proves-icons-dashboard">
-                                                {prova.xarxa && (
-                                                    <FaHashtag title="Amb xarxa" />
-                                                )}
-                                                {prova.feta ? (
+                                    <div
+                                        className="assistencia-stat assistencia-stat--ko"
+                                        onClick={() => navigate(`/assistencia_usuari?idEsdeveniment=${primerEsdeveniment.id}&estatInicial=no`)}
+                                    >
+                                        <span className="assistencia-stat-number">{statsProper.ko}</span>
+                                        <span className="assistencia-stat-label">
+                                            <FaTimesCircle /> Descartats
+                                        </span>
+                                    </div>
+                                    <div
+                                        className="assistencia-stat assistencia-stat--unknown"
+                                        onClick={() => navigate(`/assistencia_usuari?idEsdeveniment=${primerEsdeveniment.id}&estatInicial=no_sap`)}
+                                    >
+                                        <span className="assistencia-stat-number">{statsProper.unknown}</span>
+                                        <span className="assistencia-stat-label">
+                                            <FaQuestion /> Pendents
+                                        </span>
+                                    </div>
+                                </div>
 
-                                                    <FaCheckCircle title="Realitzada" className="icon-feta-dashboard" />
-                                                ) : (
-                                                    <FaTimesCircle title="No realitzada" className="icon-no-feta-dashboard" />
-                                                )}
-                                            </div>
-                                        </div>
-                                    )
-                                ))}
-                            </div>
+
+                            </>
+                        ) : (
+                            <p className="dashboard-empty-text">No hi ha esdeveniments programats</p>
+                        )}
+                    </div>
+
+                    <div className="dashboard-card dashboard-card--proves">
+                        <div className="dashboard-card-header">
+                            <span className="dashboard-card-label">Proves previstes</span>
+                            {primerEsdeveniment && hasWritePermission("proves") && (
+                                <span
+                                    className="dashboard-card-link"
+                                    onClick={() => navigate(`/proves?idEsdeveniment=${primerEsdeveniment.id}&nomEsdeveniment=${encodeURIComponent(primerEsdeveniment.nom)}`)}
+                                >
+                                    <FaPencilAlt /> Gestionar proves
+                                </span>
+                            )}
                         </div>
+
+                        {primerEsdeveniment ? (
+                            <div className="proves-grid-wrap">
+                                <div className="proves-grid">
+                                    {futurProves.length > 0 ? (
+                                        <>
+                                            {futurProves.map((prova) =>
+                                                (hasAccess("proves") || prova.public) && (
+                                                    <div
+                                                        key={prova.id}
+                                                        className="prova-card"
+                                                        onClick={() => {
+                                                            if (hasWritePermission("proves")) {
+                                                                navigate(`/proves_board_edit?id=${prova.id}&idEsdeveniment=${primerEsdeveniment.id}&nomEsdeveniment=${encodeURIComponent(primerEsdeveniment.nom)}`);
+                                                            } else {
+                                                                navigate(`/proves_board_show?id=${prova.id}&idEsdeveniment=${primerEsdeveniment.id}&nomEsdeveniment=${encodeURIComponent(primerEsdeveniment.nom)}`);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <span className="prova-card-nom">{prova.nom}</span>
+                                                        <div className="prova-card-icons">
+                                                            {prova.xarxa && <FaHashtag title="Amb xarxa" />}
+                                                            {prova.feta
+                                                                ? <FaCheckCircle className="icon-feta-dashboard" title="Realitzada" />
+                                                                : <FaTimesCircle className="icon-no-feta-dashboard" title="No realitzada" />
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                )
+                                            )}
+                                            {hasWritePermission("proves") && (
+                                                <div
+                                                    className="prova-card prova-card--add"
+                                                    onClick={() => navigate(`/proves?idEsdeveniment=${primerEsdeveniment.id}&nomEsdeveniment=${encodeURIComponent(primerEsdeveniment.nom)}`)}
+                                                >
+                                                    <FaCheckCircle className="prova-card-add-icon" />
+                                                    <span>Afegir prova</span>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <p className="dashboard-empty-text">No hi ha proves per aquest assaig</p>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <p className="dashboard-empty-text">Crea un esdeveniment per afegir proves</p>
+                        )}
                     </div>
                 </div>
 
                 <div className="right-column-dashboard">
-                    <div className="dashboard-grid-notificacions">
-                        <div className="dashboard-grid-propers-esdeveniments-title" onClick={() => {
-                            navigate("/notificacions_board");
-                        }}>
-                            <span>Darreres notificacions</span>
-                            <FaCommentDots />
-                        </div>
-                        <hr />
-                        {notificacions.length > 0 ? (
-                            <>
-                                {notificacions.map((notificacio) => {
-                                    return (
-                                        <div key={notificacio.id}>
-                                            <div
-                                                className="dashboard-grid-propers-esdeveniments-element"
-                                                onClick={() => {
 
-                                                }}
-                                            >
-                                                <div className="dashboard-grid-propers-esdeveniments-element-left">
-                                                    <div className="dashboard-grid-propers-esdeveniments-element-left-title">
-                                                        {notificacio.nom_emisor} - {new Date(notificacio.data_programacio).toLocaleDateString("es-ES")}
-                                                    </div>
-                                                    <div className="dashboard-grid-propers-esdeveniments-element-left-datetime">
-                                                        {notificacio.titol}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <hr />
-                                        </div>
-                                    );
-                                })}
-                            </>
-                        ) : (
-                            <span>No tens notificacions</span>
-                        )}
-                    </div>
-                    <div className="dashboard-grid-propers-esdeveniments">
-                        <div className="dashboard-grid-propers-esdeveniments-title" onClick={() => {
-                            navigate("/esdeveniments");
-                        }}>
-                            <span>Propers esdeveniments</span>
-                            <FaCalendarAlt />
+                    <div className="dashboard-card">
+                        <div className="dashboard-card-header">
+                            <span className="dashboard-card-label">Propers esdeveniments</span>
+                            <FaCalendarAlt
+                                className="dashboard-card-header-icon"
+                                onClick={() => navigate("/esdeveniments")}
+                            />
                         </div>
-                        <hr />
-                        {futurs.length > 0 ? (
-                            <>
-                                {futurs.map((esdeveniment) => {
+
+                        <div className="event-list">
+                            {futurs.length > 0 ? (
+                                futurs.map((esdeveniment) => {
                                     if (!(esdeveniment.visible || hasWritePermission("esdeveniments"))) return null;
-
                                     const stats = getStats(esdeveniment.id);
+                                    const isNext = esdeveniment.id === primerEsdeveniment?.id;
 
                                     return (
-                                        <div key={esdeveniment.id}>
-                                            <div
-                                                className="dashboard-grid-propers-esdeveniments-element"
-                                                onClick={() => {
-                                                    navigate(`/consult_esdeveniment?idEsdeveniment=${esdeveniment.id}`);
-                                                }}
-                                            >
-                                                <div className="dashboard-grid-propers-esdeveniments-element-left">
-                                                    <div className="dashboard-grid-propers-esdeveniments-element-left-title">
-                                                        {esdeveniment.nom}
-                                                    </div>
-                                                    <div className="dashboard-grid-propers-esdeveniments-element-left-datetime">
-                                                        {new Date(esdeveniment.data_esdeveniment).toLocaleDateString("es-ES")}, {esdeveniment.hora}
-                                                    </div>
-                                                </div>
-
-                                                <div className="dashboard-grid-propers-esdeveniments-element-right">
-                                                    <div className="dashboard-assistencia-ok">{stats.ok}</div>
-                                                    <div className="dashboard-assistencia-ko">{stats.ko}</div>
-                                                    <div className="dashboard-assistencia-unknown">{stats.unknown}</div>
-                                                </div>
+                                        <div
+                                            key={esdeveniment.id}
+                                            className={`event-item ${isNext ? "event-item--active" : ""}`}
+                                            onClick={() => navigate(`/consult_esdeveniment?idEsdeveniment=${esdeveniment.id}`)}
+                                        >
+                                            <div className="event-item-top">
+                                                <span className={`event-item-tipus ${isNext ? "event-item-tipus--active" : ""}`}>
+                                                    {esdeveniment.nom}
+                                                </span>
+                                                <span className="event-item-data">
+                                                    {new Date(esdeveniment.data_esdeveniment).toLocaleDateString("ca-ES")}
+                                                </span>
                                             </div>
-                                            <hr />
+                                            <p className="event-item-lloc">{esdeveniment.lloc || ""}</p>
+                                            <div className="event-item-stats">
+                                                <span className="event-badge event-badge--ok">
+                                                    <FaCheckCircle /> {stats.ok}
+                                                </span>
+                                                <span className="event-badge event-badge--ko">
+                                                    <FaTimesCircle /> {stats.ko}
+                                                </span>
+                                                <span className="event-badge event-badge--unknown">
+                                                    <FaQuestion /> {stats.unknown}
+                                                </span>
+                                                {esdeveniment.hora && (
+                                                    <span className="event-item-hora">{esdeveniment.hora}</span>
+                                                )}
+                                            </div>
                                         </div>
                                     );
-                                })}
-                            </>
-                        ) : (
-                            <span>No existeixen futurs esdeveniments</span>
-                        )}
+                                })
+                            ) : (
+                                <p className="dashboard-empty-text">No existeixen futurs esdeveniments</p>
+                            )}
+                        </div>
+
+                        <button
+                            className="dashboard-card-footer-btn"
+                            onClick={() => navigate("/esdeveniments")}
+                        >
+                            Veure calendari complet
+                        </button>
                     </div>
+
+                    <div className="dashboard-card">
+                        <div className="dashboard-card-header">
+                            <span className="dashboard-card-label">Darreres notificacions</span>
+                            <FaCommentDots
+                                className="dashboard-card-header-icon"
+                                onClick={() => navigate("/notificacions_board")}
+                            />
+                        </div>
+
+                        <div className="event-list">
+                            {notificacions.length > 0 ? (
+                                notificacions.map((notificacio) => (
+                                    <div key={notificacio.id} className="event-item">
+                                        <div className="event-item-top">
+                                            <span className="event-item-tipus">
+                                                {notificacio.nom_emisor}
+                                            </span>
+                                            <span className="event-item-data">
+                                                {new Date(notificacio.data_programacio).toLocaleDateString("ca-ES")}
+                                            </span>
+                                        </div>
+                                        <p className="event-item-lloc">{notificacio.titol}</p>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="dashboard-empty-text">No tens notificacions</p>
+                            )}
+                        </div>
+
+                        <button
+                            className="dashboard-card-footer-btn"
+                            onClick={() => navigate("/notificacions_board")}
+                        >
+                            Veure totes les notificacions
+                        </button>
+                    </div>
+
                 </div>
             </div>
         </div>
     );
 }
 
-export default Dashboard; 
+export default Dashboard;

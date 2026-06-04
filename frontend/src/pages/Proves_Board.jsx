@@ -221,6 +221,20 @@ function ProvesBoard() {
     const offsetX = BOARD_SIZE / 2 - (minX + plantillaWidth / 2);
     const offsetY = BOARD_SIZE / 2 - (minY + plantillaHeight / 2);
 
+    const topPanelRef = useRef(null);
+    const [topPanelBottom, setTopPanelBottom] = useState(220);
+
+    useEffect(() => {
+        if (!topPanelRef.current) return;
+        const update = () => {
+            const rect = topPanelRef.current?.getBoundingClientRect();
+            if (rect) setTopPanelBottom(rect.bottom);
+        };
+        update();
+        window.addEventListener("resize", update);
+        return () => window.removeEventListener("resize", update);
+    }, [posicionsPlantilla, infoPlantilla]);
+
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
 
@@ -836,7 +850,6 @@ function ProvesBoard() {
                     <div className="left-part-prova-board">
                         <div className="left-part-prova-board-filters">
                             <div className="left-part-prova-board-filters-search">
-                                <h4>Membres</h4>
                                 <div className="search-tab-plantilles">
                                     <span>Cercar:</span>
                                     <FaSearch />
@@ -937,73 +950,75 @@ function ProvesBoard() {
                             })}
                         </div>
                     </div>
-                    <div className="top-part-prova-board">
-                        <div className="top-part-prova-board-actions">
-                            <div className="top-part-prova-board-icons-mesura">
-                                <label className="field-label-prova-mesura">Mesura</label>
+                    <div className="top-part-prova-board" ref={topPanelRef}>
+                        <div className="top-part-prova-board-row">
+                            <div className="top-part-prova-board-actions">
+                                <div className="top-part-prova-board-icons-mesura">
+                                    <label className="field-label-prova-mesura">Mesura</label>
 
-                                <div className="select-wrapper-prova-mesura">
-                                    <select
-                                        value={selectedMesura}
-                                        onChange={(e) => setSelectedMesura(Number(e.target.value))}
-                                        className="custom-select-prova-mesura"
-                                    >
+                                    <div className="select-wrapper-prova-mesura">
+                                        <select
+                                            value={selectedMesura}
+                                            onChange={(e) => setSelectedMesura(Number(e.target.value))}
+                                            className="custom-select-prova-mesura"
+                                        >
 
-                                        {Object.entries(mesures).map(([key, value]) => (
-                                            <option key={key} value={key}>
-                                                {value}
-                                            </option>
-                                        ))}
-                                    </select>
+                                            {Object.entries(mesures).map(([key, value]) => (
+                                                <option key={key} value={key}>
+                                                    {value}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="top-part-prova-board-icons">
+                                    <FaUserTimes title="Eliminar persones absents" onClick={() => {
+                                        treureAbsentsCall();
+                                    }} />
+                                    <FaUserAltSlash title="Buidar casella seleccionada" onClick={() => {
+                                        treureMembrePosicioCall();
+                                    }} />
+                                    <FaUsersSlash title="Buidar plantilla" onClick={() => {
+                                        buidarPlantillaCall();
+                                    }} />
                                 </div>
                             </div>
-                            <div className="top-part-prova-board-icons">
-                                <FaUserTimes title="Eliminar persones absents" onClick={() => {
-                                    treureAbsentsCall();
-                                }} />
-                                <FaUserAltSlash title="Buidar casella seleccionada" onClick={() => {
-                                    treureMembrePosicioCall();
-                                }} />
-                                <FaUsersSlash title="Buidar plantilla" onClick={() => {
-                                    buidarPlantillaCall();
-                                }} />
-                            </div>
-                        </div>
-                        <div className="top-part-prova-board-posicions">
-                            <label
-                                key={0}
-                                className={`container-position-prova-board ${selectedPositions.includes(0) ? "position-selected" : ""} `}
-                                title="Filtrar per totes les posicions"
-                            >
-                                <span className="position-name-board">
-                                    Totes
-                                </span>
-
-                                <input
-                                    type="checkbox"
-                                    checked={selectedPositions.includes(0)}
-                                    onChange={() => modifySelectedPositions(0)}
-                                    hidden
-                                />
-                            </label>
-                            {positions.map((position) => (
+                            <div className="top-part-prova-board-posicions">
                                 <label
-                                    key={position.id}
-                                    className={`container-position-prova-board ${selectedPositions.includes(position.nom) ? "position-selected" : ""} `}
-                                    title={`Filtrar per ${position.nom} `}
+                                    key={0}
+                                    className={`container-position-prova-board ${selectedPositions.includes(0) ? "position-selected" : ""} `}
+                                    title="Filtrar per totes les posicions"
                                 >
                                     <span className="position-name-board">
-                                        {position.nom}
+                                        Totes
                                     </span>
 
                                     <input
                                         type="checkbox"
-                                        checked={selectedPositions.includes(position.nom)}
-                                        onChange={() => modifySelectedPositions(position.nom)}
+                                        checked={selectedPositions.includes(0)}
+                                        onChange={() => modifySelectedPositions(0)}
                                         hidden
                                     />
                                 </label>
-                            ))}
+                                {positions.map((position) => (
+                                    <label
+                                        key={position.id}
+                                        className={`container-position-prova-board ${selectedPositions.includes(position.nom) ? "position-selected" : ""} `}
+                                        title={`Filtrar per ${position.nom} `}
+                                    >
+                                        <span className="position-name-board">
+                                            {position.nom}
+                                        </span>
+
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedPositions.includes(position.nom)}
+                                            onChange={() => modifySelectedPositions(position.nom)}
+                                            hidden
+                                        />
+                                    </label>
+                                ))}
+                            </div>
                         </div>
                     </div>
                     <div className="create-prova-sections">
@@ -1048,7 +1063,8 @@ function ProvesBoard() {
                             </>
                         )}
                     </div>
-                    <div className={`right-part-menu-desplegable ${showRightProves ? "open" : "closed"} `}>
+                    <div className={`right-part-menu-desplegable ${showRightProves ? "open" : "closed"} `}
+                        style={{ top: `${topPanelBottom + 12}px` }}>
 
                         <div
                             className="right-part-menu-toggle"
@@ -1103,6 +1119,7 @@ function ProvesBoard() {
 
                     <div ref={boardRef}
                         className="whole-board-prova"
+                        style={{ top: `${topPanelBottom}px` }}
                         onMouseDown={handleMouseDown}
                         onMouseMove={handleMouseMove}
                         onMouseUp={handleMouseUp}

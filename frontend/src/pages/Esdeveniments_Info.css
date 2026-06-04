@@ -1,141 +1,319 @@
-.grid-container-esdeveniment-info {
+/* Pàgina info/crear/modificar esdeveniment */
+.esdeveniment-page {
+    padding: var(--space-lg);
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+/* Targeta base */
+.esdeveniment-card {
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+/* Capçalera de secció */
+.esdeveniment-section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--surface-container);
+    margin-bottom: var(--space-xs);
+}
+
+.esdeveniment-section-header svg {
+    color: var(--primary);
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.esdeveniment-section-header h3 {
+    font-size: var(--text-label-md);
+    font-weight: 700;
+    color: var(--on-surface);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Grid de camps */
+.esdeveniment-fields-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+}
+
+.esdeveniment-fields-grid--3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+}
+
+.esdeveniment-fields-grid--4 {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-
-    column-gap: 16px;
-    row-gap: 50px;    
-
-    width: 100%;
-    margin: 0 auto;
-    padding: 40px 50px;
-    box-sizing: border-box;
+    gap: var(--space-md);
 }
 
-/*FILA 1*/
+.col-span-2 { grid-column: span 2; }
 
-.grid-container-esdeveniment-1 { grid-column: 1 / 3; } 
-.grid-container-esdeveniment-2 { grid-column: 3; }     
-.grid-container-esdeveniment-7 { grid-column: 4; }     
+/* Camp */
+.esdeveniment-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
 
-/*FILA 2*/
+.esdeveniment-field label {
+    font-size: var(--text-label-md);
+    font-weight: var(--fw-label-md);
+    color: var(--primary);
+}
 
-.grid-container-esdeveniment-4 { grid-column: 1; }
-.grid-container-esdeveniment-5 { grid-column: 2; }
-.grid-container-esdeveniment-6 { grid-column: 3; }
-.grid-container-esdeveniment-8 { grid-column: 4; }
+.esdeveniment-field input,
+.esdeveniment-field select,
+.esdeveniment-field textarea {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--surface-container-low);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-md);
+    font-family: var(--font-base);
+    font-size: var(--text-body-md);
+    color: var(--on-surface);
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
 
-/*FILA 3*/
+.esdeveniment-field input:focus,
+.esdeveniment-field select:focus,
+.esdeveniment-field textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(129, 0, 28, 0.08);
+}
 
-.grid-container-esdeveniment-9 { grid-column: 1 / 3; }
-.grid-container-esdeveniment-10 { grid-column: 3 / 5; }
+.esdeveniment-field input[readonly],
+.esdeveniment-field input:disabled {
+    background: var(--surface-container);
+    color: var(--on-surface-variant);
+    cursor: not-allowed;
+}
 
-/*FILA 4*/
+.esdeveniment-field textarea {
+    resize: vertical;
+    min-height: 100px;
+}
 
-.grid-container-esdeveniment-11 { grid-column: 1 / 3; }
-.grid-container-esdeveniment-12 { grid-column: 3; }
-.grid-container-esdeveniment-3 { grid-column: 4; }
+/* Checkboxes (logística) */
+.logistica-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
 
+.logistica-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.logistica-item:hover {
+    background-color: var(--surface-container-low);
+}
+
+.logistica-item span {
+    font-size: var(--text-body-md);
+    color: var(--on-surface);
+    transition: color 0.15s ease;
+}
+
+.logistica-item:hover span {
+    color: var(--primary);
+}
+
+.logistica-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.logistica-item input[disabled] {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Layout columnes (info principal + logística) */
+.esdeveniment-two-cols {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: var(--space-lg);
+    align-items: start;
+}
+
+@media (max-width: 768px) {
+    .esdeveniment-two-cols { grid-template-columns: 1fr; }
+    .esdeveniment-fields-grid--4 { grid-template-columns: 1fr 1fr; }
+    .esdeveniment-fields-grid--3 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+    .esdeveniment-page { padding: var(--space-md); }
+    .esdeveniment-fields-grid,
+    .esdeveniment-fields-grid--3,
+    .esdeveniment-fields-grid--4 { grid-template-columns: 1fr; }
+    .col-span-2 { grid-column: span 1; }
+}
+
+/* Columna dreta (logística + inscripcions) */
+.esdeveniment-right-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+/* Error */
 .error-message {
-    grid-column: 1 / -1;
+    background: var(--error-container);
+    border: 1px solid rgba(186, 26, 26, 0.3);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    color: var(--on-error-container);
+    font-size: var(--text-label-md);
+    font-weight: var(--fw-label-md);
 }
 
-.grid-container-esdeveniment-info-buttons {
-    grid-column: 1 / -1;
+/* Botons d'acció */
+.esdeveniment-actions {
     display: flex;
-    justify-content: center;
-    gap: 100px;
-}
-
-.grid-container-esdeveniment-3,
-.grid-container-esdeveniment-7,
-.grid-container-esdeveniment-8 {
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
-    gap: 8px;
-}
-
-.checkbox-container-esdeveniment-info {
-    display: flex;
     justify-content: center;
+    gap: var(--space-lg);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--outline-variant);
+    flex-wrap: wrap;
+}
+
+.btn-event-primary {
+    display: inline-flex;
     align-items: center;
-    width: 100%;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-xl);
+    background: var(--primary);
+    color: var(--on-primary);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-family: var(--font-base);
+    font-size: var(--text-label-md);
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
-.grid-container-esdeveniment-1,
-.grid-container-esdeveniment-9,
-.grid-container-esdeveniment-10,
-.grid-container-esdeveniment-11 {
-    width: 100%;
+.btn-event-primary:hover { background-color: var(--primary-container); }
+.btn-event-primary:active { transform: scale(0.97); }
+
+.btn-event-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-xl);
+    background: transparent;
+    color: var(--on-surface-variant);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-lg);
+    font-family: var(--font-base);
+    font-size: var(--text-label-md);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
-.grid-container-esdeveniment-info input,
-.grid-container-esdeveniment-info textarea {
-    width: 100%;
-    box-sizing: border-box;
-}
+.btn-event-secondary:hover { background-color: var(--surface-container-high); }
+.btn-event-secondary:active { transform: scale(0.97); }
 
-.select-esdeveniment-info {
-    width: 100%; 
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.input-altres-info {
-    margin-top: 8px;
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.input-container-esdeveniment-info {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
-
-/* MODAL CODI CONFIRMACIÓ */
-
+/* Modal codi confirmació */
 .modal-overlay-esdeveniments {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-
+    inset: 0;
     background: rgba(0, 0, 0, 0.5);
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     z-index: 1000;
 }
 
 .modal-esdeveniments {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-
-    width: 700px;
-    height: 300px;
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    width: 480px;
     max-width: 90%;
-
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    align-items: center;
+    gap: var(--space-lg);
+    box-shadow: var(--shadow-lg);
 }
 
-.modal-esdeveniments h2 {
+.modal-codi-title {
+    font-size: var(--text-label-md);
+    font-weight: var(--fw-label-md);
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.modal-codi-value {
+    font-size: 80px;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: 0.1em;
+    line-height: 1;
     text-align: center;
-    margin-bottom: 10px;
-    font-size: 150px;
-    margin-top: 30px;  
 }
 
-.modal-buttons-esdeveniments{
+.modal-buttons-esdeveniments {
     display: flex;
     justify-content: center;
-    margin-top: 10px;
+}
+
+/* Toast */
+.message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-md);
+    color: var(--on-primary);
+    font-size: var(--text-label-md);
+    z-index: 9999;
+    animation: slideDown 0.3s ease;
+}
+
+.message.success { background-color: #28a745; }
+.message.error   { background-color: var(--error); }
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }

@@ -72,14 +72,12 @@ function LoginRegistre() {
     return (
         <div className="login-container">
 
-            {/* Toast notification */}
             {message && (
                 <div className={`message ${message.type}`}>
                     {message.message}
                 </div>
             )}
 
-            {/* Branding */}
             <div className="login-branding">
                 <div className="login-logo">
                     <FaUsers  className="material-symbols-outlined"/>

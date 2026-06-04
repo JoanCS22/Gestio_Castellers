@@ -1,0 +1,95 @@
+:root {
+  /* Colores principales */
+  --primary:               #81001c;
+  --primary-container:     #a6192e;
+  --on-primary:            #ffffff;
+  --primary-fixed:         #ffdad9;
+  --primary-fixed-dim:     #ffb3b3;
+  --inverse-primary:       #ffb3b3;
+
+  /* Secundario */
+  --secondary:             #555f71;
+  --secondary-container:   #d6e0f6;
+  --on-secondary:          #ffffff;
+  --on-secondary-container:#596376;
+
+  /* Terciario */
+  --tertiary:              #00454a;
+  --tertiary-container:    #005e65;
+  --on-tertiary:           #ffffff;
+
+  /* Superficies */
+  --surface:                    #f7fafc;
+  --surface-dim:                #d7dadc;
+  --surface-bright:             #f7fafc;
+  --surface-container-lowest:   #ffffff;
+  --surface-container-low:      #f1f4f6;
+  --surface-container:          #ebeef0;
+  --surface-container-high:     #e5e9eb;
+  --surface-container-highest:  #e0e3e5;
+  --inverse-surface:            #2d3133;
+  --inverse-on-surface:         #eef1f3;
+
+  /* Texto sobre superficies */
+  --on-surface:            #181c1e;
+  --on-surface-variant:    #594040;
+  --on-background:         #181c1e;
+
+  /* Bordes */
+  --outline:               #8d7070;
+  --outline-variant:       #e1bebe;
+
+  /* Error */
+  --error:                 #ba1a1a;
+  --error-container:       #ffdad6;
+  --on-error:              #ffffff;
+  --on-error-container:    #93000a;
+
+  /* Fondo general */
+  --background:            #f7fafc;
+
+  --font-base: 'Inter', sans-serif;
+
+  --text-display-lg:  clamp(32px, 5vw, 48px);
+  --lh-display-lg:    1.15;
+  --fw-display-lg:    800;
+
+  --text-headline-lg: 32px;
+  --lh-headline-lg:   40px;
+  --fw-headline-lg:   700;
+
+  --text-headline-md: 24px;
+  --lh-headline-md:   32px;
+  --fw-headline-md:   600;
+
+  --text-body-lg:     18px;
+  --lh-body-lg:       28px;
+  --fw-body-lg:       400;
+
+  --text-body-md:     16px;
+  --lh-body-md:       24px;
+  --fw-body-md:       400;
+
+  --text-label-md:    14px;
+  --lh-label-md:      20px;
+  --fw-label-md:      600;
+
+  --text-label-sm:    12px;
+  --lh-label-sm:      16px;
+  --fw-label-sm:      500;
+
+  --radius-sm:   0.25rem;   /*  4px */
+  --radius-md:   0.5rem;    /*  8px */
+  --radius-lg:   0.75rem;   /* 12px */
+  --radius-full: 9999px;
+
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+
+  --shadow-sm:  0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md:  0 4px 16px rgba(0, 0, 0, 0.10);
+  --shadow-lg:  0 12px 24px rgba(0, 0, 0, 0.12);
+}

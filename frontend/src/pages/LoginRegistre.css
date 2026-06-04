@@ -1,66 +1,7 @@
-:root {
-  --primary:               #81001c;
-  --primary-container:     #a6192e;
-  --on-primary:            #ffffff;
-  --primary-fixed:         #ffdad9;
-  --primary-fixed-dim:     #ffb3b3;
-
-  --secondary:             #555f71;
-  --secondary-container:   #d6e0f6;
-  --on-secondary-container:#596376;
-
-  --tertiary:              #00454a;
-  --tertiary-container:    #005e65;
-
-  --surface:               #f7fafc;
-  --surface-bright:        #f7fafc;
-  --surface-dim:           #d7dadc;
-  --surface-container-lowest: #ffffff;
-  --surface-container-low: #f1f4f6;
-  --surface-container:     #ebeef0;
-  --surface-container-high:#e5e9eb;
-  --surface-container-highest: #e0e3e5;
-
-  --on-surface:            #181c1e;
-  --on-surface-variant:    #594040;
-
-  --outline:               #8d7070;
-  --outline-variant:       #e1bebe;
-
-  --error:                 #ba1a1a;
-  --error-container:       #ffdad6;
-  --on-error-container:    #93000a;
-
-  --background:            #f7fafc;
-  --on-background:         #181c1e;
-
-  /* Typography scale */
-  --text-display-lg:   clamp(32px, 5vw, 48px);
-  --text-headline-lg:  32px;
-  --text-headline-md:  24px;
-  --text-body-lg:      18px;
-  --text-body-md:      16px;
-  --text-label-md:     14px;
-  --text-label-sm:     12px;
-
-  /* Radii */
-  --radius-sm:   0.25rem;
-  --radius-md:   0.5rem;
-  --radius-lg:   0.75rem;
-  --radius-full: 9999px;
-
-  /* Spacing */
-  --space-xs:  4px;
-  --space-sm:  8px;
-  --space-md:  16px;
-  --space-lg:  24px;
-  --space-xl:  32px;
-}
-
-/* ── Reset ───────────────────────────────────────────────────────── */
+/*  Reset  */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Page shell ─────────────────────────────────────────────────── */
+/*  Page shell  */
 .login-container {
   font-family: 'Inter', sans-serif;
   background-color: var(--background);
@@ -88,7 +29,7 @@
   z-index: 0;
 }
 
-/* ── Branding header ────────────────────────────────────────────── */
+/* Branding header */
 .login-branding {
   position: relative;
   z-index: 1;
@@ -233,7 +174,7 @@
 
 .password-toggle .material-symbols-outlined { font-size: 20px; }
 
-/* ── Forgot link ────────────────────────────────────────────────── */
+/* Forgot link */
 .forgot-link-row {
   display: flex;
   justify-content: flex-end;
@@ -250,7 +191,7 @@
 
 .forgot-link:hover { text-decoration: underline; }
 
-/* ── Primary button ─────────────────────────────────────────────── */
+/* Primary button */
 .btn-primary {
   width: 100%;
   padding: var(--space-md);
@@ -278,7 +219,7 @@
 
 .btn-primary:active { transform: scale(0.98); }
 
-/* ── Divider ────────────────────────────────────────────────────── */
+/* Divider */
 .divider {
   display: flex;
   align-items: center;
@@ -300,7 +241,7 @@
   color: var(--outline);
 }
 
-/* ── Secondary action (register link) ──────────────────────────── */
+/* Secondary action (register link) */
 .btn-secondary {
   display: block;
   width: 100%;
@@ -322,7 +263,7 @@
 .btn-secondary:hover { background-color: var(--primary-fixed); }
 .btn-secondary:active { transform: scale(0.98); }
 
-/* ── Footer ─────────────────────────────────────────────────────── */
+/* Footer */
 .login-footer {
   position: relative;
   z-index: 1;
@@ -352,7 +293,7 @@
 
 .login-footer a:hover { color: var(--primary); }
 
-/* ── Error & success messages ────────────────────────────────────── */
+/* Error & success messages */
 .error-message {
   color: var(--on-error-container);
   font-size: var(--text-label-md);

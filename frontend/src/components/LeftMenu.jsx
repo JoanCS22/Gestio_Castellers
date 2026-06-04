@@ -1,154 +1,226 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaBars, FaOutdent, FaCaretDown, FaCaretUp } from "react-icons/fa";
+import {
+    FaBars, FaOutdent, FaCaretDown, FaCaretUp,
+    FaHome, FaCalendarAlt, FaDraftingCompass, FaUsers,
+    FaCog, FaSignOutAlt, FaBell, FaLayerGroup
+} from "react-icons/fa";
 
-import { getPermissions } from "../utils/utils.jsx"
+import { getPermissions } from "../utils/utils.jsx";
 import './LeftMenu.css';
 
-import { useEvent } from "../context/EventContext.jsx"
-
+import { useEvent } from "../context/EventContext.jsx";
 import { useColla } from "../context/CollaContext.jsx";
 
 const LeftMenu = () => {
+    const { currentColla } = useColla();
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  const { currentColla, loadingColles } = useColla();
+    const [openLeft, setOpenLeft] = useState(false);
+    const [openMenuAgenda, setOpenAgenda] = useState(false);
+    const [openMenuColla, setOpenColla] = useState(false);
 
-  const navigate = useNavigate();
+    const storedId = localStorage.getItem("id_colla");
 
-  const location = useLocation();
+    const permissions = getPermissions();
+    const hasAccess = (key) => permissions[key] !== "X";
+    const hasWritePermission = (key) => permissions[key] === "W";
 
-  const [openLeft, setOpenLeft] = useState(false);
-  const [openMenuAgenda, setOpenAgenda] = useState(false);
-  const [openMenuColla, setOpenColla] = useState(false);
+    const { currentEvent } = useEvent();
 
-  const storedId = localStorage.getItem("id_colla");
+    const isActive = (path) => location.pathname === path;
 
-  //assistencia, colla, esdeveniments, llistats, membres, notificacions, permisos, plantilles, proves
-  const permissions = getPermissions();
-  const hasAccess = (key) => permissions[key] !== "X";
-  const hasWritePermission = (key) => permissions[key] === "W";
+    useEffect(() => {
+        setOpenLeft(false);
+        setOpenAgenda(false);
+        setOpenColla(false);
+    }, [location.pathname]);
 
-  const { currentEvent } = useEvent();
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate("/login");
+    };
 
-  useEffect(() => {
-    setOpenLeft(false);
-    setOpenAgenda(false);
-    setOpenColla(false);
-  }, [location.pathname]);
+    return (
+        <div className={`left-menu ${openLeft ? "open" : "closed"}`}>
 
-  return (
-    <div className={`left-menu ${openLeft ? "open" : "closed"}`}>
+            <div
+                className="left-menu-button"
+                title={openLeft ? "Amagar menú" : "Desplegar menú"}
+                onClick={() => setOpenLeft(!openLeft)}
+            >
+                {openLeft ? <FaOutdent /> : <FaBars />}
+            </div>
 
-      <div title={openLeft ? "Amagar menú" : "Desplegar menú"} className={`left-menu-button ${openLeft ? "open" : "closed"}`}
-        onClick={() => setOpenLeft(!openLeft)}>
-        {openLeft ? (
-          <FaOutdent />
-        ) : (
-          <FaBars />
-        )}
-      </div>
+            {openLeft && (
+                <>
+                    <div className="menu-foto">
+                        <img
+                            src="LogoPlaca.png"
+                            alt="Logo La Plaça"
+                            title="Menú principal"
+                            onClick={() => {
+                                setOpenLeft(false);
+                                navigate("/dashboard");
+                            }}
+                        />
+                        <span className="menu-title">La Plaça</span>
+                    </div>
 
-      {openLeft && (
-        <div className="menu-content">
+                    <nav className="menu-content">
+                        {storedId != null ? (
+                            <>
+                                <div
+                                    className={`nav-item ${isActive("/dashboard") ? "nav-item--active" : ""}`}
+                                    onClick={() => navigate("/dashboard")}
+                                >
+                                    <FaHome />
+                                    <span>Inici</span>
+                                </div>
 
-          <div className='menu-foto'>
-            <img src="LogoPlaca.png" title='Menú principal' alt="Logo" onClick={() => {
-              setOpenLeft(false);
-              setOpenAgenda(false);
-              setOpenColla(false);
-              navigate("/dashboard");
-            }} />
-            <span className='menu-title'>LA PLAÇA</span>
-          </div>
+                                <div
+                                    className="nav-item"
+                                    onClick={() => setOpenAgenda(!openMenuAgenda)}
+                                >
+                                    <FaCalendarAlt />
+                                    <span>Agenda</span>
+                                    <span className="nav-item-chevron">
+                                        {openMenuAgenda ? <FaCaretUp /> : <FaCaretDown />}
+                                    </span>
+                                </div>
 
-          {(storedId != null) ? (
-            <>
-              <div className='menu-section' onClick={() => setOpenAgenda(!openMenuAgenda)}>
-                Agenda {openMenuAgenda ? <FaCaretUp /> : <FaCaretDown />}
-              </div>
+                                {openMenuAgenda && (
+                                    <div className="submenu">
+                                        {hasAccess("esdeveniments") && (
+                                            <div
+                                                className="submenu-item"
+                                                onClick={() => navigate("/esdeveniments")}
+                                            >
+                                                Esdeveniments
+                                            </div>
+                                        )}
+                                        {hasAccess("proves") && currentEvent && (
+                                            <div
+                                                className="submenu-item"
+                                                onClick={() => navigate(`/proves?idEsdeveniment=${currentEvent.id}&nomEsdeveniment=${encodeURIComponent(currentEvent.nom)}`)}
+                                            >
+                                                Proves
+                                            </div>
+                                        )}
+                                        {hasAccess("assistencia") && currentEvent && (
+                                            <div
+                                                className="submenu-item"
+                                                onClick={() => {
+                                                    if (hasWritePermission("esdeveniments")) {
+                                                        navigate(`/assistencia?idEsdeveniment=${currentEvent.id}&nomEsdeveniment=${encodeURIComponent(currentEvent.nom)}`);
+                                                    } else {
+                                                        navigate(`/assistencia_usuari?idEsdeveniment=${currentEvent.id}`);
+                                                    }
+                                                }}
+                                            >
+                                                Assistència
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
-              {openMenuAgenda && (
-                <div className='submenu'>
-                  {hasAccess("esdeveniments") && (
-                    <div onClick={() => {
-                      navigate("/esdeveniments");
-                    }}>Esdeveniments</div>
-                  )}
-                  {hasAccess("proves") && (
-                    <div onClick={() => {
-                      navigate(`/proves?idEsdeveniment=${currentEvent.id}&nomEsdeveniment=${encodeURIComponent(currentEvent.nom)}`);
-                    }}>Proves</div>
-                  )}
-                  {hasAccess("assistencia") && (
-                    <div onClick={() => {
-                      if (currentEvent && hasWritePermission("esdeveniments")) {
-                        navigate(`/assistencia?idEsdeveniment=${currentEvent.id}&nomEsdeveniment=${encodeURIComponent(currentEvent.nom)}`);
-                      } else if (currentEvent) {
-                        navigate(`/assistencia_usuari?idEsdeveniment=${currentEvent.id}`)
-                      }
-                    }}>Assistència</div>
-                  )}
-                </div>
-              )}
+                                {hasAccess("plantilles") && (
+                                    <div
+                                        className={`nav-item ${isActive("/plantilles") ? "nav-item--active" : ""}`}
+                                        onClick={() => navigate("/plantilles")}
+                                    >
+                                        <FaDraftingCompass />
+                                        <span>Plantilles</span>
+                                    </div>
+                                )}
 
-              {hasAccess("plantilles") && (
-                <div className='menu-item' onClick={() => {
-                  navigate("/plantilles");
-                }}>Plantilles</div>
-              )}
+                                {hasAccess("notificacions") && (
+                                    <div
+                                        className={`nav-item ${isActive("/notificacions_board") ? "nav-item--active" : ""}`}
+                                        onClick={() => navigate("/notificacions_board")}
+                                    >
+                                        <FaBell />
+                                        <span>Notificacions</span>
+                                    </div>
+                                )}
 
-              {hasAccess("notificacions") && (
-                <div className='menu-item' onClick={() => {
-                  navigate(`/notificacions_board`);
-                }}>Notificacions</div>
-              )}
+                                <div
+                                    className="nav-item"
+                                    onClick={() => setOpenColla(!openMenuColla)}
+                                >
+                                    <FaUsers />
+                                    <span>La colla</span>
+                                    <span className="nav-item-chevron">
+                                        {openMenuColla ? <FaCaretUp /> : <FaCaretDown />}
+                                    </span>
+                                </div>
 
-              <div className='menu-section' onClick={() => setOpenColla(!openMenuColla)}>
-                La colla {openMenuColla ? <FaCaretUp /> : <FaCaretDown />}
-              </div>
+                                {openMenuColla && (
+                                    <div className="submenu">
+                                        {hasAccess("colla") && (
+                                            <div
+                                                className="submenu-item"
+                                                onClick={() => navigate("/get_data_colla")}
+                                            >
+                                                Informació colla
+                                            </div>
+                                        )}
+                                        {hasAccess("membres") && (
+                                            <div
+                                                className="submenu-item"
+                                                onClick={() => navigate("/members")}
+                                            >
+                                                Membres
+                                            </div>
+                                        )}
+                                        {hasAccess("colla") && (
+                                            <div
+                                                className="submenu-item"
+                                                onClick={() => navigate("/etiquetes")}
+                                            >
+                                                Etiquetes
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
-              {openMenuColla && (
-                <div className='submenu'>
 
-                  {hasAccess("colla") && (
-                    <div onClick={() => {
-                      navigate("/get_data_colla");
-                    }}>Informació colla</div>
-                  )}
+                            </>
+                        ) : (
+                            <div
+                                className="nav-item"
+                                onClick={() => {
+                                    setOpenLeft(false);
+                                    navigate("/create_colla");
+                                }}
+                            >
+                                <FaLayerGroup />
+                                <span>Crear colla</span>
+                            </div>
+                        )}
+                    </nav>
 
-                  {hasAccess("membres") && (
-                    <div onClick={() => {
-                      navigate("/members");
-                    }}>Membres</div>
-                  )}
-
-                  {hasAccess("colla") && (
-                    <div onClick={() => {
-                      navigate("/etiquetes");
-                    }}>Etiquetes</div>
-                  )}
-
-                </div>
-              )}
-
-              {/* {hasAccess("llistats") && (
-                <div className='menu-item' onClick={() => {
-
-                }}>Llistats</div>
-              )} */}
-            </>
-          ) : (
-            <>
-              <div className='menu-item' onClick={() => {
-                setOpenLeft(false);
-                navigate("/create_colla");
-              }}> Crear colla </div>
-            </>
-          )}
+                    <div className="menu-footer">
+                        <div
+                            className={`nav-item ${isActive("/configuracio") ? "nav-item--active" : ""}`}
+                            onClick={() => navigate("/configuracio")}
+                        >
+                            <FaCog />
+                            <span>Configuració</span>
+                        </div>
+                        <div
+                            className="nav-item nav-item--danger"
+                            onClick={handleLogout}
+                        >
+                            <FaSignOutAlt />
+                            <span>Sortir</span>
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default LeftMenu;
