@@ -158,7 +158,7 @@ function UserProfile() {
 
     const loadCollesGrups = async () => {
         try {
-            const data = await getCollesGroups();
+            const data = await getCollesGroups(currentColla.id);
             setExistingGroups(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -167,7 +167,7 @@ function UserProfile() {
 
     const loadCollesRoles = async () => {
         try {
-            const data = await getCollesRoles();
+            const data = await getCollesRoles(currentColla.id);
             setExistingRoles(data);
         } catch (err) {
             handleApiError(err, navigate, setError);

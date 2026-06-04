@@ -1,0 +1,180 @@
+.button-section-notifications {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+}
+
+.search-bar-notifications {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    width: 100%;
+    justify-content: center;
+}
+
+/* TAULA */
+
+.table-notificacions {
+    border-collapse: collapse;
+    width: 80%;
+    margin: 20px auto;
+    table-layout: fixed;
+}
+
+.table-notificacions table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.table-notificacions th,
+.table-notificacions td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* MODAL */
+.modal-overlay-notificacions {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 1000;
+}
+
+.modal-notificacions{
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+
+    width: 800px;
+    max-width: 90%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    overflow: visible;
+}
+
+.modal-notificacions h2{
+    text-align: center;
+    margin-bottom: 0px;
+}
+
+.modal-notificacions h4{
+    text-align: center;
+    margin-bottom: 10px;
+    color: rgb(66, 66, 66);
+}
+
+.modal-notificacions input,
+.modal-notificacions textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+
+    box-sizing: border-box;
+}
+
+.modal-notificacions textarea {
+    min-height: 100px;
+    resize: none;
+}
+
+.input-group-notificacions {
+    width: 100%;
+    display: flex;
+}
+
+.input-group-notificacions>* {
+    width: 100%;
+}
+
+.modal-buttons-notificacions {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    gap: 100px;
+}
+
+.modal-row-notificacions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    align-items: start;
+}
+
+.modal-field-notificacions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+}
+
+/* READONLY */
+
+.notificacio-view {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 10px 0;
+}
+
+.notificacio-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    font-size: 0.85rem;
+    color: #777;
+
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.notificacio-meta .emisor {
+    font-weight: 600;
+    color: #333;
+}
+
+.notificacio-meta .date {
+    color: #999;
+    font-style: italic;
+}
+
+.notificacio-view .titol {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #222;
+}
+
+.notificacio-view .missatge {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #444;
+
+    background: #f6f7f9;
+    border: 1px solid #e6e6e6;
+    border-radius: 10px;
+
+    padding: 14px;
+    white-space: pre-wrap;
+}

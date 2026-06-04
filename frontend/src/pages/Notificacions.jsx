@@ -74,7 +74,7 @@ function Notificacions() {
 
     const loadCollesGrups = async () => {
         try {
-            const data = await getCollesGroups();
+            const data = await getCollesGroups(currentColla.id);
             setGrups(data);
         } catch (err) {
             handleApiError(err, navigate, setError);
