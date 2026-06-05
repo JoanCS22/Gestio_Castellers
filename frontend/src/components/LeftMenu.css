@@ -16,6 +16,12 @@
     align-items: flex-start;
     padding-top: var(--space-md);
     padding-left: var(--space-sm);
+    pointer-events: none; /* no bloqueja clics al contingut de darrera */
+}
+
+/* Restaura els events només al botó */
+.left-menu.closed .left-menu-button {
+    pointer-events: all;
 }
 
 /* Estat obert: sidebar complet */
