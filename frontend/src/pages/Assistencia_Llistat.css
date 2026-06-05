@@ -1,131 +1,286 @@
-/* SECCIÓ BOTONS*/
-
-.button-section-assistencia-llistat {
+/* Pàgina assistència llistat */
+.assistencia-page {
+    padding: var(--space-lg);
+    max-width: 1100px;
+    margin: 0 auto;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    width: 100%;
+    flex-direction: column;
+    gap: var(--space-lg);
 }
 
-/* SECCIÓ SEARCH BAR */
-
-.filters-llistat-assistencia {
+/* Fila superior: botó + estadístiques */
+.assistencia-top-row {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 200px;
-    width: 100%;
     flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-lg);
 }
 
-.search-bar-llistat-assistencia {
+.assistencia-top-left {
     display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.assistencia-last-update {
+    font-size: var(--text-label-sm);
+    font-weight: var(--fw-label-sm);
+    color: var(--secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.btn-my-assistencia {
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-}
-
-.numbers-llistat-assistencia {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 40px
-}
-
-.numbers-llistat-assistencia-element{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px
-}
-
-.dashboard-assistencia-pendant,
-.dashboard-assistencia-doble {
-    border: 2px solid rgb(167, 167, 167);
-    border-radius: 15%;
-    width: 50px;
-    height: 30px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* SECCIÓ LIST */
-
-.table-llistat-assistencia {
-    border-collapse: collapse;
-    width: 90%;
-    margin: 20px auto;
-    table-layout: fixed;
-}
-
-.table-llistat-assistencia table {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-}
-
-.table-llistat-assistencia th,
-.table-llistat-assistencia td {
-    border: 1px solid black;
-    padding: 8px;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
-}
-
-.list-assistencia-ok,
-.list-assistencia-ko,
-.list-assistencia-unknown,
-.list-assistencia-pendant {
-    border: 1px solid rgb(167, 167, 167);
-    border-radius: 15%;
-    width: 40px;
-    height: 20px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-xl);
+    background: var(--primary);
+    color: var(--on-primary);
+    border: none;
+    border-radius: var(--radius-lg);
+    font-family: var(--font-base);
+    font-size: var(--text-label-md);
+    font-weight: 700;
     cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
 
+.btn-my-assistencia:hover { box-shadow: var(--shadow-lg); }
+.btn-my-assistencia:active { transform: scale(0.98); }
+
+/* Estadístiques */
+.assistencia-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    justify-content: flex-end;
+}
+
+.stat-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.stat-chip-value {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-xl);
+    border-radius: var(--radius-md);
+    font-size: var(--text-headline-md);
+    font-weight: 700;
+}
+
+.stat-chip-value--final   { background: #86efac; color: #064e3b; }
+.stat-chip-value--ok      { background: #bbf7d0; color: #065f46; }
+.stat-chip-value--ko      { background: #fecaca; color: #991b1b; }
+.stat-chip-value--unknown { background: #fef08a; color: #854d0e; }
+.stat-chip-value--pendent { background: var(--surface-container); color: var(--secondary); }
+
+.stat-chip-label {
+    font-size: var(--text-label-sm);
+    font-weight: var(--fw-label-sm);
+    color: var(--secondary);
+}
+
+/* Targeta taula */
+.assistencia-table-card {
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+/* Capçalera de la targeta: cerca */
+.assistencia-table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--surface-container-low);
+    border-bottom: 1px solid var(--outline-variant);
+}
+
+.assistencia-search {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+}
+
+.assistencia-search svg {
+    position: absolute;
+    left: var(--space-md);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--secondary);
     font-size: 14px;
+    pointer-events: none;
 }
 
-.list-assistencia-ok:hover,
-.list-assistencia-ko:hover,
-.list-assistencia-unknown:hover,
-.list-assistencia-pendant:hover {
-    border: 1px solid black;  
-    opacity: 0.6;  
+.assistencia-search input {
+    width: 100%;
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-full);
+    padding: var(--space-sm) var(--space-md) var(--space-sm) 40px;
+    font-family: var(--font-base);
+    font-size: var(--text-body-md);
+    color: var(--on-surface);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.list-assistencia-ok {
-    background-color: rgb(171, 255, 87);
+.assistencia-search input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(129, 0, 28, 0.08);
 }
 
-.list-assistencia-ko {
-    background-color: rgb(255, 116, 116);
+.assistencia-search input::placeholder { color: var(--outline); }
+
+/* Taula */
+.assistencia-table-scroll { overflow-x: auto; }
+
+.assistencia-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
 }
 
-.list-assistencia-unknown {
-    background-color: rgb(255, 230, 87);
+.assistencia-table thead {
+    background: var(--surface-container);
 }
 
-.list-assistencia-pendant {
-    background-color: rgb(228, 228, 228);
+.assistencia-table thead th {
+    padding: var(--space-md) var(--space-lg);
+    font-size: var(--text-label-md);
+    font-weight: var(--fw-label-md);
+    color: var(--on-surface);
+    border-bottom: 1px solid var(--outline-variant);
 }
 
-.list-assistencia-doble{
-    background-color: rgb(128, 255, 0);
+.assistencia-table thead th.center { text-align: center; }
+
+.assistencia-table tbody tr {
+    border-bottom: 1px solid var(--outline-variant);
+    transition: background-color 0.15s ease;
 }
 
-/* CANVIS ESTAT */
+.assistencia-table tbody tr:last-child { border-bottom: none; }
+.assistencia-table tbody tr:hover { background: var(--surface-container-low); }
 
+.assistencia-table td {
+    padding: var(--space-md) var(--space-lg);
+    vertical-align: middle;
+}
+
+.assistencia-table td.center { text-align: center; }
+
+/* Cel·la nom */
+.cell-mote {
+    font-size: var(--text-body-md);
+    font-weight: 600;
+    color: var(--primary);
+}
+
+/* Indicadors clicables */
+.assistencia-indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 16px;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+    margin: 0 auto;
+}
+
+.assistencia-indicator:hover { opacity: 0.75; transform: scale(1.08); }
+.assistencia-indicator:active { transform: scale(0.95); }
+
+.assistencia-indicator--ok      { background: #bbf7d0; color: #065f46; }
+.assistencia-indicator--ko      { background: #fecaca; color: #991b1b; }
+.assistencia-indicator--unknown { background: #fef08a; color: #854d0e; }
+.assistencia-indicator--pendent { background: var(--surface-container); color: var(--secondary); }
+.assistencia-indicator--final   { background: #86efac; color: #064e3b; }
+
+/* Cel·la comentari */
+.cell-comentari {
+    font-size: var(--text-body-md);
+    color: var(--secondary);
+    font-style: italic;
+}
+
+.cell-comentari--text {
+    font-style: normal;
+    color: var(--on-surface);
+    font-weight: 500;
+}
+
+/* Cel·la data */
+.cell-data {
+    font-size: var(--text-label-sm);
+    font-weight: var(--fw-label-sm);
+    color: var(--secondary);
+    white-space: nowrap;
+}
+
+/* Loading */
 .loading-assistencia {
     opacity: 0.4;
     pointer-events: none;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s ease;
+}
+
+/* Peu de la taula */
+.assistencia-table-footer {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--surface-container-low);
+    border-top: 1px solid var(--outline-variant);
+}
+
+.assistencia-table-footer p {
+    font-size: var(--text-label-sm);
+    font-weight: var(--fw-label-sm);
+    color: var(--secondary);
+}
+
+/* Error / Toast */
+.error-message {
+    background: var(--error-container);
+    border: 1px solid rgba(186, 26, 26, 0.3);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    color: var(--on-error-container);
+    font-size: var(--text-label-md);
+}
+
+.message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-md);
+    color: var(--on-primary);
+    font-size: var(--text-label-md);
+    z-index: 9999;
+    animation: slideDown 0.3s ease;
+}
+
+.message.success { background-color: #28a745; }
+.message.error   { background-color: var(--error); }
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }

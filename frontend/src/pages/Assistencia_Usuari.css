@@ -1,171 +1,378 @@
-/* GRID */
-.grid-assistencia-usuari {
-    display: grid;
-    grid-template-rows: auto auto auto auto auto;
-    gap: 20px;
-    row-gap: 70px;
-
-    max-width: 1200px;
+/* Pàgina assistència usuari */
+.assistencia-usuari-page {
+    max-width: 680px;
     margin: 0 auto;
-    padding: 20px;
+    padding: var(--space-xl) var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
 }
 
-/* FILA 1 */
-.grid-assistencia-usuari-title {
-    font-size: 20px;
-    font-weight: bold;
+/* Subtítol de l'esdeveniment */
+.assistencia-usuari-subtitle {
     text-align: center;
 }
 
-/* FILA 2 */
-.grid-assistencia-usuari-first-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    align-items: center;
-    gap: 20px;
+.assistencia-usuari-badge {
+    display: inline-block;
+    padding: var(--space-xs) var(--space-md);
+    background: var(--surface-container);
+    color: var(--secondary);
+    border-radius: var(--radius-full);
+    font-size: var(--text-label-sm);
+    font-weight: var(--fw-label-sm);
+    margin-bottom: var(--space-sm);
 }
 
-.grid-assistencia-usuari-first-row-buttons {
+.assistencia-usuari-title {
+    font-size: var(--text-headline-md);
+    font-weight: 700;
+    color: var(--on-surface);
+}
+
+/* Formulari (targeta) */
+.assistencia-usuari-form {
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    box-shadow: var(--shadow-sm);
     display: flex;
-    align-items: center;
-    gap: 15px;
+    flex-direction: column;
+    gap: var(--space-xl);
 }
 
-.grid-assistencia-usuari-first-row-bus {
+/* Secció */
+.form-section { display: flex; flex-direction: column; gap: var(--space-md); }
+
+.form-section-label {
+    font-size: var(--text-label-md);
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Botons grans d'estat (Vinc / No vinc / Dubte) */
+.attendance-buttons {
     display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.grid-assistencia-usuari-first-row-companions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.numbers-assistencia-usuari-element-ok,
-.numbers-assistencia-usuari-element-ko,
-.numbers-assistencia-usuari-element-unknown {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-
-    border-radius: 20%;
-    border: 1px solid rgb(158, 158, 158);
-
-    width: 40px;
-    height: 30px;
-
-    cursor: pointer
-}
-
-.numbers-assistencia-usuari-element-ok:hover,
-.numbers-assistencia-usuari-element-ko:hover,
-.numbers-assistencia-usuari-element-unknown:hover {
-    border: 1px solid black;
-    opacity: 0.6;
-}
-
-.numbers-assistencia-usuari-element-ok {
-    background-color: rgb(171, 255, 87);
-}
-
-.numbers-assistencia-usuari-element-ko {
-    background-color: rgb(255, 116, 116);
-}
-
-.numbers-assistencia-usuari-element-unknown {
-    background-color: rgb(255, 230, 87);
-}
-
-.active-assistencia {
-    border: 2px solid black;
-    transform: scale(1.2);
-}
-
-/* FILA 3 */
-.grid-assistencia-usuari-second-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-
-.grid-assistencia-usuari-second-row-tard,
-.grid-assistencia-usuari-second-row-aviat {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 15px;
+    gap: var(--space-md);
     flex-wrap: wrap;
 }
 
-.checkbox-container-assistencia-info {
+.attendance-btn {
+    flex: 1;
+    min-width: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-lg) var(--space-md);
+    border-radius: var(--radius-md);
+    border: 2px solid transparent;
+    background: var(--surface-container-low);
+    cursor: pointer;
+    font-family: var(--font-base);
+    font-size: var(--text-label-md);
+    font-weight: 700;
+    transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+}
+
+.attendance-btn svg { font-size: 24px; }
+.attendance-btn:active { transform: scale(0.97); }
+
+/* Vinc */
+.attendance-btn--ok {
+    color: #065f46;
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+}
+.attendance-btn--ok:hover { background: #dcfce7; border-color: #86efac; }
+.attendance-btn--ok.active {
+    border-width: 3px;
+    border-color: #16a34a;
+    background: #dcfce7;
+    box-shadow: 0 0 0 3px rgba(22,163,74,0.15);
+}
+
+/* No vinc */
+.attendance-btn--ko {
+    color: #991b1b;
+    border-color: #fecaca;
+    background: #fff1f2;
+}
+.attendance-btn--ko:hover { background: #fee2e2; border-color: #fca5a5; }
+.attendance-btn--ko.active {
+    border-width: 3px;
+    border-color: #dc2626;
+    background: #fee2e2;
+    box-shadow: 0 0 0 3px rgba(220,38,38,0.15);
+}
+
+/* Dubte */
+.attendance-btn--unknown {
+    color: #854d0e;
+    border-color: #fef08a;
+    background: #fefce8;
+}
+.attendance-btn--unknown:hover { background: #fef9c3; border-color: #fde047; }
+.attendance-btn--unknown.active {
+    border-width: 3px;
+    border-color: #ca8a04;
+    background: #fef9c3;
+    box-shadow: 0 0 0 3px rgba(202,138,4,0.15);
+}
+
+/* Secció transport + acompanyants (grid 2 cols) */
+.form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+}
+
+@media (max-width: 480px) { .form-row-2 { grid-template-columns: 1fr; } }
+
+/* Targeta de toggle (bus, tard, aviat) */
+.toggle-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    background: var(--surface-container-low);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-md);
+}
+
+.toggle-card-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    cursor: pointer;
+}
+
+.toggle-card-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    cursor: pointer;
+    margin: 0;
+}
+
+.toggle-card-label {
+    font-size: var(--text-body-md);
+    font-weight: 600;
+    color: var(--on-surface);
+    user-select: none;
+}
+
+.toggle-card-sub {
+    font-size: var(--text-label-sm);
+    color: var(--on-surface-variant);
+    margin-bottom: 2px;
+}
+
+/* Input numèric dins toggle card */
+.toggle-card input[type="number"] {
+    width: 100%;
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-base);
+    font-size: var(--text-body-md);
+    color: var(--on-surface);
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.toggle-card input[type="number"]:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(129, 0, 28, 0.08);
+}
+
+/* Acompanyants */
+.companions-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.companions-field label {
+    font-size: var(--text-label-md);
+    font-weight: var(--fw-label-md);
+    color: var(--on-surface-variant);
+}
+
+.companions-field input[type="number"] {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-md);
+    font-family: var(--font-base);
+    font-size: var(--text-body-md);
+    color: var(--on-surface);
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+.companions-field input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(129, 0, 28, 0.08);
+}
+
+/* Comentari */
+.comment-field { display: flex; flex-direction: column; gap: var(--space-xs); }
+
+.comment-field label {
+    font-size: var(--text-label-md);
+    font-weight: var(--fw-label-md);
+    color: var(--on-surface-variant);
+}
+
+.comment-field textarea {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-md);
+    font-family: var(--font-base);
+    font-size: var(--text-body-md);
+    color: var(--on-surface);
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease;
+}
+
+.comment-field textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(129, 0, 28, 0.08);
+}
+
+.comment-field textarea::placeholder { color: var(--outline); }
+
+/* Botons d'acció */
+.assistencia-actions {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    padding-top: var(--space-sm);
+}
+
+.btn-save-assistencia {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--primary);
+    color: var(--on-primary);
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: var(--font-base);
+    font-size: var(--text-label-md);
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
-/* FILA 4 */
-.grid-assistencia-usuari-third-row {
-    width: 100%;
-}
+.btn-save-assistencia:hover { background: var(--primary-container); }
+.btn-save-assistencia:active { transform: scale(0.98); }
 
-/* FILA 5 */
-.grid-assistencia-usuari-buttons {
+.btn-confirm-assistencia {
+    flex: 1;
     display: flex;
+    align-items: center;
     justify-content: center;
-    gap: 50px;
-    width: 100%;   
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--surface-container-high);
+    color: var(--on-surface);
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: var(--font-base);
+    font-size: var(--text-label-md);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
 }
 
-/* MODAL VERIFICACIÓ ASSISTÈNCIA */
+.btn-confirm-assistencia:hover { background: var(--surface-container-highest); }
 
+/* Error / Toast */
+.error-message {
+    background: var(--error-container);
+    border: 1px solid rgba(186, 26, 26, 0.3);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    color: var(--on-error-container);
+    font-size: var(--text-label-md);
+}
+
+.message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-md);
+    color: var(--on-primary);
+    font-size: var(--text-label-md);
+    z-index: 9999;
+    animation: slideDown 0.3s ease;
+}
+
+.message.success { background-color: #28a745; }
+.message.error   { background-color: var(--error); }
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Modal verificació */
 .modal-overlay-assistencia {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-
+    inset: 0;
     background: rgba(0, 0, 0, 0.5);
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     z-index: 1000;
 }
 
 .modal-assistencia {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-
-    width: 500px;
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    width: 420px;
     max-width: 90%;
-
     display: flex;
     flex-direction: column;
-    gap: 15px;
-}
-
-.input-assistencia {
-    width: 100%;
-    display: flex;
-}
-
-.input-assistencia>* {
-    width: 100%;
+    gap: var(--space-md);
+    box-shadow: var(--shadow-lg);
 }
 
 .modal-assistencia h2 {
+    font-size: var(--text-headline-md);
+    font-weight: 700;
+    color: var(--on-surface);
     text-align: center;
-    margin-bottom: 10px;
+    margin: 0;
 }
 
-.modal-buttons-assistencia{
+.input-assistencia { width: 100%; }
+.input-assistencia > * { width: 100%; }
+
+.modal-buttons-assistencia {
     display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
+    justify-content: flex-end;
+    gap: var(--space-md);
+    margin-top: var(--space-xs);
 }

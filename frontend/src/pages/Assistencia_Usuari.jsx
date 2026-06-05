@@ -4,82 +4,58 @@ import {
 import { getEsdevenimentInfo } from "../services/esdevenimentsService.js";
 import { handleApiError } from "../utils/handleApiError.js";
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
 
-import { FaCheckDouble, FaSave, FaCheck, FaTimes, FaQuestion, FaPaperPlane, FaTimesCircle } from "react-icons/fa";
+import {
+    FaCheckDouble, FaSave, FaCheck, FaTimes,
+    FaQuestion, FaPaperPlane, FaTimesCircle
+} from "react-icons/fa";
 
-import { getPermissions } from "../utils/utils.jsx"
-
+import { getPermissions } from "../utils/utils.jsx";
 import { useColla } from "../context/CollaContext.jsx";
 
 import './Assistencia_Usuari.css';
-
 import TopMenu from "../components/TopMenu";
-import Button from "../components/Button";
-import Input from "../components/Input";
 
 const AssistenciaUsuari = () => {
-    const navigate = useNavigate();
+    const navigate  = useNavigate();
+    const location  = useLocation();
+    const { currentColla } = useColla();
 
-    const location = useLocation();
-
-    const { currentColla, loadingColles } = useColla();
-
-    const id_usuari = localStorage.getItem("user").id;
-
-    const params = new URLSearchParams(location.search);
+    const params          = new URLSearchParams(location.search);
     const id_esdeveniment = params.get("idEsdeveniment");
+    const initial_state   = params.get("estatInicial");
 
-    const initial_state = params.get("estatInicial");
-
-    const [message, setTempMessage] = useState(null);
-    const [error, setError] = useState("");
-
-    const showTempMessage = (message, type = "success") => {
-        setTempMessage({ message, type });
-
-        setTimeout(() => {
-            setTempMessage(null);
-        }, 2000);
-    };
+    const [message, setTempMessage]   = useState(null);
+    const [error, setError]           = useState("");
+    const [showModal, setShowModal]   = useState(false);
+    const [modalText, setModalText]   = useState("");
 
     const [currentEsdeveniment, setCurrentEsdeveniment] = useState({
-        nom: "",
-        data: "",
-        hora: "",
-        data_inscripcions: "",
-        codi: "",
+        nom: "", data: "", hora: "", codi: ""
     });
-
     const [acompanyat, setAcompanyat] = useState(false);
-    const [bus, setBus] = useState(false);
-    const [tipus, setTipus] = useState("Assaig");
+    const [bus,        setBus]        = useState(false);
+    const [tipus,      setTipus]      = useState("Assaig");
 
     const [currentAssistance, setCurrentAssistance] = useState({
-        id: 0,
-        comentari: "",
-        num_acompanyants: 0,
-        temps_tard: 0,
-        temps_aviat: 0,
+        id: 0, comentari: "", num_acompanyants: 0, temps_tard: 0, temps_aviat: 0
     });
 
     const [assistenciaSeleccionada, setAssistenciaSeleccionada] = useState(null);
-
     const [busAssistencia, setBusAssistencia] = useState(false);
-    const [arribaTard, setArribaTard] = useState(false);
-    const [marxaAviat, setMarxaAviat] = useState(false);
+    const [arribaTard,     setArribaTard]     = useState(false);
+    const [marxaAviat,     setMarxaAviat]     = useState(false);
 
-    const [showModal, setShowModal] = useState(false);
-    const [modalText, setModalText] = useState("");
+    const showTempMessage = (msg, type = "success") => {
+        setTempMessage({ message: msg, type });
+        setTimeout(() => setTempMessage(null), 2000);
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-
-        setCurrentAssistance((prev) => ({
-            ...prev,
-            [name]: value
-        }));
+        setCurrentAssistance(prev => ({ ...prev, [name]: value }));
     };
 
     const loadEsdevenimentInfo = async () => {
@@ -89,19 +65,13 @@ const AssistenciaUsuari = () => {
                 nom: data.nom,
                 data: data.data_esdeveniment.split("T")[0],
                 hora: data.hora,
-                data_inscripcions: data.data_inici_inscripcions.split("T")[0],
                 codi: data.codi_confirmacio,
-                temps_tard: data.temps_tard,
-                temps_aviat: data.temps_aviat,
             });
-
             setTipus(data.tipus);
             setAcompanyat(data.acompanyat);
             setBus(data.bus);
-        } catch (err) {
-            handleApiError(err, navigate, setError);
-        }
-    }
+        } catch (err) { handleApiError(err, navigate, setError); }
+    };
 
     const loadAssistenciaActual = async () => {
         try {
@@ -113,52 +83,41 @@ const AssistenciaUsuari = () => {
                 temps_tard: data.temps_tard,
                 temps_aviat: data.temps_aviat,
             });
-
-            if (initial_state !== null) {
-                setAssistenciaSeleccionada(initial_state);
-            } else {
-                setAssistenciaSeleccionada(data.confirmacio_previa);
-            }
-
+            setAssistenciaSeleccionada(initial_state ?? data.confirmacio_previa);
             setBusAssistencia(data.bus);
             setArribaTard(data.arriba_tard);
             setMarxaAviat(data.marxa_aviat);
-        } catch (err) {
-            handleApiError(err, navigate, setError);
-        }
-    }
+        } catch (err) { handleApiError(err, navigate, setError); }
+    };
 
     const modifyAssistenciaPreviaCall = async () => {
-        if (assistenciaSeleccionada === "") {
-            setError(`Has de seleccionar algun valor d'assistència`);
+        if (!assistenciaSeleccionada) {
+            setError("Has de seleccionar algun valor d'assistència");
             return;
         }
         try {
-            const data = await modifyAssistenciaPrevia(id_esdeveniment, currentAssistance, assistenciaSeleccionada,
-                busAssistencia, arribaTard, marxaAviat);
+            await modifyAssistenciaPrevia(
+                id_esdeveniment, currentAssistance,
+                assistenciaSeleccionada, busAssistencia, arribaTard, marxaAviat
+            );
             setError("");
             showTempMessage("Assistència modificada correctament.");
-        } catch (err) {
-            handleApiError(err, navigate, setError);
-        }
-    }
+        } catch (err) { handleApiError(err, navigate, setError); }
+    };
 
     const verifyCodeCall = async () => {
         if (modalText !== currentEsdeveniment.codi) {
-            setError(`Codi incorrecte`);
+            setError("Codi incorrecte");
             return;
         }
-
         try {
-            const data = await verifyCode(currentAssistance.id, "si");
+            await verifyCode(currentAssistance.id, "si");
             setModalText("");
             setShowModal(false);
             setError("");
             showTempMessage("Assistència confirmada correctament.");
-        } catch (err) {
-            handleApiError(err, navigate, setError);
-        }
-    }
+        } catch (err) { handleApiError(err, navigate, setError); }
+    };
 
     useEffect(() => {
         loadEsdevenimentInfo();
@@ -167,200 +126,191 @@ const AssistenciaUsuari = () => {
 
     return (
         <div>
-            <TopMenu
-                title={`Assistència ${currentEsdeveniment.nom}`}
-                tornar
-            />
-            {message && (
-                <div className={`message ${message.type}`}>
-                    {message.message}
-                </div>
-            )}
-            <div className='grid-assistencia-usuari'>
-                <div className='grid-assistencia-usuari-title'>
-                    {tipus} el dia {new Date(currentEsdeveniment.data).toLocaleDateString("es-ES")} a les {currentEsdeveniment.hora}
-                </div>
-                <div className='grid-assistencia-usuari-first-row'>
-                    <div className='grid-assistencia-usuari-first-row-buttons'>
-                        <span>Assistència</span>
-                        <div
-                            className={`numbers-assistencia-usuari-element-ok 
-                                ${assistenciaSeleccionada === "si" ? "active-assistencia" : ""}`}
-                            onClick={() => setAssistenciaSeleccionada("si")}>
-                            <FaCheck />
-                        </div>
-                        <div
-                            className={`numbers-assistencia-usuari-element-ko 
-                                ${assistenciaSeleccionada === "no" ? "active-assistencia" : ""}`}
-                            onClick={() => setAssistenciaSeleccionada("no")}>
-                            <FaTimes />
-                        </div>
+            <TopMenu title={`Assistència ${currentEsdeveniment.nom}`} tornar />
 
-                        <div
-                            className={`numbers-assistencia-usuari-element-unknown 
-                                ${assistenciaSeleccionada === "no_sap" ? "active-assistencia" : ""}`}
-                            onClick={() => setAssistenciaSeleccionada("no_sap")}>
-                            <FaQuestion />
+            {message && <div className={`message ${message.type}`}>{message.message}</div>}
+
+            <div className="assistencia-usuari-page">
+
+                <div className="assistencia-usuari-subtitle">
+                    <span className="assistencia-usuari-badge">{tipus}</span>
+                    <p className="assistencia-usuari-title">
+                        {tipus} el dia {new Date(currentEsdeveniment.data).toLocaleDateString("ca-ES")} a les {currentEsdeveniment.hora}
+                    </p>
+                </div>
+
+                <div className="assistencia-usuari-form">
+
+                    <div className="form-section">
+                        <span className="form-section-label">La meva assistència</span>
+                        <div className="attendance-buttons">
+                            <button
+                                type="button"
+                                className={`attendance-btn attendance-btn--ok ${assistenciaSeleccionada === "si" ? "active" : ""}`}
+                                onClick={() => setAssistenciaSeleccionada("si")}
+                            >
+                                <FaCheck /> VINC
+                            </button>
+                            <button
+                                type="button"
+                                className={`attendance-btn attendance-btn--ko ${assistenciaSeleccionada === "no" ? "active" : ""}`}
+                                onClick={() => setAssistenciaSeleccionada("no")}
+                            >
+                                <FaTimes /> NO VINC
+                            </button>
+                            <button
+                                type="button"
+                                className={`attendance-btn attendance-btn--unknown ${assistenciaSeleccionada === "no_sap" ? "active" : ""}`}
+                                onClick={() => setAssistenciaSeleccionada("no_sap")}
+                            >
+                                <FaQuestion /> DUBTE
+                            </button>
                         </div>
                     </div>
-                    <div className='grid-assistencia-usuari-first-row-bus'>
+
+                    <div className="form-row-2">
                         {(bus && tipus !== "Assaig") && (
-                            <>
-                                <span>Vaig amb bus:</span>
-                                <div className="checkbox-container-assistencia-info">
+                            <div className="toggle-card">
+                                <label className="toggle-card-row">
                                     <input
                                         type="checkbox"
                                         checked={busAssistencia}
-                                        onChange={
-                                            (e) => {
-                                                setBusAssistencia(e.target.checked)
-                                            }
-                                        }
+                                        onChange={e => setBusAssistencia(e.target.checked)}
                                     />
-                                </div>
-                            </>
+                                    <span className="toggle-card-label">Vaig amb bus</span>
+                                </label>
+                            </div>
                         )}
-                    </div>
-                    <div className='grid-assistencia-usuari-first-row-companions'>
                         {acompanyat && (
-                            <>
-                                <span>Acompanyants: </span>
-                                <Input
+                            <div className="companions-field">
+                                <label htmlFor="num_acompanyants">Acompanyants</label>
+                                <input
+                                    id="num_acompanyants"
                                     name="num_acompanyants"
                                     type="number"
-                                    placeholder="Nombre d'acompanyants"
+                                    min="0"
                                     value={currentAssistance.num_acompanyants}
                                     onChange={handleChange}
-                                    inputTitle="Acompanyants"
                                 />
-                            </>
+                            </div>
                         )}
                     </div>
-                </div>
-                <div className='grid-assistencia-usuari-second-row'>
-                    <div className='grid-assistencia-usuari-second-row-tard'>
 
-                        <span>Arribo tard:</span>
-                        <input
-                            type="checkbox"
-                            checked={arribaTard}
-                            onChange={
-                                (e) => {
-                                    setArribaTard(e.target.checked)
-                                }
-                            }
-                        />
+                    <div className="form-row-2">
+                        <div className="toggle-card">
+                            <label className="toggle-card-row">
+                                <input
+                                    type="checkbox"
+                                    checked={arribaTard}
+                                    onChange={e => setArribaTard(e.target.checked)}
+                                />
+                                <span className="toggle-card-label">Arribo tard</span>
+                            </label>
+                            {arribaTard && (
+                                <>
+                                    <span className="toggle-card-sub">Quant? (en minuts)</span>
+                                    <input
+                                        name="temps_tard"
+                                        type="number"
+                                        min="0"
+                                        value={currentAssistance.temps_tard}
+                                        onChange={handleChange}
+                                    />
+                                </>
+                            )}
+                        </div>
 
-                        {arribaTard && (
-                            <>
-                                <Input
-                                    name="temps_tard"
-                                    type="number"
-                                    placeholder="Temps que arribaré tard..."
-                                    value={currentAssistance.temps_tard}
-                                    onChange={handleChange}
-                                    inputTitle="Quant? (en minuts)"
+                        <div className="toggle-card">
+                            <label className="toggle-card-row">
+                                <input
+                                    type="checkbox"
+                                    checked={marxaAviat}
+                                    onChange={e => setMarxaAviat(e.target.checked)}
                                 />
-                            </>
-                        )}
+                                <span className="toggle-card-label">Marxo d'hora</span>
+                            </label>
+                            {marxaAviat && (
+                                <>
+                                    <span className="toggle-card-sub">Quant? (en minuts)</span>
+                                    <input
+                                        name="temps_aviat"
+                                        type="number"
+                                        min="0"
+                                        value={currentAssistance.temps_aviat}
+                                        onChange={handleChange}
+                                    />
+                                </>
+                            )}
+                        </div>
                     </div>
-                    <div className='grid-assistencia-usuari-second-row-aviat'>
-                        <span>Marxo d'hora:</span>
-                        <input
-                            type="checkbox"
-                            checked={marxaAviat}
-                            onChange={
-                                (e) => {
-                                    setMarxaAviat(e.target.checked)
-                                }
-                            }
+
+                    <div className="comment-field">
+                        <label htmlFor="comentari">Comentari</label>
+                        <textarea
+                            id="comentari"
+                            name="comentari"
+                            rows={3}
+                            placeholder="Escriu qualsevol observació aquí..."
+                            value={currentAssistance.comentari}
+                            onChange={handleChange}
                         />
-                        {marxaAviat && (
-                            <>
-                                <Input
-                                    name="temps_aviat"
-                                    type="number"
-                                    placeholder="Temps que marxaré aviat..."
-                                    value={currentAssistance.temps_aviat}
-                                    onChange={handleChange}
-                                    inputTitle="Quant? (en minuts)"
-                                />
-                            </>
-                        )}
                     </div>
-                </div>
-                <div className='grid-assistencia-usuari-third-row'>
-                    <Input
-                        name="comentari"
-                        type="textarea"
-                        inputTitle="Comentari"
-                        value={currentAssistance.comentari}
-                        onChange={handleChange}
-                    />
-                </div>
-                {error && (
-                    <div className="error-message">
-                        {error}
+
+                    {error && <div className="error-message">{error}</div>}
+
+                    <div className="assistencia-actions">
+                        <button className="btn-save-assistencia" type="button" onClick={modifyAssistenciaPreviaCall}>
+                            <FaSave /> Guardar assistència
+                        </button>
+                        <button className="btn-confirm-assistencia" type="button" onClick={() => setShowModal(true)}>
+                            <FaCheckDouble /> Confirmació in situ
+                        </button>
                     </div>
-                )}
-                <div className='grid-assistencia-usuari-buttons'>
-                    <Button
-                        text="Guardar assistència"
-                        icon={<FaSave />}
-                        action={modifyAssistenciaPreviaCall}
-                    />
-                    <Button
-                        text="Confirmació in situ"
-                        icon={<FaCheckDouble />}
-                        action={() => {
-                            setShowModal(true);
-                        }}
-                    />
+
                 </div>
             </div>
 
-            {
-                showModal && (
-                    <div className="modal-overlay-assistencia">
-                        <div className="modal-assistencia">
-                            <h2>
-                                Verificar codi
-                            </h2>
-                            <div className="input-assistencia">
-                                <Input
-                                    name="code"
+            {showModal && (
+                <div className="modal-overlay-assistencia">
+                    <div className="modal-assistencia">
+                        <h2>Verificar codi</h2>
+                        <div className="input-assistencia">
+                            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
+                                <label style={{ fontSize: "var(--text-label-md)", fontWeight: "600", color: "var(--on-surface-variant)" }}>
+                                    Codi
+                                </label>
+                                <input
                                     type="text"
                                     placeholder="Codi"
                                     value={modalText}
-                                    onChange={(e) =>
-                                        setModalText(e.target.value)
-                                    }
-                                    inputTitle="Codi"
-                                />
-                            </div>
-                            {error && (
-                                <div className="error-message">
-                                    {error}
-                                </div>
-                            )}
-                            <div className="modal-buttons-assistencia">
-                                <Button
-                                    text="Verificar codi"
-                                    icon={<FaPaperPlane />}
-                                    action={verifyCodeCall}
-                                />
-                                <Button
-                                    text="Cancelar"
-                                    icon={<FaTimesCircle />}
-                                    action={() => { setShowModal(false); setError(""); }}
+                                    onChange={e => setModalText(e.target.value)}
+                                    style={{
+                                        padding: "var(--space-sm) var(--space-md)",
+                                        border: "1px solid var(--outline-variant)",
+                                        borderRadius: "var(--radius-md)",
+                                        fontFamily: "var(--font-base)",
+                                        fontSize: "var(--text-body-md)",
+                                        outline: "none",
+                                        width: "100%",
+                                        boxSizing: "border-box"
+                                    }}
                                 />
                             </div>
                         </div>
+                        {error && <div className="error-message">{error}</div>}
+                        <div className="modal-buttons-assistencia">
+                            <button className="btn-confirm-assistencia" onClick={() => { setShowModal(false); setError(""); }}>
+                                <FaTimesCircle /> Cancel·lar
+                            </button>
+                            <button className="btn-save-assistencia" onClick={verifyCodeCall}>
+                                <FaPaperPlane /> Verificar codi
+                            </button>
+                        </div>
                     </div>
-                )
-            }
-        </div >
-    )
-}
+                </div>
+            )}
+        </div>
+    );
+};
 
 export default AssistenciaUsuari;
