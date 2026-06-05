@@ -1,114 +1,89 @@
-/* CASTELL PROJECTION */
-
+/* Projecció del castell */
 .show-castell-board {
     height: 100vh;
     width: 100vw;
-
     display: flex;
     flex-direction: column;
-
     overflow: hidden;
-
     background: #fafafa;
 }
 
 .showboard-floating-button {
     position: fixed;
-
     top: 12px;
     left: 12px;
-
     z-index: 100;
 }
 
+/* Canvas: centra el contingut quan cap, fa scroll si no hi cap */
 .show-castell-canvas {
     flex: 1;
-
-    position: relative;
-
     display: flex;
-    flex-direction: row;
-
-    overflow-x: auto;
-    overflow-y: hidden;
-
-    scroll-behavior: smooth;
-
+    align-items: center;       /* centra verticalment */
+    justify-content: center;   /* centra horitzontalment per defecte */
+    overflow: auto;
+    padding: 40px 60px;
     background: #fafafa;
-
-    padding: 10px 10px 10px 10px;
+    box-sizing: border-box;
 }
 
+/* Inner: amplada exacta del castell, calculada des del JSX */
+.show-castell-inner {
+    position: relative;
+    flex-shrink: 0;            /* no s'encongeix si és més gran que el canvas */
+    height: 100%;
+    /* width s'estableix via inline style des del JSX */
+}
+
+/* Cada secció (pinya, tronc...) */
 .castell-section {
     position: relative;
-
-    flex: 0 0 auto;
-
+    display: inline-block;
     height: 100%;
-
-    padding: 0;
-
     background: transparent;
 }
 
 .castell-section-layer {
     position: relative;
-
     width: 100%;
     height: 100%;
-
     overflow: visible;
 }
 
+/* Posicions individuals */
 .bloc-posicio-prova {
     position: absolute;
-
     width: 60px;
     height: 20px;
-
     border-radius: 8px;
     border: 1px solid #777;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     font-size: 12px;
     font-weight: 600;
-
     user-select: none;
-
-    cursor: pointer;
-
+    cursor: default;
     transition: box-shadow 0.2s ease;
-
     background: white;
-
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-
     padding: 0 6px;
     box-sizing: border-box;
 }
 
 .bloc-posicio-prova:hover {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
+/* Posició del membre actual (ressaltat) */
 .selected-bloc-member {
     outline: 3px solid #ff3b3b;
+    z-index: 2;
 }
 
-.show-castell-canvas::-webkit-scrollbar {
-    height: 10px;
-}
-
-.show-castell-canvas::-webkit-scrollbar-thumb {
-    background: #bbb;
-    border-radius: 10px;
-}
-
-.show-castell-canvas::-webkit-scrollbar-track {
-    background: transparent;
-}
+/* Scrollbar suau */
+.show-castell-canvas::-webkit-scrollbar       { width: 8px; height: 8px; }
+.show-castell-canvas::-webkit-scrollbar-thumb { background: #bbb; border-radius: 10px; }
+.show-castell-canvas::-webkit-scrollbar-track { background: transparent; }
