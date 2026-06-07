@@ -11,7 +11,8 @@ import { getPermissions } from "../utils/utils.jsx";
 
 import {
     FaPencilAlt, FaUsers, FaRegEye, FaCalendarAlt, FaCheck, FaTimes, FaCommentDots,
-    FaQuestion, FaBandAid, FaClipboardList, FaHashtag, FaCheckCircle, FaTimesCircle
+    FaQuestion, FaBandAid, FaClipboardList, FaHashtag, FaCheckCircle, FaTimesCircle,
+    FaClock
 } from "react-icons/fa";
 
 import TopMenu from "../components/TopMenu";
@@ -209,9 +210,10 @@ function Dashboard() {
                                                         <span className="prova-card-nom">{prova.nom}</span>
                                                         <div className="prova-card-icons">
                                                             {prova.xarxa && <FaHashtag title="Amb xarxa" />}
-                                                            {prova.feta
+                                                            {prova.feta == "feta"
                                                                 ? <FaCheckCircle className="icon-feta-dashboard" title="Realitzada" />
-                                                                : <FaTimesCircle className="icon-no-feta-dashboard" title="No realitzada" />
+                                                                : prova.feta == "cancelada" ? <FaTimesCircle className="icon-no-feta-dashboard" title="Cancelada" />
+                                                                : <FaClock className="icon-pendent-dashboard" title="Pendent de fer" />
                                                             }
                                                         </div>
                                                     </div>

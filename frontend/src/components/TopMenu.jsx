@@ -54,7 +54,6 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
       }
       
       const data = await getMemberPermissions(currentColla.id);
-      console.log(data);
       localStorage.setItem("permissions", JSON.stringify(data.permisos));
     } catch (err) {
       handleApiError(err, navigate, setError);

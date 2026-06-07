@@ -1,8 +1,8 @@
 /* ── Icones d'estat ─────────────────────────────────────────────── */
 .icon-feta    { color: #16a34a; }
-.icon-no-feta { color: var(--error); }
+.icon-no-feta { color: var(--error); } 
 .icon-unknown { color: #ca8a04; }
-.icon-pendent { color: var(--on-surface-variant); }
+.icon-pendent { color: #5b3fa6; }
 .favorit-actiu { color: goldenrod; }
 
 /* ── LEFT PANEL (membres) ───────────────────────────────────────── */

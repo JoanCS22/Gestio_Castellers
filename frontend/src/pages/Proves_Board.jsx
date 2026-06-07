@@ -5,7 +5,7 @@ import {
     createProva, modifyProva, deleteProva,
     updateFavorite, updateFeta, publishProva,
     intercanviarPosicions, asignarPosicioProva, canviarAssignacio, moureAssignacio,
-    treureMembrePosicio, buidarPlantilla, treureAbsents,
+    treureMembrePosicio, buidarPlantilla, treureAbsents
 } from "../services/provesService.js";
 import { getPlantillaById, getCollesPlantilles, getPlantillesPositions } from "../services/plantillesService.js";
 import { getAssistenciaByEsdeveniment } from "../services/assistenciaService.js";
@@ -19,7 +19,7 @@ import {
     FaCheck, FaCheckDouble, FaVideoSlash, FaVideo, FaTrashAlt, FaTimesCircle, FaCheckCircle,
     FaStar, FaHashtag, FaEye, FaEyeSlash, FaPencilAlt, FaPlusSquare, FaSearch,
     FaTimes, FaQuestionCircle, FaUserTimes, FaUserAltSlash, FaUsersSlash,
-    FaAngleRight, FaAngleLeft, FaAmbulance, FaGithubAlt, FaArrowLeft
+    FaAngleRight, FaAngleLeft, FaAmbulance, FaGithubAlt, FaArrowLeft, FaClock
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx"
@@ -392,6 +392,13 @@ function ProvesBoard() {
         return alturaTotal;
     };
 
+    const changeState = (valorActual) => {
+        if (valorActual === "per fer") return "feta";
+        if (valorActual === "feta") return "cancelada";
+        if (valorActual === "cancelada") return "per fer";
+        return "per fer";
+    };
+
     const loadCollaMembers = async () => {
         try {
             const data = await getCollaMembers(currentColla.id);
@@ -488,7 +495,8 @@ function ProvesBoard() {
 
     const changeFeta = async (idPlantilla, fetaValue) => {
         try {
-            const data = await updateFeta(idPlantilla, fetaValue);
+            const newValue = changeState(fetaValue);
+            const data = await updateFeta(idPlantilla, newValue);
             await loadProva();
         } catch (err) {
             handleApiError(err, navigate, setError);
@@ -791,13 +799,22 @@ function ProvesBoard() {
                                         <FaHashtag />
                                     </div>
                                 )}
-                                <div className="icon-btn" title={provaInfo?.feta ? "Prova realitzada" : "Prova no realitzada"} onClick={() => {
-                                    changeFeta(provaInfo.id, !provaInfo?.feta);
-                                }}>
-                                    {provaInfo?.feta ? (
+                                <div className="icon-btn" title={provaInfo?.feta == "feta" ? "Prova realitzada" :
+                                    provaInfo?.feta == "per fer" ? "Prova pendent" : "Prova cancel·lada"}
+                                    onClick={() => {
+                                        changeFeta(provaInfo.id, provaInfo?.feta);
+                                    }}>
+                                    {provaInfo?.feta == "feta" ? (
                                         <FaCheckCircle className="icon-feta" />
                                     ) : (
-                                        <FaTimesCircle className="icon-no-feta" />
+                                        <>
+                                            {provaInfo?.feta == "per fer" ? (
+                                                <FaClock className="icon-pendent" />
+                                            ) : (
+
+                                                <FaTimesCircle className="icon-no-feta" />
+                                            )}
+                                        </>
                                     )}
                                 </div>
                                 <div className="icon-btn" title={provaInfo?.favorita ? "Treure de favorits" : "Afegir a favorits"} onClick={() => {

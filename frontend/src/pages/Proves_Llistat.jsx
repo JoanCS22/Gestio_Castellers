@@ -8,7 +8,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import {
     FaClipboardList, FaTimesCircle, FaCheckCircle, FaHashtag,
-    FaPencilAlt, FaChevronUp, FaChevronDown, FaSave
+    FaPencilAlt, FaChevronUp, FaChevronDown, FaSave, FaClock
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx";
@@ -19,22 +19,22 @@ import TopMenu from "../components/TopMenu.jsx";
 import "./Proves_Llistat.css";
 
 function ProvesLlistat() {
-    const navigate  = useNavigate();
-    const location  = useLocation();
+    const navigate = useNavigate();
+    const location = useLocation();
     const { currentColla } = useColla();
 
-    const params          = new URLSearchParams(location.search);
-    const idEsdeveniment  = params.get("idEsdeveniment");
+    const params = new URLSearchParams(location.search);
+    const idEsdeveniment = params.get("idEsdeveniment");
     const nomEsdeveniment = params.get("nomEsdeveniment");
 
-    const permissions        = getPermissions();
+    const permissions = getPermissions();
     const hasWritePermission = (key) => permissions[key] === "W";
-    const hasAccess          = (key) => permissions[key] !== "X";
+    const hasAccess = (key) => permissions[key] !== "X";
 
     const [message, setTempMessage] = useState(null);
-    const [error, setError]         = useState("");
-    const [proves, setProves]       = useState([]);
-    const [editMode, setEditMode]   = useState(false);
+    const [error, setError] = useState("");
+    const [proves, setProves] = useState([]);
+    const [editMode, setEditMode] = useState(false);
     const [originalProves, setOriginalProves] = useState([]);
 
     const showTempMessage = (msg, type = "success") => {
@@ -44,8 +44,8 @@ function ProvesLlistat() {
 
     const moveProva = (id, direction) => {
         const updated = [...proves];
-        const index   = updated.findIndex(p => p.id === id);
-        if (direction === "up"   && index > 0)                  [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
+        const index = updated.findIndex(p => p.id === id);
+        if (direction === "up" && index > 0) [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
         if (direction === "down" && index < updated.length - 1) [updated[index + 1], updated[index]] = [updated[index], updated[index + 1]];
         setProves(updated.map((p, i) => ({ ...p, ordre: i + 1 })));
     };
@@ -66,8 +66,8 @@ function ProvesLlistat() {
     useEffect(() => { loadProves(); }, []);
 
     const visible = proves.filter(p => p.public || hasWritePermission("proves"));
-    const totalFetes  = visible.filter(p => p.feta).length;
-    const totalXarxa  = visible.filter(p => p.xarxa).length;
+    const totalFetes = visible.filter(p => p.feta == "feta").length;
+    const totalXarxa = visible.filter(p => p.xarxa).length;
 
     return (
         <div>
@@ -157,7 +157,7 @@ function ProvesLlistat() {
                                 {visible.map((prova, index) => (
                                     <tr
                                         key={prova.id}
-                                        className={prova.feta ? "row--feta" : ""}
+                                        className={prova.feta == "feta" ? "row--feta" : ""}
                                     >
                                         <td>
                                             {editMode ? (
@@ -200,9 +200,10 @@ function ProvesLlistat() {
 
                                         <td>
                                             <div className="cell-indicator">
-                                                {prova.feta
+                                                {prova.feta == "feta"
                                                     ? <span className="indicator-ok"><FaCheckCircle /></span>
-                                                    : <span className="indicator-ko"><FaTimesCircle /></span>
+                                                    : prova.feta == "cancelada" ? <span className="indicator-ko"><FaTimesCircle /></span>
+                                                    : <span className="indicator-pendent"><FaClock /></span>
                                                 }
                                             </div>
                                         </td>

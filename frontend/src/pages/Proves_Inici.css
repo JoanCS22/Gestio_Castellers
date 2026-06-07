@@ -299,6 +299,11 @@
 }
 
 .prova-badge--pendent {
+    background: #e8e0f7;
+    color: #5b3fa6;
+}
+
+.prova-badge--cancelada {
     background: var(--error-container);
     color: var(--error);
 }

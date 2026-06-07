@@ -1,6 +1,8 @@
 import { register, login } from "../services/authService.js";
 import { handleApiError } from "../utils/handleApiError.js";
 
+import { useColla } from "../context/CollaContext.jsx";
+
 import "./LoginRegistre.css";
 import Input from "../components/Input.jsx";
 
@@ -10,6 +12,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { FaLock, FaRegEnvelope, FaEye, FaEyeSlash, FaUsers } from "react-icons/fa";
 
 function LoginRegistre() {
+
+    const { reloadColles } = useColla();
+
     const navigate = useNavigate();
     const location = useLocation();
     const isLogin = location.pathname === "/login";
@@ -47,6 +52,9 @@ function LoginRegistre() {
                 localStorage.clear();
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data.user));
+
+                await reloadColles();
+
                 showTempMessage("Iniciant sessió...");
                 setTimeout(() => navigate("/dashboard"), 2000);
             } else {
@@ -80,7 +88,7 @@ function LoginRegistre() {
 
             <div className="login-branding">
                 <div className="login-logo">
-                    <FaUsers  className="material-symbols-outlined"/>
+                    <FaUsers className="material-symbols-outlined" />
                 </div>
                 <h1 className="login-app-title">La Plaça</h1>
                 <p className="login-app-subtitle">Gestió de pinyes i castells</p>
@@ -93,7 +101,7 @@ function LoginRegistre() {
                             Correu electrònic
                         </label>
                         <div className="field-input-wrap">
-                            <FaRegEnvelope className="material-symbols-outlined field-icon" aria-hidden="true"/>
+                            <FaRegEnvelope className="material-symbols-outlined field-icon" aria-hidden="true" />
                             <input
                                 id="email"
                                 type="email"
@@ -110,7 +118,7 @@ function LoginRegistre() {
                             Contrasenya
                         </label>
                         <div className="field-input-wrap">
-                            <FaLock className="material-symbols-outlined field-icon" aria-hidden="true"/>
+                            <FaLock className="material-symbols-outlined field-icon" aria-hidden="true" />
                             <input
                                 id="password"
                                 type={showPassword ? "text" : "password"}

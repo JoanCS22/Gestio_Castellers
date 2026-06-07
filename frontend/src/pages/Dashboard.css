@@ -64,7 +64,9 @@
     transition: opacity 0.15s;
 }
 
-.dashboard-card-link:hover { opacity: 0.75; }
+.dashboard-card-link:hover {
+    opacity: 0.75;
+}
 
 .dashboard-card-header-icon {
     color: var(--primary);
@@ -73,7 +75,9 @@
     transition: opacity 0.15s;
 }
 
-.dashboard-card-header-icon:hover { opacity: 0.75; }
+.dashboard-card-header-icon:hover {
+    opacity: 0.75;
+}
 
 /* Cos de la targeta */
 .dashboard-card-actions {
@@ -136,9 +140,21 @@
     box-shadow: var(--shadow-sm);
 }
 
-.assistencia-stat--ok      { background: #f0fdf4; border: 1px solid #bbf7d0; }
-.assistencia-stat--ko      { background: #fff1f2; border: 1px solid #fecdd3; opacity: 0.8; }
-.assistencia-stat--unknown { background: #fefce8; border: 1px solid #fef08a; }
+.assistencia-stat--ok {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+}
+
+.assistencia-stat--ko {
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    opacity: 0.8;
+}
+
+.assistencia-stat--unknown {
+    background: #fefce8;
+    border: 1px solid #fef08a;
+}
 
 .assistencia-stat-number {
     font-size: var(--text-display-lg);
@@ -146,9 +162,17 @@
     line-height: 1;
 }
 
-.assistencia-stat--ok      .assistencia-stat-number { color: #15803d; }
-.assistencia-stat--ko      .assistencia-stat-number { color: #b91c1c; }
-.assistencia-stat--unknown .assistencia-stat-number { color: #a16207; }
+.assistencia-stat--ok .assistencia-stat-number {
+    color: #15803d;
+}
+
+.assistencia-stat--ko .assistencia-stat-number {
+    color: #b91c1c;
+}
+
+.assistencia-stat--unknown .assistencia-stat-number {
+    color: #a16207;
+}
 
 .assistencia-stat-label {
     display: flex;
@@ -158,9 +182,17 @@
     font-weight: var(--fw-label-sm);
 }
 
-.assistencia-stat--ok      .assistencia-stat-label { color: #166534; }
-.assistencia-stat--ko      .assistencia-stat-label { color: #991b1b; }
-.assistencia-stat--unknown .assistencia-stat-label { color: #854d0e; }
+.assistencia-stat--ok .assistencia-stat-label {
+    color: #166534;
+}
+
+.assistencia-stat--ko .assistencia-stat-label {
+    color: #991b1b;
+}
+
+.assistencia-stat--unknown .assistencia-stat-label {
+    color: #854d0e;
+}
 
 /* Grid de targetes de proves */
 .proves-grid-wrap {
@@ -169,8 +201,14 @@
     padding: var(--space-md) var(--space-lg);
 }
 
-.proves-grid-wrap::-webkit-scrollbar { width: 4px; }
-.proves-grid-wrap::-webkit-scrollbar-track { background: transparent; }
+.proves-grid-wrap::-webkit-scrollbar {
+    width: 4px;
+}
+
+.proves-grid-wrap::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 .proves-grid-wrap::-webkit-scrollbar-thumb {
     background: var(--outline-variant);
     border-radius: 10px;
@@ -183,7 +221,9 @@
 }
 
 @media (max-width: 700px) {
-    .proves-grid { grid-template-columns: repeat(2, 1fr); }
+    .proves-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 /* Targeta de prova */
@@ -224,8 +264,17 @@
     color: var(--on-surface-variant);
 }
 
-.icon-feta-dashboard    { color: #16a34a; }
-.icon-no-feta-dashboard { color: var(--error); }
+.icon-feta-dashboard {
+    color: #16a34a;
+}
+
+.icon-no-feta-dashboard {
+    color: var(--error);
+}
+
+.icon-pendent-dashboard {
+    color: #5b3fa6;
+}
 
 /* Targeta "Afegir prova" */
 .prova-card--add {
@@ -266,7 +315,9 @@
     transition: background-color 0.15s ease;
 }
 
-.event-item:hover { background-color: var(--surface-container-low); }
+.event-item:hover {
+    background-color: var(--surface-container-low);
+}
 
 .event-item--active {
     border-left-color: var(--primary);
@@ -288,7 +339,9 @@
     letter-spacing: 0.04em;
 }
 
-.event-item-tipus--active { color: var(--primary); }
+.event-item-tipus--active {
+    color: var(--primary);
+}
 
 .event-item-data {
     font-size: var(--text-label-sm);
@@ -332,6 +385,17 @@
     justify-content: center;
 }
 
-.event-badge--ok      { background: #f0fdf4; color: #15803d; }
-.event-badge--ko      { background: #fff1f2; color: #b91c1c; }
-.event-badge--unknown { background: #fefce8; color: #a16207; }
+.event-badge--ok {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.event-badge--ko {
+    background: #fff1f2;
+    color: #b91c1c;
+}
+
+.event-badge--unknown {
+    background: #fefce8;
+    color: #a16207;
+}

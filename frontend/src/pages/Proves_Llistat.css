@@ -261,6 +261,18 @@
     font-size: 16px;
 }
 
+.indicator-pendent {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background: #e8e0f7;
+    color: #5b3fa6;
+    font-size: 16px;
+}
+
 .indicator-xarxa {
     font-size: var(--text-headline-md);
     font-weight: 700;

@@ -202,13 +202,13 @@ const LeftMenu = () => {
                     </nav>
 
                     <div className="menu-footer">
-                        <div
+                        {/* <div
                             className={`nav-item ${isActive("/configuracio") ? "nav-item--active" : ""}`}
                             onClick={() => navigate("/configuracio")}
                         >
                             <FaCog />
                             <span>Configuració</span>
-                        </div>
+                        </div> */}
                         <div
                             className="nav-item nav-item--danger"
                             onClick={handleLogout}

@@ -11,7 +11,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import {
     FaPlusSquare, FaClipboardList, FaSearch, FaTimesCircle,
-    FaCheckCircle, FaHashtag, FaStar, FaPlus
+    FaCheckCircle, FaHashtag, FaStar, FaPlus, FaClock
 } from "react-icons/fa";
 
 import { getPermissions } from "../utils/utils.jsx";
@@ -26,25 +26,25 @@ function ProvesInici() {
     const location = useLocation();
     const { currentColla } = useColla();
 
-    const params         = new URLSearchParams(location.search);
-    const idEsdeveniment  = params.get("idEsdeveniment");
+    const params = new URLSearchParams(location.search);
+    const idEsdeveniment = params.get("idEsdeveniment");
     const nomEsdeveniment = params.get("nomEsdeveniment");
 
-    const permissions        = getPermissions();
+    const permissions = getPermissions();
     const hasWritePermission = (key) => permissions[key] === "W";
-    const hasAccess          = (key) => permissions[key] !== "X";
+    const hasAccess = (key) => permissions[key] !== "X";
 
-    const [message, setTempMessage]           = useState(null);
-    const [error, setError]                   = useState("");
-    const [proves, setProves]                 = useState([]);
-    const [plantilles, setPlantilles]         = useState([]);
-    const [estructures, setEstructures]       = useState([]);
+    const [message, setTempMessage] = useState(null);
+    const [error, setError] = useState("");
+    const [proves, setProves] = useState([]);
+    const [plantilles, setPlantilles] = useState([]);
+    const [estructures, setEstructures] = useState([]);
     const [selectedEstructures, setSelectedEstructures] = useState([]);
     const [openEstructures, setOpenEstructures] = useState(false);
-    const [search, setSearch]                 = useState("");
-    const [showModal, setShowModal]           = useState(false);
+    const [search, setSearch] = useState("");
+    const [showModal, setShowModal] = useState(false);
     const [selectedPlantilla, setSelectedPlantilla] = useState("");
-    const [modalTags, setModalTags]           = useState({
+    const [modalTags, setModalTags] = useState({
         nom: "", comentari: "", estructura: "", xarxa: false, public: false
     });
 
@@ -66,6 +66,13 @@ function ProvesInici() {
         setSelectedEstructures(prev =>
             prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
         );
+    };
+
+    const changeState = (valorActual) => {
+        if (valorActual === "per fer") return "feta";
+        if (valorActual === "feta") return "cancelada";
+        if (valorActual === "cancelada") return "per fer";
+        return "per fer";
     };
 
     const loadProves = async () => {
@@ -105,8 +112,13 @@ function ProvesInici() {
     };
 
     const changeFeta = async (id, val) => {
-        try { await updateFeta(id, val); await loadProves(); }
-        catch (err) { handleApiError(err, navigate, setError); }
+        try {
+            const newValue = changeState(val);
+            await updateFeta(id, newValue);
+            await loadProves();
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
     };
 
     // Tancar dropdown en click fora
@@ -229,24 +241,37 @@ function ProvesInici() {
                                             <FaHashtag /> Xarxa
                                         </span>
                                     )}
-                                    {prova.feta ? (
+                                    {prova.feta == "feta" ? (
                                         <span
                                             className="prova-badge prova-badge--feta"
-                                            title="Marcar com a no feta"
-                                            onClick={() => changeFeta(prova.id, false)}
+                                            title="Prova feta"
+                                            onClick={() => changeFeta(prova.id, prova.feta)}
                                             style={{ cursor: "pointer" }}
                                         >
                                             <FaCheckCircle /> Completada
                                         </span>
                                     ) : (
-                                        <span
-                                            className="prova-badge prova-badge--pendent"
-                                            title="Marcar com a feta"
-                                            onClick={() => changeFeta(prova.id, true)}
-                                            style={{ cursor: "pointer" }}
-                                        >
-                                            <FaTimesCircle /> Pendent
-                                        </span>
+                                        <>
+                                            {prova.feta == "cancelada" ? (
+                                                <span
+                                                    className="prova-badge prova-badge--cancelada"
+                                                    title="Prova cancelada"
+                                                    onClick={() => changeFeta(prova.id, prova.feta)}
+                                                    style={{ cursor: "pointer" }}
+                                                >
+                                                    <FaCheckCircle /> Cancelada
+                                                </span>
+                                            ) : (
+                                                <span
+                                                    className="prova-badge prova-badge--pendent"
+                                                    title="Prova pendent de fer"
+                                                    onClick={() => changeFeta(prova.id, prova.feta)}
+                                                    style={{ cursor: "pointer" }}
+                                                >
+                                                    <FaClock /> Pendent
+                                                </span>
+                                            )}
+                                        </>
                                     )}
                                 </div>
 

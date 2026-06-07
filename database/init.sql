@@ -264,6 +264,8 @@
     public BOOLEAN DEFAULT FALSE,
     xarxa BOOLEAN DEFAULT FALSE,
 
+    feta VARCHAR(20),
+
     estructura VARCHAR(255),
     indicacions JSONB NOT NULL DEFAULT '{}',
 
