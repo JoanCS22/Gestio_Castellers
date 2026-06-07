@@ -286,10 +286,17 @@ function ProvesBoard() {
     };
 
     const filteredMembers = useMemo(() => {
+        const hasSearch = memberSearch.trim().length > 0;
+
         return membersByPosition.filter((member) => {
 
-            const searchOk = member.mote?.toLowerCase().includes(memberSearch.toLowerCase());
-            if (!searchOk) return false;
+            if (hasSearch) {
+                const search = memberSearch.toLowerCase();
+                return (
+                    member.mote?.toLowerCase().includes(search) ||
+                    `${member.nom} ${member.cognoms}`.toLowerCase().includes(search)
+                );
+            }
 
             const registre = assistenciaMap[member.id_usuari];
 
@@ -729,6 +736,11 @@ function ProvesBoard() {
     }, [provaInfo?.id_plantilla]);
 
     useEffect(() => {
+        if (memberSearch.trim().length > 0) {
+            setMembersByPosition(members);
+            return;
+        }
+
         if (selectedPositions.length === 0 || selectedPositions.includes(0)) {
             setMembersByPosition(members);
             return;
@@ -742,7 +754,7 @@ function ProvesBoard() {
 
         setMembersByPosition(filtered);
 
-    }, [selectedPositions, members]);
+    }, [selectedPositions, members, memberSearch]);
 
     useEffect(() => {
         if (!boardRef.current || posicionsPlantilla.length === 0) return;

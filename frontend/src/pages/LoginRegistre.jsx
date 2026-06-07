@@ -54,7 +54,8 @@ function LoginRegistre() {
                 localStorage.setItem("user", JSON.stringify(data.user));                
 
                 await reloadColles();
-                navigate("/dashboard");
+                setTempMessage("Iniciant sessió...");
+                setTimeout(() => navigate("/dashboard"), 1500);
             } else {
                 if (!validatePassword(password)) {
                     setError("La contrasenya ha de tenir mínim 8 caràcters, una lletra, un número i un símbol");
