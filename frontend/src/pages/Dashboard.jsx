@@ -1,5 +1,5 @@
 import { getCollesFutureEsdeveniments } from "../services/esdevenimentsService.js";
-import { getAssistenciaByEsdeveniment } from "../services/assistenciaService.js";
+import { getAssistenciaByEsdeveniment, getAssistenciaActual, modifyAssistenciaPreviaTecnica } from "../services/assistenciaService.js";
 import { getProvesByEsdeveniment } from "../services/provesService.js";
 import { getNotifications } from "../services/notificacionsService.js";
 import { handleApiError } from "../utils/handleApiError.js";
@@ -40,13 +40,17 @@ function Dashboard() {
     const [assistenciaByEvent, setAssistenciaByEvent] = useState({});
     const [notificacions, setNotificacions] = useState([]);
 
+    const [currentAssistance, setCurrentAssistance] = useState({
+        id: 0, seleccionat: null,
+    });
+
     const { setCurrentEvent } = useEvent();
 
     const getStats = (id) => {
         const assistencia = assistenciaByEvent[id] || [];
         return {
-            ok:      assistencia.filter(a => a.confirmacio_previa === "si").length,
-            ko:      assistencia.filter(a => a.confirmacio_previa === "no").length,
+            ok: assistencia.filter(a => a.confirmacio_previa === "si").length,
+            ko: assistencia.filter(a => a.confirmacio_previa === "no").length,
             unknown: assistencia.filter(a => a.confirmacio_previa === "no_sap").length,
         };
     };
@@ -96,6 +100,25 @@ function Dashboard() {
         }
     };
 
+    const loadAssistenciaActual = async (idEsdeveniment) => {
+        try {
+            const data = await getAssistenciaActual(idEsdeveniment);
+            setCurrentAssistance({
+                id: data.id,
+                seleccionat: data.confirmacio_previa,
+            });
+        } catch (err) { handleApiError(err, navigate, setError); }
+    };
+
+    const modifyPrevia = async (newValue) => {
+        try {
+            await modifyAssistenciaPreviaTecnica(currentAssistance.id, newValue);
+            setCurrentAssistance({ id: currentAssistance.id, seleccionat: newValue });
+        } catch (err) {
+            handleApiError(err, navigate, setError);
+        }
+    };
+
     useEffect(() => {
         if (loadingColles || !currentColla) return;
         setFuturs([]);
@@ -110,6 +133,7 @@ function Dashboard() {
         if (futurs.length > 0) {
             futurs.forEach(e => loadAssistencia(e.id));
             loadProves(futurs[0].id);
+            loadAssistenciaActual(futurs[0].id);
         }
     }, [futurs]);
 
@@ -141,35 +165,61 @@ function Dashboard() {
                             <>
                                 <div className="assistencia-stats-grid">
                                     <div
-                                        className="assistencia-stat assistencia-stat--ok"
-                                        onClick={() => navigate(`/assistencia_usuari?idEsdeveniment=${primerEsdeveniment.id}&estatInicial=si`)}
+                                        className={`assistencia-stat assistencia-stat--ok
+                                            ${!hasWritePermission("assistencia") && currentAssistance.seleccionat === "si"
+                                                ? "assistencia-stat--selected" : ""}`}
+                                        onClick={() => modifyPrevia('si')}
                                     >
-                                        <span className="assistencia-stat-number">{statsProper.ok}</span>
+                                        <span className="assistencia-stat-number">
+                                            {hasWritePermission("assistencia") ? (statsProper.ok) : <FaCheckCircle />}
+                                        </span>
                                         <span className="assistencia-stat-label">
-                                            <FaCheckCircle /> Confirmats
+                                            {hasWritePermission("assistencia") ? (<> <FaCheckCircle /> Confirmats </>) : currentAssistance.seleccionat === "si" ? "Confirmat" : "Confirmar-se"}
                                         </span>
                                     </div>
                                     <div
-                                        className="assistencia-stat assistencia-stat--ko"
-                                        onClick={() => navigate(`/assistencia_usuari?idEsdeveniment=${primerEsdeveniment.id}&estatInicial=no`)}
+                                        className={`assistencia-stat assistencia-stat--ko
+                                            ${!hasWritePermission("assistencia") && currentAssistance.seleccionat === "no"
+                                                ? "assistencia-stat--selected" : ""}`}
+                                        onClick={() => modifyPrevia('no')}
                                     >
-                                        <span className="assistencia-stat-number">{statsProper.ko}</span>
+                                        <span className="assistencia-stat-number">
+                                            {hasWritePermission("assistencia") ? (statsProper.ko) : <FaTimesCircle />}
+                                        </span>
                                         <span className="assistencia-stat-label">
-                                            <FaTimesCircle /> Descartats
+                                            {hasWritePermission("assistencia") ? (<> <FaTimesCircle /> Confirmats </>) : currentAssistance.seleccionat === "no" ? "Descartat" : "Descartar-se"}
                                         </span>
                                     </div>
                                     <div
-                                        className="assistencia-stat assistencia-stat--unknown"
-                                        onClick={() => navigate(`/assistencia_usuari?idEsdeveniment=${primerEsdeveniment.id}&estatInicial=no_sap`)}
+                                        className={`assistencia-stat assistencia-stat--unknown
+                                            ${!hasWritePermission("assistencia") && currentAssistance.seleccionat === "no_sap"
+                                                ? "assistencia-stat--selected" : ""}`}
+                                        onClick={() => modifyPrevia('no_sap')}
                                     >
-                                        <span className="assistencia-stat-number">{statsProper.unknown}</span>
+                                        <span className="assistencia-stat-number">
+                                            {hasWritePermission("assistencia") ? (statsProper.unknown) : <FaQuestion />}
+                                        </span>
                                         <span className="assistencia-stat-label">
-                                            <FaQuestion /> Pendents
+                                            {hasWritePermission("assistencia") ? (<> <FaQuestion /> Pendents </>) : "Tinc dubtes" }
                                         </span>
                                     </div>
                                 </div>
 
-
+                                {primerEsdeveniment && (
+                                    <>
+                                        <div className="dashboard-card-footer">
+                                            <span className="dashboard-card-footer-text">
+                                                Si vols modificar més informació de l'assistència:
+                                            </span>
+                                            <button
+                                                className="dashboard-card-footer-pill"
+                                                onClick={() => navigate(`/assistencia_usuari?idEsdeveniment=${primerEsdeveniment.id}`)}
+                                            >
+                                                <FaPencilAlt /> Editar assistència
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </>
                         ) : (
                             <p className="dashboard-empty-text">No hi ha esdeveniments programats</p>
@@ -213,7 +263,7 @@ function Dashboard() {
                                                             {prova.feta == "feta"
                                                                 ? <FaCheckCircle className="icon-feta-dashboard" title="Realitzada" />
                                                                 : prova.feta == "cancelada" ? <FaTimesCircle className="icon-no-feta-dashboard" title="Cancelada" />
-                                                                : <FaClock className="icon-pendent-dashboard" title="Pendent de fer" />
+                                                                    : <FaClock className="icon-pendent-dashboard" title="Pendent de fer" />
                                                             }
                                                         </div>
                                                     </div>
@@ -230,7 +280,7 @@ function Dashboard() {
                                             )}
                                         </>
                                     ) : (
-                                        <p className="dashboard-empty-text">No hi ha proves per aquest assaig</p>
+                                        <p className="dashboard-empty-text">No hi ha proves per l'esdeveniment</p>
                                     )}
                                 </div>
                             </div>

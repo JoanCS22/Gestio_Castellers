@@ -119,13 +119,13 @@
 .assistencia-stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-md);
+    gap: var(--space-sm);
     padding: var(--space-md) var(--space-lg);
 }
 
 .assistencia-stat {
     border-radius: var(--radius-md);
-    padding: var(--space-md);
+    padding: var(--space-md) var(--space-sm);
     text-align: center;
     cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -133,6 +133,7 @@
     flex-direction: column;
     align-items: center;
     gap: var(--space-xs);
+    justify-content: center;
 }
 
 .assistencia-stat:hover {
@@ -157,9 +158,10 @@
 }
 
 .assistencia-stat-number {
-    font-size: var(--text-display-lg);
-    font-weight: var(--fw-display-lg);
-    line-height: 1;
+    font-size: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .assistencia-stat--ok .assistencia-stat-number {
@@ -178,8 +180,8 @@
     display: flex;
     align-items: center;
     gap: var(--space-xs);
-    font-size: var(--text-label-sm);
-    font-weight: var(--fw-label-sm);
+    font-size: var(--text-label-md);
+    font-weight: var(--fw-label-md);
 }
 
 .assistencia-stat--ok .assistencia-stat-label {
@@ -398,4 +400,65 @@
 .event-badge--unknown {
     background: #fefce8;
     color: #a16207;
+}
+
+.dashboard-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--outline-variant);
+    margin-top: var(--space-md);
+    flex-wrap: wrap;
+    padding: var(--space-sm) var(--space-lg);
+}
+
+.dashboard-card-footer-text {
+    font-size: var(--text-label-dm);
+    color: var(--on-surface-variant);
+}
+
+.dashboard-card-footer-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-md);
+    background: var(--surface-container-low);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-full);
+    font-family: var(--font-base);
+    font-size: var(--text-label-md);
+    font-weight: var(--fw-label-md);
+    color: var(--primary);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.dashboard-card-footer-pill:hover {
+    background: var(--surface-container);
+}
+
+
+.assistencia-stat--selected {
+    box-shadow: 0 0 0 3px currentColor, var(--shadow-sm);
+    transform: scale(1.03);
+}
+
+.assistencia-stat--ok.assistencia-stat--selected {
+    border-color: #16a34a;
+    border-width: 2px;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+}
+
+.assistencia-stat--ko.assistencia-stat--selected {
+    border-color: #dc2626;
+    border-width: 2px;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+.assistencia-stat--unknown.assistencia-stat--selected {
+    border-color: #ca8a04;
+    border-width: 2px;
+    box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.2);
 }
