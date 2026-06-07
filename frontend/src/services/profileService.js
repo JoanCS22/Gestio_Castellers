@@ -1,26 +1,29 @@
 import { apiRequest } from "./api";
 
-export const getData = async (userId) => {
-    const url = userId
-        ? `/profile/getUserData?userId=${userId}`
-        : `/profile/getUserData`;
+export const getData = async (userId, collaId) => {
+    const params = new URLSearchParams();
+    if (userId) params.set("userId", userId);
+    if (collaId) params.set("collaId", collaId);
+
     return await apiRequest(
-        url,
-        {
-            method: "GET",
-        }
+        `/profile/getUserData?${params.toString()}`,
+        { method: "GET" }
     );
 };
 
-export const updateData = async (userId, form, lesionat, genere, canalla, query) => {
+export const updateData = async (userId, form, lesionat, genere, canalla, collaId) => {
+
+    const params = new URLSearchParams();
+    if (userId) params.set("userId", userId);
+    if (collaId) params.set("collaId", collaId);
+
     return await apiRequest(
-        query,
+        `/profile/modifyUserData?${params.toString()}`,
         {
             method: "POST",
             body: JSON.stringify({
                 nom: form.nom,
                 cognoms: form.cognoms,
-                mote: form.mote,
                 telefon: form.telefon,
                 altura_espatlles: form.alcadaEspatlles || null,
                 envergadura: form.envergadura || null,
@@ -30,7 +33,8 @@ export const updateData = async (userId, form, lesionat, genere, canalla, query)
                 comentari: form.infoExtra,
                 lesionat: lesionat,
                 genere: genere,
-                canalla: canalla
+                canalla: canalla,
+                mote: form.mote,
             }),
         }
     );

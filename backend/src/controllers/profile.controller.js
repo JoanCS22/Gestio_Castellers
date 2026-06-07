@@ -16,12 +16,18 @@ const getUserData = async (req, res) => {
     try {
         const requestedUserId = req.query.userId;
         const loggedUserId = req.user.id;
-
         const userId = !requestedUserId || requestedUserId === "null" ? loggedUserId : requestedUserId;
 
+        const collaId = req.query.collaId || null;
+
         const result = await pool.query(
-            `SELECT * FROM usuaris WHERE id = $1`,
-            [userId]
+            `SELECT u.*, mc.mote
+             FROM usuaris u
+             LEFT JOIN membres_colla mc 
+                ON mc.id_usuari = u.id 
+                AND mc.id_colla = $2
+             WHERE u.id = $1`,
+            [userId, collaId]
         );
 
         if (result.rows.length === 0) {
@@ -38,16 +44,16 @@ const getUserData = async (req, res) => {
 };
 
 const modifyUserData = async (req, res) => {
+    const client = await pool.connect();
     try {
         const requestedUserId = req.query.userId;
         const loggedUserId = req.user.id;
-
-        console.log(requestedUserId);
-
         const userId = requestedUserId || loggedUserId;
 
-        const { nom, cognoms, mote, telefon, altura_espatlles, envergadura, pes,
-            altura_total, data_lesio, comentari, lesionat, genere, canalla } = req.body;
+        const collaId = req.query.collaId || null;
+
+        const { nom, cognoms, telefon, altura_espatlles, envergadura, pes,
+            altura_total, data_lesio, comentari, lesionat, genere, canalla, mote } = req.body;
 
         const alturaEsp = toIntOrNull(altura_espatlles);
         const enverg = toIntOrNull(envergadura);
@@ -69,16 +75,27 @@ const modifyUserData = async (req, res) => {
             });
         }
 
+        await client.query("BEGIN");
+
         const result = await pool.query(
             `UPDATE usuaris 
-            SET nom = $2, cognoms = $3, mote = $4, telefon = $5, altura_espatlles = $6, envergadura = $7, pes = $8, 
-            altura_total = $9, data_lesio = $10, comentari = $11, lesionat = $12, genere = $13, canalla = $14 
+            SET nom = $2, cognoms = $3, telefon = $4, altura_espatlles = $5, envergadura = $6, pes = $7, 
+            altura_total = $8, data_lesio = $9, comentari = $10, lesionat = $11, genere = $12, canalla = $13 
             WHERE id = $1
             RETURNING *`,
-            [userId, nom, cognoms, mote, telefon || null, alturaEsp, enverg, pesInt,
+            [userId, nom, cognoms, telefon || null, alturaEsp, enverg, pesInt,
                 alturaTot, dataLesio, comentari || null, lesionat, genere, canalla]
         );
 
+        if (collaId && mote !== undefined) {
+            await client.query(
+                `UPDATE membres_colla SET mote=$3
+                 WHERE id_usuari=$1 AND id_colla=$2`,
+                [userId, collaId, mote]
+            );
+        }
+
+        await client.query("COMMIT");
         res.status(200).json(result.rows[0]);
 
     } catch (error) {

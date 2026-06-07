@@ -83,14 +83,14 @@ function UserProfile() {
 
     const getDataProfile = async () => {
         try {
-            const data = await getData(userId);
+            const data = await getData(userId, currentColla?.id);
             setForm({
                 nom: data.nom || "", cognoms: data.cognoms || "",
-                mote: data.mote || "", telefon: data.telefon || "",
+                telefon: data.telefon || "",
                 email: data.email || "", alcadaEspatlles: data.altura_espatlles || "",
                 envergadura: data.envergadura || "", pes: data.pes || "",
                 alcada: data.altura_total || "", dataLesio: data.data_lesio || "",
-                infoExtra: data.comentari || ""
+                infoExtra: data.comentari || "", mote: data.mote || "",
             });
             setLesionat(data.lesionat || false);
             setGenere(data.genere || "altre");
@@ -104,6 +104,7 @@ function UserProfile() {
         try {
             const data = await getDataMember(currentColla.id, userId);
             const row = data[0] || {};
+            console.log(row.mote);
             setSelectedPositions((row.posicions_ids || []).map(String));
             setSelectedGroups(row.grups_ids || []);
             setSelectedRole(row.rol_id ? String(row.rol_id) : "");
@@ -131,11 +132,8 @@ function UserProfile() {
             setError(`Els camps han de ser numèrics i positius: ${errors.join(", ")}`);
             return;
         }
-        const query = isTecnica
-            ? `/profile/modifyUserData?userId=${userId}`
-            : `/profile/modifyUserData`;
         try {
-            await updateData(userId, form, lesionat, genere, canalla, query);
+            await updateData(userId, form, lesionat, genere, canalla, currentColla?.id);
             setError("");
             showTempMessage("Informació general actualitzada correctament.");
         } catch (err) { handleApiError(err, navigate, setError); }
@@ -303,8 +301,9 @@ function UserProfile() {
                         <div className="profile-colla-grid">
                             <div className="profile-field">
                                 <label>Sobrenom</label>
-                                <input name="mote" type="text" placeholder="Com et coneixen?"
+                                <input name="mote" type="text" placeholder="Com et coneixen?" readOnly={!isTecnica}
                                     value={form.mote} onChange={handleChange} />
+
                             </div>
 
                             {isTecnica && (

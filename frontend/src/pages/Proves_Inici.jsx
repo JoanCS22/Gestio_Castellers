@@ -259,7 +259,7 @@ function ProvesInici() {
                                                     onClick={() => changeFeta(prova.id, prova.feta)}
                                                     style={{ cursor: "pointer" }}
                                                 >
-                                                    <FaCheckCircle /> Cancelada
+                                                    <FaTimesCircle /> Cancelada
                                                 </span>
                                             ) : (
                                                 <span

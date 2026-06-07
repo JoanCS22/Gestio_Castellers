@@ -9,12 +9,12 @@ const getAssistenciaList = async (req, res) => {
         await client.query("BEGIN");
 
         const result = await client.query(
-            `SELECT a.*, e.acompanyat as boolCompanyia, e.bus as boolBus, u.mote
+            `SELECT a.*, e.acompanyat as boolCompanyia, e.bus as boolBus, m.mote
              FROM assistencia a
              JOIN esdeveniments e ON a.id_esdeveniment = e.id
-             JOIN usuaris u ON u.id = a.id_usuari
+             JOIN membres_colla m ON m.id_usuari = a.id_usuari
              WHERE a.id_esdeveniment = $1
-             ORDER BY u.mote ASC`,
+             ORDER BY m.mote ASC`,
             [id_esdeveniment]
         );
 

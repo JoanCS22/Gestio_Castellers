@@ -37,8 +37,8 @@ const createNotification = async (req, res) => {
 
         const userName = await client.query(
             `SELECT mote
-             FROM usuaris
-             WHERE id = $1`,
+             FROM membres_colla
+             WHERE id_usuari = $1`,
             [userId]
         );
 

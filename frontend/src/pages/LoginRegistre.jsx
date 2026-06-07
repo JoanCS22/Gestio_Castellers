@@ -51,12 +51,10 @@ function LoginRegistre() {
                 setError("");
                 localStorage.clear();
                 localStorage.setItem("token", data.token);
-                localStorage.setItem("user", JSON.stringify(data.user));
+                localStorage.setItem("user", JSON.stringify(data.user));                
 
                 await reloadColles();
-
-                showTempMessage("Iniciant sessió...");
-                setTimeout(() => navigate("/dashboard"), 2000);
+                navigate("/dashboard");
             } else {
                 if (!validatePassword(password)) {
                     setError("La contrasenya ha de tenir mínim 8 caràcters, una lletra, un número i un símbol");
@@ -143,7 +141,7 @@ function LoginRegistre() {
 
                     {isLogin && (
                         <div className="forgot-link-row">
-                            <a href="#" className="forgot-link">
+                            <a className="forgot-link">
                                 Has oblidat la contrasenya?
                             </a>
                         </div>
