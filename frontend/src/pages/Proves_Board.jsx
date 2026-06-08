@@ -235,6 +235,18 @@ function ProvesBoard() {
         return () => window.removeEventListener("resize", update);
     }, [posicionsPlantilla, infoPlantilla]);
 
+    const membreDelMarcPerfil = useMemo(() => {
+        if (selectedMemberId) {
+            return members.find(m => m.id_usuari === selectedMemberId) || null;
+        }
+        if (selectedPositionId) {
+            const assignacio = assignacions.find(a => a.id_posicio === selectedPositionId);
+            if (!assignacio?.id_usuari) return null;
+            return members.find(m => m.id_usuari === assignacio.id_usuari) || null;
+        }
+        return null;
+    }, [selectedMemberId, selectedPositionId, members, assignacions]);
+
     const showTempMessage = (message, type = "success") => {
         setTempMessage({ message, type });
 
@@ -1049,49 +1061,65 @@ function ProvesBoard() {
                                 ))}
                             </div>
                         </div>
+                        <div className="create-prova-sections">
+                            {infoPlantilla.pinya && (
+                                <>
+                                    <div className={`select-section-prova ${selectedTag === "pinya" ? "active" : ""} `} onClick={() => {
+                                        setSelectedTag("pinya");
+                                        setSelectedPositionId(null);
+                                    }}>Pinya</div>
+                                </>
+                            )}
+                            {infoPlantilla.folre && (
+                                <>
+                                    <div className={`select-section-prova ${selectedTag === "folre" ? "active" : ""} `} onClick={() => {
+                                        setSelectedTag("folre");
+                                        setSelectedPositionId(null);
+                                    }}>Folre</div>
+                                </>
+                            )}
+                            {infoPlantilla.manilles && (
+                                <>
+                                    <div className={`select-section-prova ${selectedTag === "manilles" ? "active" : ""} `} onClick={() => {
+                                        setSelectedTag("manilles");
+                                        setSelectedPositionId(null);
+                                    }}>Manilles</div>
+                                </>
+                            )}
+                            {infoPlantilla.puntals && (
+                                <>
+                                    <div className={`select-section-prova ${selectedTag === "puntals" ? "active" : ""} `} onClick={() => {
+                                        setSelectedTag("puntals");
+                                        setSelectedPositionId(null);
+                                    }}>Puntals</div>
+                                </>
+                            )}
+                            {infoPlantilla.tronc && (
+                                <>
+                                    <div className={`select-section-prova ${selectedTag === "tronc" ? "active" : ""} `} onClick={() => {
+                                        setSelectedTag("tronc");
+                                        setSelectedPositionId(null);
+                                    }}>Tronc</div>
+                                </>
+                            )}
+                        </div>
                     </div>
-                    <div className="create-prova-sections">
-                        {infoPlantilla.pinya && (
-                            <>
-                                <div className={`select-section-prova ${selectedTag === "pinya" ? "active" : ""} `} onClick={() => {
-                                    setSelectedTag("pinya");
-                                    setSelectedPositionId(null);
-                                }}>Pinya</div>
-                            </>
-                        )}
-                        {infoPlantilla.folre && (
-                            <>
-                                <div className={`select-section-prova ${selectedTag === "folre" ? "active" : ""} `} onClick={() => {
-                                    setSelectedTag("folre");
-                                    setSelectedPositionId(null);
-                                }}>Folre</div>
-                            </>
-                        )}
-                        {infoPlantilla.manilles && (
-                            <>
-                                <div className={`select-section-prova ${selectedTag === "manilles" ? "active" : ""} `} onClick={() => {
-                                    setSelectedTag("manilles");
-                                    setSelectedPositionId(null);
-                                }}>Manilles</div>
-                            </>
-                        )}
-                        {infoPlantilla.puntals && (
-                            <>
-                                <div className={`select-section-prova ${selectedTag === "puntals" ? "active" : ""} `} onClick={() => {
-                                    setSelectedTag("puntals");
-                                    setSelectedPositionId(null);
-                                }}>Puntals</div>
-                            </>
-                        )}
-                        {infoPlantilla.tronc && (
-                            <>
-                                <div className={`select-section-prova ${selectedTag === "tronc" ? "active" : ""} `} onClick={() => {
-                                    setSelectedTag("tronc");
-                                    setSelectedPositionId(null);
-                                }}>Tronc</div>
-                            </>
-                        )}
-                    </div>
+                    {membreDelMarcPerfil && (
+                        <div
+                            className="marc-perfil-prova"
+                            style={{ top: `${topPanelBottom}px` }}
+                        >
+                            <div className="foto-marc-prova">
+                                <img src={membreDelMarcPerfil.foto || "/prueba.jpg"} alt="Foto de perfil" />
+                            </div>
+                            <div className="text-marc-prova-mote">
+                                {membreDelMarcPerfil.mote || "Sense mote."}
+                            </div>
+                            <div className="text-marc-prova-comentari">
+                                {membreDelMarcPerfil.comentari || "Comentari prova"}
+                            </div>
+                        </div>
+                    )}
                     <div className={`right-part-menu-desplegable ${showRightProves ? "open" : "closed"} `}
                         style={{ top: `${topPanelBottom + 12}px` }}>
 
