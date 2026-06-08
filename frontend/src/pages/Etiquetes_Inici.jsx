@@ -23,25 +23,25 @@ function Etiquetes() {
     const navigate = useNavigate();
     const { currentColla } = useColla();
 
-    const permissions        = getPermissions();
+    const permissions = getPermissions();
     const hasWritePermission = (key) => permissions[key] === "W";
-    const hasAccess          = (key) => permissions[key] !== "X";
+    const hasAccess = (key) => permissions[key] !== "X";
 
     const [message, setTempMessage] = useState(null);
-    const [error, setError]         = useState("");
+    const [error, setError] = useState("");
     const [selectedTag, setSelectedTag] = useState("posicions");
 
     const [positions, setPositions] = useState([]);
-    const [rols,      setRols]      = useState([]);
-    const [grups,     setGrups]     = useState([]);
+    const [rols, setRols] = useState([]);
+    const [grups, setGrups] = useState([]);
 
     const [showModalPosicions, setShowModalPosicions] = useState(false);
-    const [showModalRols,      setShowModalRols]      = useState(false);
-    const [showModalGroups,    setShowModalGroups]    = useState(false);
+    const [showModalRols, setShowModalRols] = useState(false);
+    const [showModalGroups, setShowModalGroups] = useState(false);
 
     const [newPositionTag, setNewPositionTag] = useState({ nom: "", descripcio: "", color: "#d3d3d3" });
-    const [newRoleTag,     setNewRoleTag]     = useState({ nom: "", descripcio: "" });
-    const [newGroupTag,    setNewGroupTag]    = useState({ nom: "", descripcio: "" });
+    const [newRoleTag, setNewRoleTag] = useState({ nom: "", descripcio: "" });
+    const [newGroupTag, setNewGroupTag] = useState({ nom: "", descripcio: "" });
 
     const defaultPermisos = {
         esdeveniments: "X", proves: "X", plantilles: "X", assistencia: "X",
@@ -49,18 +49,18 @@ function Etiquetes() {
     };
 
     const [permisos, setPermisos] = useState(defaultPermisos);
-    const [isCreate,  setCreate]  = useState(true);
+    const [isCreate, setCreate] = useState(true);
     const [currentPosition, setCurrentPosition] = useState(null);
-    const [currentRole,     setCurrentRole]     = useState(null);
-    const [currentGroup,    setCurrentGroup]    = useState(null);
+    const [currentRole, setCurrentRole] = useState(null);
+    const [currentGroup, setCurrentGroup] = useState(null);
     const [search, setSearch] = useState("");
 
     const isPosition = selectedTag === "posicions";
-    const isRole     = selectedTag === "rols";
-    const isGroup    = selectedTag === "grups";
+    const isRole = selectedTag === "rols";
+    const isGroup = selectedTag === "grups";
 
-    const updatePermiso  = (key, value) => setPermisos(prev => ({ ...prev, [key]: value }));
-    const resetPermisos  = () => setPermisos(defaultPermisos);
+    const updatePermiso = (key, value) => setPermisos(prev => ({ ...prev, [key]: value }));
+    const resetPermisos = () => setPermisos(defaultPermisos);
 
     const showTempMessage = (msg, type = "success") => {
         setTempMessage({ message: msg, type });
@@ -359,11 +359,11 @@ function Etiquetes() {
                         {error && <div className="error-message">{error}</div>}
 
                         <div className="modal-buttons-position">
-                            <button style={{ display:"inline-flex", alignItems:"center", gap:"8px", padding:"8px 16px", background:"var(--surface-container-high)", color:"var(--on-surface)", border:"none", borderRadius:"var(--radius-md)", fontFamily:"var(--font-base)", fontSize:"var(--text-label-md)", fontWeight:700, cursor:"pointer" }}
+                            <button style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 16px", background: "var(--surface-container-high)", color: "var(--on-surface)", border: "none", borderRadius: "var(--radius-md)", fontFamily: "var(--font-base)", fontSize: "var(--text-label-md)", fontWeight: 700, cursor: "pointer" }}
                                 onClick={() => { (isPosition ? setShowModalPosicions : setShowModalGroups)(false); setError(""); }}>
                                 <FaTimesCircle /> Cancel·lar
                             </button>
-                            <button style={{ display:"inline-flex", alignItems:"center", gap:"8px", padding:"8px 16px", background:"var(--primary)", color:"var(--on-primary)", border:"none", borderRadius:"var(--radius-md)", fontFamily:"var(--font-base)", fontSize:"var(--text-label-md)", fontWeight:700, cursor:"pointer", boxShadow:"var(--shadow-sm)" }}
+                            <button style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 16px", background: "var(--primary)", color: "var(--on-primary)", border: "none", borderRadius: "var(--radius-md)", fontFamily: "var(--font-base)", fontSize: "var(--text-label-md)", fontWeight: 700, cursor: "pointer", boxShadow: "var(--shadow-sm)" }}
                                 onClick={isCreate ? (isPosition ? createPosicioCall : createCollaGrups) : (isPosition ? updatePosicioCall : () => updateCollaGrups(currentGroup))}>
                                 {isCreate ? <><FaPlusSquare /> Afegir</> : <><FaSave /> Guardar</>}
                             </button>
@@ -405,11 +405,11 @@ function Etiquetes() {
                         {error && <div className="error-message">{error}</div>}
 
                         <div className="modal-buttons-role">
-                            <button style={{ display:"inline-flex", alignItems:"center", gap:"8px", padding:"8px 16px", background:"var(--surface-container-high)", color:"var(--on-surface)", border:"none", borderRadius:"var(--radius-md)", fontFamily:"var(--font-base)", fontSize:"var(--text-label-md)", fontWeight:700, cursor:"pointer" }}
+                            <button style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 16px", background: "var(--surface-container-high)", color: "var(--on-surface)", border: "none", borderRadius: "var(--radius-md)", fontFamily: "var(--font-base)", fontSize: "var(--text-label-md)", fontWeight: 700, cursor: "pointer" }}
                                 onClick={() => { setShowModalRols(false); setError(""); }}>
                                 <FaTimesCircle /> Cancel·lar
                             </button>
-                            <button style={{ display:"inline-flex", alignItems:"center", gap:"8px", padding:"8px 16px", background:"var(--primary)", color:"var(--on-primary)", border:"none", borderRadius:"var(--radius-md)", fontFamily:"var(--font-base)", fontSize:"var(--text-label-md)", fontWeight:700, cursor:"pointer", boxShadow:"var(--shadow-sm)" }}
+                            <button style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 16px", background: "var(--primary)", color: "var(--on-primary)", border: "none", borderRadius: "var(--radius-md)", fontFamily: "var(--font-base)", fontSize: "var(--text-label-md)", fontWeight: 700, cursor: "pointer", boxShadow: "var(--shadow-sm)" }}
                                 onClick={isCreate ? createCollaRoles : () => updateCollaRoles(currentRole)}>
                                 {isCreate ? <><FaPlusSquare /> Afegir rol</> : <><FaSave /> Guardar</>}
                             </button>

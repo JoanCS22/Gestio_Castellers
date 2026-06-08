@@ -13,6 +13,15 @@ const toDateOrNull = (value) => {
     return value;
 };
 
+const validatePassword = (password) => {
+    const minLength = password.length >= 8;
+    const hasLetter = /[A-Za-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>_-]/.test(password);
+
+    return minLength && hasLetter && hasNumber && hasSpecial;
+};
+
 const getUserData = async (req, res) => {
     try {
         const requestedUserId = req.query.userId;
@@ -128,7 +137,7 @@ const changePassword = async (req, res) => {
             SET contrasenya = $2 
             WHERE id = $1
             RETURNING *`,
-            [id_usuari, contrasenya]
+            [id_usuari, hashedPassword]
         );
 
         await client.query("COMMIT");
@@ -136,7 +145,7 @@ const changePassword = async (req, res) => {
     } catch (error) {
 
         console.error(error);
-        res.status(500).json({ message: 'Error al modificar les dades' });
+        res.status(500).json({ message: 'Error al modificar la contrasenya' });
     }
 };
 

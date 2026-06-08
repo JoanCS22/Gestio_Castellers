@@ -1,5 +1,5 @@
 import {
-    getData, updateData,
+    getData, updateData, modifyPassword,
 } from "../services/profileService.js";
 import {
     getDataMember, modifyMember, deleteMember,
@@ -19,6 +19,8 @@ import {
     FaIdCard, FaUsers
 } from "react-icons/fa";
 
+import { getPermissions } from "../utils/utils.jsx";
+
 import Input from "../components/Input";
 import TopMenu from "../components/TopMenu";
 import MultiSelectDropdown from "../components/MultiSelectDropdown";
@@ -29,6 +31,9 @@ function UserProfile() {
     const navigate = useNavigate();
     const location = useLocation();
     const { currentColla } = useColla();
+
+    const permissions = getPermissions();
+    const hasWritePermission = (key) => permissions[key] === "W";
 
     const params = new URLSearchParams(location.search);
     const userId = params.get("userId");
@@ -55,9 +60,20 @@ function UserProfile() {
     const [selectedGroups, setSelectedGroups] = useState([]);
     const [selectedRole, setSelectedRole] = useState("");
 
+    const [showModalContrasenya, setShowModalContrasenya] = useState(false);
+    const [newPasswordTag, setNEwPasswordTag] = useState({ newPassword: "", newPasswordRepeated: "" });
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
+    };
+
+    const validatePassword = (password) => {
+        const minLength = password.length >= 8;
+        const hasLetter = /[A-Za-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecial = /[!@#$%^&*(),.?":{}|<>_-]/.test(password);
+        return minLength && hasLetter && hasNumber && hasSpecial;
     };
 
     const showTempMessage = (msg, type = "success") => {
@@ -89,7 +105,7 @@ function UserProfile() {
                 telefon: data.telefon || "",
                 email: data.email || "", alcadaEspatlles: data.altura_espatlles || "",
                 envergadura: data.envergadura || "", pes: data.pes || "",
-                alcada: data.altura_total || "", dataLesio: data.data_lesio || "",
+                alcada: data.altura_total || "", dataLesio: data.data_lesio ? data.data_lesio.split("T")[0] : "",
                 infoExtra: data.comentari || "", mote: data.mote || "",
             });
             setLesionat(data.lesionat || false);
@@ -154,6 +170,23 @@ function UserProfile() {
             await deleteMember(currentColla.id, userId);
             showTempMessage("Usuari eliminat correctament de la colla.");
             setTimeout(() => navigate("/members"), 2000);
+        } catch (err) { handleApiError(err, navigate, setError); }
+    };
+
+    const modifyPasswordUser = async () => {
+        if (!validatePassword(newPasswordTag.newPassword)) {
+            setError("La contrasenya ha de tenir mínim 8 caràcters, una lletra, un número i un símbol");
+            return;
+        }
+        if (newPasswordTag.newPassword !== newPasswordTag.newPasswordRepeated) {
+            setError("La contrasenya ha de ser igual en els dos casos.")
+            return;
+        }
+        try {
+            await modifyPassword(userId, newPasswordTag.newPassword);
+            setError("");
+            setShowModalContrasenya(false);
+            showTempMessage("Contrasenya modificada correctament.");
         } catch (err) { handleApiError(err, navigate, setError); }
     };
 
@@ -341,18 +374,19 @@ function UserProfile() {
                         </div>
                     </div>
 
-                    {error && <div className="error-message">{error}</div>}
+                    {(error && !showModalContrasenya) && <div className="error-message">{error}</div>}
 
                     <div className="profile-actions">
-                        {isTecnica ? (
+                        {isTecnica && (
                             <button className="btn-profile-delete" type="button"
                                 onClick={deleteMemberFromColla}>
                                 <FaUserAltSlash /> Eliminar usuari
                             </button>
-                        ) : (
+                        )}
+                        {(hasWritePermission('colla') || !isTecnica) && (
                             <button className="btn-profile-cancel" type="button"
-                                onClick={() => alert("Funcionalitat encara no implementada.")}>
-                                <FaPencilAlt /> Canviar contrasenya
+                                onClick={() => { setError(""); setShowModalContrasenya(true); }}>
+                                <FaPencilAlt /> {(hasWritePermission('colla') && isTecnica) ? "Canviar contrasenya de l'usuari" : 'Canviar contrasenya'}
                             </button>
                         )}
 
@@ -373,6 +407,46 @@ function UserProfile() {
 
                 </div>
             </div>
+            {showModalContrasenya && (
+                <div className="modal-overlay-password">
+                    <div className="modal-password">
+                        <h2>Modificar contrasenya</h2>
+
+                        <div className="modal-field-password">
+                            <label>Contrasenya nova</label>
+                            <input
+                                type="password"
+                                placeholder="..."
+                                value={newPasswordTag.newPassword}
+                                onChange={e => setNEwPasswordTag({ ...newPasswordTag, newPassword: e.target.value })}
+                            />
+                        </div>
+
+                        <div className="modal-field-password">
+                            <label>Repeteix la contrasenya</label>
+                            <input
+                                type="password"
+                                placeholder="..."
+                                value={newPasswordTag.newPasswordRepeated}
+                                onChange={e => setNEwPasswordTag({ ...newPasswordTag, newPasswordRepeated: e.target.value })}
+                            />
+                        </div>
+
+                        {error && <div className="error-message">{error}</div>}
+
+                        <div className="modal-buttons-password">
+                            <button className="btn-profile-cancel" type="button"
+                                onClick={() => { setShowModalContrasenya(false); setError(""); }}>
+                                <FaTimesCircle /> Cancel·lar
+                            </button>
+                            <button className="btn-profile-save" type="button"
+                                onClick={modifyPasswordUser}>
+                                <FaSave /> Guardar contrasenya
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

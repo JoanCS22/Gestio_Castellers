@@ -378,3 +378,78 @@
     .profile-fields-grid--4 { grid-template-columns: 1fr; }
     .profile-colla-grid { grid-template-columns: 1fr; }
 }
+
+/* MODAL CANVI CONTRASENYA */
+
+.modal-overlay-password {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal-password {
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-xl);
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.modal-password h2 {
+    font-size: var(--text-headline-sm);
+    font-weight: var(--fw-headline-sm);
+    color: var(--on-surface);
+    margin: 0;
+}
+
+.modal-field-password {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.modal-field-password label {
+    font-size: var(--text-label-md);
+    font-weight: 600;
+    color: var(--on-surface-variant);
+}
+
+.modal-field-password input {
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-md);
+    font-family: var(--font-base);
+    font-size: var(--text-body-md);
+    background: var(--surface-container-low);
+    color: var(--on-surface);
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.modal-field-password input:focus {
+    border-color: var(--primary);
+}
+
+.modal-buttons-password {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+}
+
+.modal-password h2 {
+    font-size: var(--text-headline-md);
+    font-weight: 700;
+    color: var(--on-surface);
+    text-align: center;
+    margin: 0;
+}

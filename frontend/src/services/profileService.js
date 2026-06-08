@@ -42,7 +42,7 @@ export const updateData = async (userId, form, lesionat, genere, canalla, collaI
 
 export const modifyPassword = async (id_usuari, password) => {
     return await apiRequest(
-        `/changePassword`,
+        `/profile/changePassword`,
         {
             method: "POST",
             body: JSON.stringify({
