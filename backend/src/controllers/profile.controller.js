@@ -1,4 +1,5 @@
 const pool = require('../db');
+const bcrypt = require('bcrypt');
 
 const toIntOrNull = (value) => {
     if (value === "" || value === null || value === undefined) return null;
@@ -105,4 +106,38 @@ const modifyUserData = async (req, res) => {
     }
 };
 
-module.exports = { getUserData, modifyUserData };
+const changePassword = async (req, res) => {
+
+    const client = await pool.connect();
+    try {
+        const { id_usuari, contrasenya } = req.body;
+
+        if (!validatePassword(contrasenya)) {
+            return res.status(400).json({
+                message: "Contrasenya no segura (mínim 8 caràcters, una lletra, un número i un símbol)"
+            });
+        }
+
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(contrasenya, saltRounds);
+
+        await client.query("BEGIN");
+
+        const result = await pool.query(
+            `UPDATE usuaris 
+            SET contrasenya = $2 
+            WHERE id = $1
+            RETURNING *`,
+            [id_usuari, contrasenya]
+        );
+
+        await client.query("COMMIT");
+        res.status(200).json("result.rows[0]");
+    } catch (error) {
+
+        console.error(error);
+        res.status(500).json({ message: 'Error al modificar les dades' });
+    }
+};
+
+module.exports = { getUserData, modifyUserData, changePassword };

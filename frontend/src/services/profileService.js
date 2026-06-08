@@ -39,3 +39,16 @@ export const updateData = async (userId, form, lesionat, genere, canalla, collaI
         }
     );
 };
+
+export const modifyPassword = async (id_usuari, password) => {
+    return await apiRequest(
+        `/changePassword`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                id_usuari: id_usuari,
+                contrasenya: password,
+            }),
+        }
+    );
+};
