@@ -963,6 +963,8 @@ function ProvesBoard() {
 
                                 const assignacio = assignacions.find(a => a.id_usuari === member.id_usuari);
                                 const registre = numAssignacions.find(n => n.id_usuari === member.id_usuari) || 0;
+                                const assis = assistencia.find((a) => a.id_usuari === member.id_usuari);
+                                console.log(assis);
                                 const num_proves = registre.num_proves || 0;
 
                                 return (
@@ -982,6 +984,7 @@ function ProvesBoard() {
                                         </span>
 
                                         <div className="member-status">
+                                            {(assis?.arriba_tard || assis?.marxa_aviat) && (<FaClock />)}
                                             {member.canalla && (<FaGithubAlt />)}
                                             {member.lesionat && (<FaAmbulance />)}
                                             {getAssistenciaIcon(member.id_usuari)}
@@ -1104,22 +1107,40 @@ function ProvesBoard() {
                             )}
                         </div>
                     </div>
-                    {membreDelMarcPerfil && (
-                        <div
-                            className="marc-perfil-prova"
-                            style={{ top: `${topPanelBottom}px` }}
-                        >
-                            <div className="foto-marc-prova">
-                                <img src={membreDelMarcPerfil.foto || "/prueba.jpg"} alt="Foto de perfil" />
+                    {membreDelMarcPerfil && (() => {
+                        const assis = assistenciaMap[membreDelMarcPerfil.id_usuari];
+                        const tardOAviat = assis?.arriba_tard || assis?.marxa_aviat;
+                        const tardTitle = assis?.arriba_tard ? `Arriba ${assis.temps_tard}' tard` : "";
+                        const aviatTitle = assis?.marxa_aviat ? `Marxa ${assis.temps_aviat}' abans` : "";
+
+                        return (
+                            <div className="marc-perfil-prova" style={{ top: `${topPanelBottom}px` }}>
+                                <div className="foto-marc-prova">
+                                    <img src={membreDelMarcPerfil.foto || "/prueba.jpg"} alt="Foto de perfil" />
+                                </div>
+                                <div className="text-marc-prova-mote">
+                                    {membreDelMarcPerfil.mote || "Sense mote."}
+                                </div>
+                                {tardOAviat && (
+                                    <div className="text-marc-prova-clock">
+                                        {assis?.arriba_tard && (
+                                            <div className="text-marc-prova-clock-row">
+                                                <FaClock className="icon-pendent" /> {tardTitle}
+                                            </div>
+                                        )}
+                                        {assis?.marxa_aviat && (
+                                            <div className="text-marc-prova-clock-row">
+                                                <FaClock className="icon-pendent" /> {aviatTitle}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                <div className="text-marc-prova-comentari">
+                                    {membreDelMarcPerfil.comentari || "Comentari prova"}
+                                </div>
                             </div>
-                            <div className="text-marc-prova-mote">
-                                {membreDelMarcPerfil.mote || "Sense mote."}
-                            </div>
-                            <div className="text-marc-prova-comentari">
-                                {membreDelMarcPerfil.comentari || "Comentari prova"}
-                            </div>
-                        </div>
-                    )}
+                        );
+                    })()}
                     <div className={`right-part-menu-desplegable ${showRightProves ? "open" : "closed"} `}
                         style={{ top: `${topPanelBottom + 12}px` }}>
 

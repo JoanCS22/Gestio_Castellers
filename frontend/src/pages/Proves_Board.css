@@ -741,3 +741,21 @@
     padding-top: var(--space-xs);
     border-top: 1px solid var(--outline-variant);
 }
+
+.text-marc-prova-clock {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    padding: var(--space-xs) 0;
+    border-top: 1px solid var(--outline-variant);
+    border-bottom: 1px solid var(--outline-variant);
+}
+
+.text-marc-prova-clock-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--text-label-sm);
+    font-weight: 600;
+}

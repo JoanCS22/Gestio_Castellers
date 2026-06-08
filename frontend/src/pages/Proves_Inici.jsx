@@ -156,7 +156,7 @@ function ProvesInici() {
 
     return (
         <div>
-            <TopMenu title={`Proves ${nomEsdeveniment}`} tornar />
+            <TopMenu title={`Proves ${nomEsdeveniment}`} />
 
             {message && <div className={`message ${message.type}`}>{message.message}</div>}
 
