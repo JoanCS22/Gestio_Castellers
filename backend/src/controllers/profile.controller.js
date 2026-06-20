@@ -23,14 +23,14 @@ const validatePassword = (password) => {
 };
 
 const getUserData = async (req, res) => {
+    const client = await pool.connect();
     try {
         const requestedUserId = req.query.userId;
-        const loggedUserId = req.user.id;
+        const loggedUserId = req.user.id;   
         const userId = !requestedUserId || requestedUserId === "null" ? loggedUserId : requestedUserId;
-
         const collaId = req.query.collaId || null;
 
-        const result = await pool.query(
+        const result = await client.query(
             `SELECT u.*, mc.mote
              FROM usuaris u
              LEFT JOIN membres_colla mc 
@@ -45,11 +45,11 @@ const getUserData = async (req, res) => {
         }
 
         res.status(200).json(result.rows[0]);
-
     } catch (error) {
-
         console.error(error);
         res.status(500).json({ message: 'Error al rebre les dades' });
+    } finally {
+        client.release();
     }
 };
 
@@ -87,7 +87,7 @@ const modifyUserData = async (req, res) => {
 
         await client.query("BEGIN");
 
-        const result = await pool.query(
+        const result = await client.query(
             `UPDATE usuaris 
             SET nom = $2, cognoms = $3, telefon = $4, altura_espatlles = $5, envergadura = $6, pes = $7, 
             altura_total = $8, data_lesio = $9, comentari = $10, lesionat = $11, genere = $12, canalla = $13 
@@ -112,11 +112,12 @@ const modifyUserData = async (req, res) => {
 
         console.error(error);
         res.status(500).json({ message: 'Error al modificar les dades' });
+    } finally {
+        client.release();
     }
 };
 
 const changePassword = async (req, res) => {
-
     const client = await pool.connect();
     try {
         const { id_usuari, contrasenya } = req.body;
@@ -127,25 +128,23 @@ const changePassword = async (req, res) => {
             });
         }
 
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(contrasenya, saltRounds);
+        const hashedPassword = await bcrypt.hash(contrasenya, 10);
 
         await client.query("BEGIN");
 
-        const result = await pool.query(
-            `UPDATE usuaris 
-            SET contrasenya = $2 
-            WHERE id = $1
-            RETURNING *`,
+        const result = await client.query(
+            `UPDATE usuaris SET contrasenya = $2 WHERE id = $1 RETURNING *`,
             [id_usuari, hashedPassword]
         );
 
         await client.query("COMMIT");
-        res.status(200).json("result.rows[0]");
+        res.status(200).json(result.rows[0]);
     } catch (error) {
-
+        await client.query("ROLLBACK");
         console.error(error);
         res.status(500).json({ message: 'Error al modificar la contrasenya' });
+    } finally {
+        client.release();
     }
 };
 
