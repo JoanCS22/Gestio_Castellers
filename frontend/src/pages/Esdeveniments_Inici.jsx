@@ -17,21 +17,21 @@ import TopMenu from "../components/TopMenu";
 import "./Esdeveniments_Inici.css";
 
 const TIPUS_ICONS = {
-    assaig:   <FaDumbbell />,
+    assaig: <FaDumbbell />,
     actuacio: <FaRunning />,
-    altres:   <FaEllipsisH />,
+    altres: <FaEllipsisH />,
 };
 
 const BADGE_CLASS = {
-    assaig:   "event-type-badge--assaig",
+    assaig: "event-type-badge--assaig",
     actuacio: "event-type-badge--actuacio",
-    altres:   "event-type-badge--altres",
+    altres: "event-type-badge--altres",
 };
 
 const BADGE_LABEL = {
-    assaig:   "Assaig",
+    assaig: "Assaig",
     actuacio: "Actuació",
-    altres:   "Altres",
+    altres: "Altres",
 };
 
 function EsdevenimentsList() {
@@ -56,14 +56,14 @@ function EsdevenimentsList() {
         try {
             const data = await getCollesFutureEsdeveniments(currentColla.id);
             setFuturs(data);
-        } catch (err) { handleApiError(err, navigate, () => {}); }
+        } catch (err) { handleApiError(err, navigate, () => { }); }
     };
 
     const loadPastEsdeveniments = async () => {
         try {
             const data = await getCollesPastEsdeveniments(currentColla.id);
             setPassats(data);
-        } catch (err) { handleApiError(err, navigate, () => {}); }
+        } catch (err) { handleApiError(err, navigate, () => { }); }
     };
 
     useEffect(() => {
@@ -124,8 +124,8 @@ function EsdevenimentsList() {
                             >
                                 {f === "tots" ? "Tots"
                                     : f === "assaig" ? "Assajos"
-                                    : f === "actuacio" ? "Actuacions"
-                                    : "Altres"}
+                                        : f === "actuacio" ? "Actuacions"
+                                            : "Altres"}
                             </button>
                         ))}
                     </div>
@@ -226,29 +226,32 @@ function EsdevenimentsList() {
                                                         </button>
                                                     )}
 
-                                                    {hasWritePermission("colla") && (
-                                                        <button
-                                                            className="event-action-btn"
-                                                            title="Modificar"
-                                                            onClick={() => navigate(`/modify_esdeveniment?idEsdeveniment=${e.id}`)}
-                                                        >
-                                                            <FaPencilAlt />
-                                                        </button>
+                                                    {isFuturs && (
+                                                        <>
+                                                            {hasWritePermission("colla") && (
+                                                                <button
+                                                                    className="event-action-btn"
+                                                                    title="Modificar"
+                                                                    onClick={() => navigate(`/modify_esdeveniment?idEsdeveniment=${e.id}`)}
+                                                                >
+                                                                    <FaPencilAlt />
+                                                                </button>
+                                                            )}
+                                                            <button
+                                                                className="event-action-btn"
+                                                                title="Assistència"
+                                                                onClick={() => {
+                                                                    if (hasWritePermission("assistencia")) {
+                                                                        navigate(`/assistencia?idEsdeveniment=${e.id}&nomEsdeveniment=${encodeURIComponent(e.nom)}`);
+                                                                    } else if (hasAccess("assistencia")) {
+                                                                        navigate(`/assistencia_usuari?idEsdeveniment=${e.id}`);
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <FaUserEdit />
+                                                            </button>
+                                                        </>
                                                     )}
-
-                                                    <button
-                                                        className="event-action-btn"
-                                                        title="Assistència"
-                                                        onClick={() => {
-                                                            if (hasWritePermission("assistencia")) {
-                                                                navigate(`/assistencia?idEsdeveniment=${e.id}&nomEsdeveniment=${encodeURIComponent(e.nom)}`);
-                                                            } else if (hasAccess("assistencia")) {
-                                                                navigate(`/assistencia_usuari?idEsdeveniment=${e.id}`);
-                                                            }
-                                                        }}
-                                                    >
-                                                        <FaUserEdit />
-                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>

@@ -68,6 +68,7 @@ function Notificacions() {
             setError("");
             setShowModal(false);
             setModalTags({ titol: "", missatge: "", data_programacio: getToday() });
+            setSelectedGroups([]);
             await loadNotifications();
             showTempMessage("Notificació enviada correctament.");
         } catch (err) { handleApiError(err, navigate, setError); }

@@ -53,7 +53,6 @@ function PlantillesCrear() {
     const dragStart = useRef({ x: 0, y: 0 });
     const isDragging = useRef(false);
 
-    /* scroll drag del canvas */
     const scrollStart = useRef({ x: 0, y: 0, sl: 0, st: 0 });
     const isScrollDragging = useRef(false);
 
@@ -67,7 +66,6 @@ function PlantillesCrear() {
         setCurrentAddedPosition(prev => ({ ...prev, [name]: value }));
     };
 
-    /* ── Càrregues ─────────────────────────────────────────────── */
     const loadPlantillaById = async () => {
         try {
             const data = await getPlantillaById(idPlantilla);
@@ -86,7 +84,6 @@ function PlantillesCrear() {
         catch (err) { handleApiError(err, navigate, setError); }
     };
 
-    /* ── Accions ────────────────────────────────────────────────── */
     const addPosition = async () => {
         const selectedPositionData = positions.find(p => String(p.id) === String(currentPosition));
         if (!selectedPositionData) { setError("Cal emplenar la posició."); return; }
@@ -94,6 +91,7 @@ function PlantillesCrear() {
             const data = await addPositionToPlantilla(idPlantilla, selectedPositionData, currentAddedPosition, selectedTag);
             setSelectedPositionId(data.id);
             await loadPlantillesPositions();
+            setNewPosition(false);
             setError("");
         } catch (err) { handleApiError(err, navigate, setError); }
     };
@@ -113,6 +111,9 @@ function PlantillesCrear() {
             showTempMessage("Posició eliminada correctament.");
             await loadPlantillesPositions();
             setSelectedPositionId(null);
+            setNewPosition(true);
+            setRelatedPositionId(null);
+            setCurrentPosition("");
         } catch (err) { handleApiError(err, navigate, setError); }
     };
 
@@ -147,9 +148,8 @@ function PlantillesCrear() {
         if (selected) setRelatedPositionId(selected.id_posicio_up);
     }, [posicionsPlantilla, selectedPositionId]);
 
-    /* Scroll drag handlers pel canvas */
     const handleBoardMouseDown = (e) => {
-        if (e.target !== boardRef.current) return; /* només fons */
+        if (e.target !== boardRef.current) return;
         isScrollDragging.current = true;
         scrollStart.current = {
             x: e.clientX, y: e.clientY,
@@ -400,12 +400,12 @@ function PlantillesCrear() {
                                             ${isRelating ? "relating-bloc" : ""}
                                         `}
                                         onClick={() => {
-                                            if (isShown) { setSelectedPositionId(null); setNewPosition(true); setCurrentPosition(""); return; }
+                                            if (isShown) { setSelectedPositionId(null); setRelatedPositionId(null); setNewPosition(true); setCurrentPosition(""); return; }
                                             if (isRelating) { changeUpperRelation(selectedPositionId, posicio.id); return; }
                                             if (isDragging.current) return;
 
                                             if (selectedPositionId === posicio.id) {
-                                                setSelectedPositionId(null); setNewPosition(true); setCurrentPosition(""); return;
+                                                setSelectedPositionId(null); setNewPosition(true); setRelatedPositionId(null); setCurrentPosition(""); return;
                                             }
                                             setCurrentPosition(String(posicio.position_id || posicio.id));
                                             setSelectedPositionId(posicio.id);
