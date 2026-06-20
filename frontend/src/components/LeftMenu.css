@@ -60,7 +60,7 @@
     margin-top: var(--space-sm);
 }
 
-/* Header del menú (logo + títol) */
+/* Header del menú (logo) */
 .menu-foto {
     display: flex;
     flex-direction: column;
@@ -72,7 +72,7 @@
 
 .menu-foto img {
     width: 100%;
-    height: 110px;
+    height: 200px;
     object-fit: cover;
     border-radius: var(--radius-lg);
     cursor: pointer;
@@ -80,13 +80,6 @@
 }
 
 .menu-foto img:hover { opacity: 0.85; }
-
-.menu-title {
-    font-size: var(--text-headline-md);
-    font-weight: 700;
-    color: var(--primary);
-    letter-spacing: -0.01em;
-}
 
 /* Àrea de navegació (scrollable) */
 .menu-content {

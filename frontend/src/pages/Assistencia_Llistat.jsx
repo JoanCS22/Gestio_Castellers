@@ -228,7 +228,7 @@ const LlistatAssistencia = () => {
                             <tbody>
                                 {filtered.map(assist => (
                                     <tr key={assist.id}>
-                                        <td><span className="cell-mote">{assist.mote}</span></td>
+                                        <td><img src="/prueba.jpg" alt="" width="30px" /><span className="cell-mote">{assist.mote}</span></td>
 
                                         <td
                                             className={`center ${loadingIds.includes(assist.id) ? "loading-assistencia" : ""}`}

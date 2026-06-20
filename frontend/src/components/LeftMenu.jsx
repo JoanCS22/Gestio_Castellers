@@ -57,7 +57,7 @@ const LeftMenu = () => {
                 <>
                     <div className="menu-foto">
                         <img
-                            src="LogoPlaca.png"
+                            src="logo.png"
                             alt="Logo La Plaça"
                             title="Menú principal"
                             onClick={() => {
@@ -65,7 +65,6 @@ const LeftMenu = () => {
                                 navigate("/dashboard");
                             }}
                         />
-                        <span className="menu-title">La Plaça</span>
                     </div>
 
                     <nav className="menu-content">

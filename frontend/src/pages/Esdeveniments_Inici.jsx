@@ -42,7 +42,7 @@ function EsdevenimentsList() {
     const hasWritePermission = (key) => permissions[key] === "W";
     const hasAccess = (key) => permissions[key] !== "X";
 
-    const [selectedTab, setSelectedTab] = useState("passats");
+    const [selectedTab, setSelectedTab] = useState("futurs");
     const [activeFilter, setActiveFilter] = useState("tots");
     const [search, setSearch] = useState("");
 
