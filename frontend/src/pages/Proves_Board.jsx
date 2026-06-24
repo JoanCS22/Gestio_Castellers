@@ -110,6 +110,7 @@ function ProvesBoard() {
         xarxa: false,
         public: false
     });
+
     const [selectedPlantilla, setSelectedPlantilla] = useState("");
 
     const [plantilles, setPlantilles] = useState([]);
@@ -867,7 +868,7 @@ function ProvesBoard() {
                                 <div className="icon-btn" title="Editar informació prova" onClick={() => {
                                     setModalTags({
                                         nom: provaInfo.nom,
-                                        descripcio: provaInfo.descripcio,
+                                        descripcio: provaInfo.comentari,
                                         estructura: provaInfo.estructura,
                                         xarxa: provaInfo.xarxa,
                                         public: provaInfo.public,
@@ -964,7 +965,6 @@ function ProvesBoard() {
                                 const assignacio = assignacions.find(a => a.id_usuari === member.id_usuari);
                                 const registre = numAssignacions.find(n => n.id_usuari === member.id_usuari) || 0;
                                 const assis = assistencia.find((a) => a.id_usuari === member.id_usuari);
-                                console.log(assis);
                                 const num_proves = registre.num_proves || 0;
 
                                 return (

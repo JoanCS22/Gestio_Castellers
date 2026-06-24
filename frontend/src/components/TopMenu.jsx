@@ -24,6 +24,7 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
   const [open, setOpen] = useState(false)
   const [open_colla, setOpenColla] = useState(false);
   const [message, setTempMessage] = useState(null);
+  const [error, setError] = useState("");
 
   const [title_colla, setTitle] = useState('Crear nova colla');
 
@@ -49,14 +50,15 @@ function TopMenu({ title = "text", tornar = false, tornar_action,
 
   const getMemberPermissionsCall = async () => {
     try {
-      if(!currentColla.id) {
+      if (!currentColla?.id) {
         return;
       }
-      
       const data = await getMemberPermissions(currentColla.id);
-      localStorage.setItem("permissions", JSON.stringify(data.permisos));
+      if (data && data.permisos) {
+        localStorage.setItem("permissions", JSON.stringify(data.permisos));
+      }
     } catch (err) {
-      handleApiError(err, navigate, setError);
+      console.error(err);
     }
   }
 

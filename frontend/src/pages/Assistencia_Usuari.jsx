@@ -19,25 +19,25 @@ import './Assistencia_Usuari.css';
 import TopMenu from "../components/TopMenu";
 
 const AssistenciaUsuari = () => {
-    const navigate  = useNavigate();
-    const location  = useLocation();
+    const navigate = useNavigate();
+    const location = useLocation();
     const { currentColla } = useColla();
 
-    const params          = new URLSearchParams(location.search);
+    const params = new URLSearchParams(location.search);
     const id_esdeveniment = params.get("idEsdeveniment");
-    const initial_state   = params.get("estatInicial");
+    const initial_state = params.get("estatInicial");
 
-    const [message, setTempMessage]   = useState(null);
-    const [error, setError]           = useState("");
-    const [showModal, setShowModal]   = useState(false);
-    const [modalText, setModalText]   = useState("");
+    const [message, setTempMessage] = useState(null);
+    const [error, setError] = useState("");
+    const [showModal, setShowModal] = useState(false);
+    const [modalText, setModalText] = useState("");
 
     const [currentEsdeveniment, setCurrentEsdeveniment] = useState({
         nom: "", data: "", hora: "", codi: ""
     });
     const [acompanyat, setAcompanyat] = useState(false);
-    const [bus,        setBus]        = useState(false);
-    const [tipus,      setTipus]      = useState("Assaig");
+    const [bus, setBus] = useState(false);
+    const [tipus, setTipus] = useState("Assaig");
 
     const [currentAssistance, setCurrentAssistance] = useState({
         id: 0, comentari: "", num_acompanyants: 0, temps_tard: 0, temps_aviat: 0
@@ -45,8 +45,8 @@ const AssistenciaUsuari = () => {
 
     const [assistenciaSeleccionada, setAssistenciaSeleccionada] = useState(null);
     const [busAssistencia, setBusAssistencia] = useState(false);
-    const [arribaTard,     setArribaTard]     = useState(false);
-    const [marxaAviat,     setMarxaAviat]     = useState(false);
+    const [arribaTard, setArribaTard] = useState(false);
+    const [marxaAviat, setMarxaAviat] = useState(false);
 
     const showTempMessage = (msg, type = "success") => {
         setTempMessage({ message: msg, type });
@@ -256,7 +256,7 @@ const AssistenciaUsuari = () => {
                         />
                     </div>
 
-                    {error && <div className="error-message">{error}</div>}
+                    {(error && !showModal) && <div className="error-message">{error}</div>}
 
                     <div className="assistencia-actions">
                         <button className="btn-save-assistencia" type="button" onClick={modifyAssistenciaPreviaCall}>
@@ -299,7 +299,11 @@ const AssistenciaUsuari = () => {
                         </div>
                         {error && <div className="error-message">{error}</div>}
                         <div className="modal-buttons-assistencia">
-                            <button className="btn-confirm-assistencia" onClick={() => { setShowModal(false); setError(""); }}>
+                            <button className="btn-confirm-assistencia" onClick={() => {
+                                setShowModal(false);
+                                setError("");
+                                setModalText("");
+                            }}>
                                 <FaTimesCircle /> Cancel·lar
                             </button>
                             <button className="btn-save-assistencia" onClick={verifyCodeCall}>

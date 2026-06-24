@@ -20,8 +20,8 @@ import { useColla } from "./context/CollaContext.jsx";
 
 function App() {
   const { loadingColles } = useColla();
-
   if (loadingColles) {
+    console.log("Loading colles")
     return <div>Carregant...</div>;
   }
 
