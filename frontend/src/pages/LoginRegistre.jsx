@@ -51,11 +51,11 @@ function LoginRegistre() {
                 setError("");
                 localStorage.clear();
                 localStorage.setItem("token", data.token);
-                localStorage.setItem("user", JSON.stringify(data.user));                
+                localStorage.setItem("user", JSON.stringify(data.user));
+                showTempMessage("Iniciant sessió...");
 
-                await reloadColles();
-                setTempMessage("Iniciant sessió...");
-                setTimeout(() => navigate("/dashboard"), 1500);
+                reloadColles();
+                setTimeout(() => navigate("/dashboard"), 2000);
             } else {
                 if (!validatePassword(password)) {
                     setError("La contrasenya ha de tenir mínim 8 caràcters, una lletra, un número i un símbol");
@@ -142,9 +142,9 @@ function LoginRegistre() {
 
                     {isLogin && (
                         <div className="forgot-link-row">
-                            <a className="forgot-link">
+                            <button type="button" className="forgot-link">
                                 Has oblidat la contrasenya?
-                            </a>
+                            </button>
                         </div>
                     )}
 
@@ -178,14 +178,6 @@ function LoginRegistre() {
                     </div>
                 )}
             </div>
-
-            <footer className="login-footer">
-                <p>© 2024 CastellersHub · Desenvolupat per a la comunitat castellera</p>
-                <div className="login-footer-links">
-                    <a href="#">Privacitat</a>
-                    <a href="#">Suport</a>
-                </div>
-            </footer>
 
         </div>
     );

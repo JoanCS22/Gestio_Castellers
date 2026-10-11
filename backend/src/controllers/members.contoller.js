@@ -192,6 +192,12 @@ const modifyMember = async (req, res) => {
             );
         }
 
+        await client.query(
+            `DELETE FROM grup_usuari
+             WHERE id_usuari = $1 AND id_colla = $2`,
+            [userId, collaActiva]
+        );
+
         if (ids_grups.length > 0) {
             for (let i = 0; i < ids_grups.length; i++) {
                 await client.query(
@@ -261,7 +267,7 @@ const getMemberPermissions = async (req, res) => {
         const result = await pool.query(
             `SELECT r.permisos 
              FROM rols r, membres_colla mc 
-             WHERE mc.id_usuari = $1 AND (r.id_colla = $2 OR r.nom in ('Administrador', 'Membre')) 
+             WHERE mc.id_usuari = $1 AND (r.id_colla = $2 OR r.nom in ('Administrador', 'Membre', 'Tècnica')) 
              AND mc.id_rol = r.id`,
             [loggedUserId, collaActiva]
         );

@@ -275,7 +275,7 @@ const getCollaRoles = async (req, res) => {
         const collaActiva = req.query.id;
 
         const result = await pool.query(
-            `SELECT * FROM rols WHERE (id_colla = $1 OR nom in ('Administrador', 'Membre'))`,
+            `SELECT * FROM rols WHERE (id_colla = $1 OR nom in ('Administrador', 'Membre', 'Tècnica'))`,
             [collaActiva]
         );
 

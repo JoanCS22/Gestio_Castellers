@@ -201,21 +201,21 @@ function ProvesInici() {
                     </div>
 
                     <div className="proves-toolbar-right">
-                        {hasAccess("proves") && (
-                            <button
-                                className="btn-proves-secondary"
-                                onClick={() => navigate(`/proves_llistat?idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`)}
-                            >
-                                <FaClipboardList /> Llistat de proves
-                            </button>
-                        )}
                         {hasWritePermission("proves") && (
-                            <button
-                                className="btn-proves-primary"
-                                onClick={() => setShowModal(true)}
-                            >
-                                <FaPlusSquare /> Afegir prova
-                            </button>
+                            <>
+                                <button
+                                    className="btn-proves-secondary"
+                                    onClick={() => navigate(`/proves_llistat?idEsdeveniment=${idEsdeveniment}&nomEsdeveniment=${encodeURIComponent(nomEsdeveniment)}`)}
+                                >
+                                    <FaClipboardList /> Llistat de proves
+                                </button>
+                                <button
+                                    className="btn-proves-primary"
+                                    onClick={() => setShowModal(true)}
+                                >
+                                    <FaPlusSquare /> Afegir prova
+                                </button>
+                            </>
                         )}
                     </div>
                 </div>
@@ -245,7 +245,9 @@ function ProvesInici() {
                                         <span
                                             className="prova-badge prova-badge--feta"
                                             title="Prova feta"
-                                            onClick={() => changeFeta(prova.id, prova.feta)}
+                                            onClick={() => {
+                                                if (hasWritePermission("proves")) { changeFeta(prova.id, prova.feta) }
+                                            }}
                                             style={{ cursor: "pointer" }}
                                         >
                                             <FaCheckCircle /> Completada
@@ -256,7 +258,9 @@ function ProvesInici() {
                                                 <span
                                                     className="prova-badge prova-badge--cancelada"
                                                     title="Prova cancelada"
-                                                    onClick={() => changeFeta(prova.id, prova.feta)}
+                                                    onClick={() => {
+                                                        if (hasWritePermission("proves")) { changeFeta(prova.id, prova.feta) }
+                                                    }}
                                                     style={{ cursor: "pointer" }}
                                                 >
                                                     <FaTimesCircle /> Cancelada
@@ -265,7 +269,9 @@ function ProvesInici() {
                                                 <span
                                                     className="prova-badge prova-badge--pendent"
                                                     title="Prova pendent de fer"
-                                                    onClick={() => changeFeta(prova.id, prova.feta)}
+                                                    onClick={() => {
+                                                        if (hasWritePermission("proves")) { changeFeta(prova.id, prova.feta) }
+                                                    }}
                                                     style={{ cursor: "pointer" }}
                                                 >
                                                     <FaClock /> Pendent
@@ -275,13 +281,19 @@ function ProvesInici() {
                                     )}
                                 </div>
 
-                                <button
-                                    className={`btn-favorit ${prova.favorita ? "btn-favorit--actiu" : ""}`}
-                                    title={prova.favorita ? "Treure de favorits" : "Afegir a favorits"}
-                                    onClick={() => changeFavorite(prova.id, !prova.favorita)}
-                                >
-                                    <FaStar />
-                                </button>
+                                {hasWritePermission("proves") && (
+
+                                    <button
+                                        className={`btn-favorit ${prova.favorita ? "btn-favorit--actiu" : ""}`}
+                                        title={prova.favorita ? "Treure de favorits" : "Afegir a favorits"}
+                                        onClick={() => {
+                                            changeFavorite(prova.id, !prova.favorita)
+                                        }}
+                                    >
+                                        <FaStar />
+                                    </button>
+                                )}
+
                             </div>
                         </div>
                     ))}

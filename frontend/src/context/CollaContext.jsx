@@ -21,7 +21,6 @@ export const CollaProvider = ({ children }) => {
         }
 
         try {
-            setLoadingColles(true);
             const data = await getCollesUser();
 
             if (!Array.isArray(data) || data.length === 0) {

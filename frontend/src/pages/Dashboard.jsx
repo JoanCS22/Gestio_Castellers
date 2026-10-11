@@ -12,7 +12,7 @@ import { getPermissions } from "../utils/utils.jsx";
 import {
     FaPencilAlt, FaUsers, FaRegEye, FaCalendarAlt, FaCheck, FaTimes, FaCommentDots,
     FaQuestion, FaBandAid, FaClipboardList, FaHashtag, FaCheckCircle, FaTimesCircle,
-    FaClock
+    FaClock, FaPlusSquare
 } from "react-icons/fa";
 
 import TopMenu from "../components/TopMenu";
@@ -151,7 +151,7 @@ function Dashboard() {
                     <div className="dashboard-card">
                         <div className="dashboard-card-header">
                             <span className="dashboard-card-label">Assistència Proper Assaig</span>
-                            {primerEsdeveniment && (
+                            {(primerEsdeveniment && hasWritePermission("assistencia")) && (
                                 <span
                                     className="dashboard-card-link"
                                     onClick={() => navigate(`/assistencia?idEsdeveniment=${primerEsdeveniment.id}&nomEsdeveniment=${encodeURIComponent(primerEsdeveniment.nom)}`)}
@@ -229,12 +229,12 @@ function Dashboard() {
                     <div className="dashboard-card dashboard-card--proves">
                         <div className="dashboard-card-header">
                             <span className="dashboard-card-label">Proves previstes</span>
-                            {primerEsdeveniment && hasWritePermission("proves") && (
+                            {primerEsdeveniment && (
                                 <span
                                     className="dashboard-card-link"
                                     onClick={() => navigate(`/proves?idEsdeveniment=${primerEsdeveniment.id}&nomEsdeveniment=${encodeURIComponent(primerEsdeveniment.nom)}`)}
                                 >
-                                    <FaPencilAlt /> Gestionar proves
+                                    <FaPencilAlt /> Llistat de proves
                                 </span>
                             )}
                         </div>
@@ -274,7 +274,7 @@ function Dashboard() {
                                                     className="prova-card prova-card--add"
                                                     onClick={() => navigate(`/proves?idEsdeveniment=${primerEsdeveniment.id}&nomEsdeveniment=${encodeURIComponent(primerEsdeveniment.nom)}`)}
                                                 >
-                                                    <FaCheckCircle className="prova-card-add-icon" />
+                                                    <FaPlusSquare className="prova-card-add-icon" />
                                                     <span>Afegir prova</span>
                                                 </div>
                                             )}

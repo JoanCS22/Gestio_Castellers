@@ -10,11 +10,12 @@ const getAssistenciaList = async (req, res) => {
 
         const result = await client.query(
             `SELECT a.*, e.acompanyat as boolCompanyia, e.bus as boolBus, m.mote
-             FROM assistencia a
-             JOIN esdeveniments e ON a.id_esdeveniment = e.id
-             JOIN membres_colla m ON m.id_usuari = a.id_usuari
-             WHERE a.id_esdeveniment = $1
-             ORDER BY m.mote ASC`,
+            FROM assistencia a
+            JOIN esdeveniments e ON a.id_esdeveniment = e.id
+            JOIN membres_colla m ON m.id_usuari = a.id_usuari 
+                AND m.id_colla = e.id_colla
+            WHERE a.id_esdeveniment = $1
+            ORDER BY m.mote ASC`,
             [id_esdeveniment]
         );
 
@@ -68,7 +69,7 @@ const modifyAssistenciaPrevia = async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { confirmacio_previa, bus, num_acompanyants, arriba_tard, marxa_aviat, 
+        const { confirmacio_previa, bus, num_acompanyants, arriba_tard, marxa_aviat,
             comentari, temps_tard, temps_aviat } = req.body;
 
         const id_assistencia = req.query.id;
@@ -80,7 +81,7 @@ const modifyAssistenciaPrevia = async (req, res) => {
              SET confirmacio_previa = $2, bus = $3, num_acompanyants = $4, arriba_tard = $5, marxa_aviat = $6, 
              comentari = $7, temps_tard = $8, temps_aviat=$9, data_actualitzacio = NOW()
              WHERE id = $1`,
-            [id_assistencia, confirmacio_previa, bus, num_acompanyants, arriba_tard, 
+            [id_assistencia, confirmacio_previa, bus, num_acompanyants, arriba_tard,
                 marxa_aviat, comentari, temps_tard, temps_aviat]
         );
 

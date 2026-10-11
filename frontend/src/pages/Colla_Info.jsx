@@ -18,7 +18,7 @@ import "./Colla_Info.css";
 function CollaInfo() {
     const navigate  = useNavigate();
     const location  = useLocation();
-    const { currentColla } = useColla();
+    const { currentColla, reloadColles } = useColla();
 
     const permissions        = getPermissions();
     const hasWritePermission = (key) => permissions[key] === "W";
@@ -52,6 +52,7 @@ function CollaInfo() {
             const data = await createColla(form);
             setError("");
             localStorage.setItem("id_colla", data.id);
+            await reloadColles();
             showTempMessage("Colla creada correctament.");
             navigate("/get_data_colla");
         } catch (err) { handleApiError(err, navigate, setError); }

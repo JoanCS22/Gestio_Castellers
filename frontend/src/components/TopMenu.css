@@ -32,6 +32,26 @@
     font-weight: var(--fw-headline-md);
     color: var(--on-surface);
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.center-content {
+    justify-content: center;
+    min-width: 0;     
+    overflow: hidden;
+}
+
+@media (max-width: 600px) {
+    .center-content h1 {
+        font-size: var(--text-title-md);
+    }
+
+    .user-wrapper span {
+        display: none; 
+    }
 }
 
 /* Selector de colla */
